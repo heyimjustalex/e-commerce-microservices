@@ -10,4 +10,3 @@ class UserLogin(BaseModel):
     
 class UserRegisterResponse(BaseModel):
     email: str
-    message: str

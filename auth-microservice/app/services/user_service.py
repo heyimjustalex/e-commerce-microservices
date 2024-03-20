@@ -18,23 +18,26 @@ def is_email_valid(email: str) -> bool:
 
 class UserService:
     def __init__(self, repository:UserRepository) -> None:
-        self.repostiory: UserRepository = repository
+        self.repository: UserRepository = repository
 
-    def create_user(self, email:str, password:str) -> None:
+    def create_user(self, email:str, password:str) -> User:
         if not is_email_valid(email):
             raise UserEmailIncorrectFormat()
-        if self.repostiory.get_user_by_email(email):
+        if self.repository.get_user_by_email(email):
             raise UserAlreadyExists()
             
         password_hash: str = sha256(password.encode('utf-8')).hexdigest()
-        user:User = User(email=email,password_hash=password_hash)
-        self.repostiory.create_user(user)
+        user:User = User(email=email,password_hash=password_hash)   
+        user = self.repository.create_user(user)
+        return user
+
+
     
     def check_user_credentials(self, email:str, password:str) -> User:
         if not is_email_valid(email):
             raise UserEmailIncorrectFormat()
         
-        user:Union[User,None] = self.repostiory.get_user_by_email(email)
+        user:Union[User,None] = self.repository.get_user_by_email(email)
         
         if not user:
             raise UserInvalidCredentials()

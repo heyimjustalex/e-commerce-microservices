@@ -7,7 +7,7 @@ username : Union[str, None]  = os.getenv('DB_USERNAME')
 password : Union[str, None]  = os.getenv('DB_PASSWORD')
 db_name:  Union[str, None]  = os.getenv('DB_NAME')
 port: int = int(os.getenv('DB_PORT', '27017')) 
-
+test_environment : bool = bool(os.getenv('TEST_ENV',False))
 
 class Connector:
     _client: Union[MongoClient, None]  = None

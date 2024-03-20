@@ -1,15 +1,18 @@
 from fastapi.responses import JSONResponse
 from fastapi import  Request
 from app.exceptions.definitions import *
+
 async def user_already_exists_exception_handler(request: Request, exc:UserAlreadyExists):
     return JSONResponse(
         status_code=exc.status_code,
-        content=exc.detail
+        content={'detail':exc.detail}
     )
-    
-async def user_not_found_exception_handler(request: Request, exc:UserAlreadyExists):
+
+async def user_register_email_bad_format_exception_handler(request: Request, exc:UserEmailIncorrectFormat):
     return JSONResponse(
         status_code=exc.status_code,
-        content=exc.detail
+        content={'detail':exc.detail}
     )
+    
+
     
