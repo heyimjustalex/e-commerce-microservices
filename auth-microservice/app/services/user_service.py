@@ -4,11 +4,11 @@ from pymongo.database import Database
 from app.repositories.user_repository import UserRepository
 from app.models.models import User
 from hashlib import sha256
-from app.exceptions.definitions import UserAlreadyExists, IncorrectEmailFormat
-from fastapi import status, HTTPException
+from app.exceptions.definitions import UserAlreadyExists, UserEmailIncorrectFormat, UserInvalidCredentials
+from typing import Union
+
 
 email_regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
-
 
 def is_email_valid(email: str) -> bool:
     if re.fullmatch(email_regex, email):
@@ -22,13 +22,28 @@ class UserService:
 
     def create_user(self, email:str, password:str) -> None:
         if not is_email_valid(email):
-            raise IncorrectEmailFormat(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="This e-mail is not acceptable")
+            raise UserEmailIncorrectFormat()
         if self.repostiory.get_user_by_email(email):
-            raise UserAlreadyExists(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="This e-mail is not acceptable")
+            raise UserAlreadyExists()
             
         password_hash: str = sha256(password.encode('utf-8')).hexdigest()
         user:User = User(email=email,password_hash=password_hash)
         self.repostiory.create_user(user)
+    
+    def check_user_credentials(self, email:str, password:str) -> User:
+        if not is_email_valid(email):
+            raise UserEmailIncorrectFormat()
+        
+        user:Union[User,None] = self.repostiory.get_user_by_email(email)
+        
+        if not user:
+            raise UserInvalidCredentials()
+        if sha256(password.encode('utf-8')).hexdigest() != user.password_hash:
+            raise UserInvalidCredentials()
+        return user
+
+        
+        
 
   
     

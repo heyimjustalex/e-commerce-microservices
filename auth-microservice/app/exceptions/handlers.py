@@ -6,3 +6,10 @@ async def user_already_exists_exception_handler(request: Request, exc:UserAlread
         status_code=exc.status_code,
         content=exc.detail
     )
+    
+async def user_not_found_exception_handler(request: Request, exc:UserAlreadyExists):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=exc.detail
+    )
+    

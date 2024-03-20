@@ -9,7 +9,7 @@ RUN apt-get update
 RUN apt-get install -y pkg-config
 RUN apt-get install -y python3-dev build-essential
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . /app/
+COPY ./app /app/
 EXPOSE 8000
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000","--reload"]
