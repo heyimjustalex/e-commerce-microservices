@@ -1,3 +1,4 @@
+# Prod version is with tests
 version: "3.9"
 services:
   auth-microservice:
@@ -6,10 +7,12 @@ services:
       - auth-db
     build:
       context: ./auth-microservice
-      dockerfile: Dockerfile
+      # Dev version of Dockerfile
+      # dockerfile: Dockerfile
+      # Prod version of Dockerfile
+      dockerfile: Dockerfile.test
     volumes:
-      - ./auth-microservice/app/:/app:ro
-
+      - ./auth-microservice/app/:/app/app:ro
     ports:
       - 8000:8000
     environment:
@@ -35,6 +38,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: auth
     volumes:
+      # change it later
       # - users_db_data:/data/db
       - ./db/auth-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
@@ -49,11 +53,16 @@ services:
     ports:
       - "8081:8081"
     environment:
+      # this does not seem to work to modify connection server
       - ME_CONFIG_MONGODB_SERVER=auth-db
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=root
+      # but this does for some reason
+      - ME_CONFIG_MONGODB_URL=mongodb://root:root@auth-db:27017/
+      # db connection username and password because one from link above don't work
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
-      - ME_CONFIG_MONGODB_URL=mongodb://root:root@users-db:27017/
+    # to login to panel use: admin/pass
+
     networks:
       - network
 volumes:

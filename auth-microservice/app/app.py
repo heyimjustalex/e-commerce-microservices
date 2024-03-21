@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from app.exceptions.definitions import *
-from app.exceptions.handlers import *
-from app.controllers.auth_controller import router as user_router
- 
+from exceptions.handlers import *
+from exceptions.definitions import *
+from controllers.auth_controller import router as user_router
+import sys
+
 app = FastAPI()
 app.add_exception_handler(UserAlreadyExists,user_already_exists_exception_handler)
 app.add_exception_handler(UserEmailIncorrectFormat,user_register_email_bad_format_exception_handler)

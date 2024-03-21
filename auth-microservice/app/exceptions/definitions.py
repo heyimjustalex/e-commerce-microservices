@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-
 from fastapi import status, HTTPException
 
 class UserAlreadyExists(HTTPException):

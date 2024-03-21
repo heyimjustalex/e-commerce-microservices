@@ -1,14 +1,10 @@
-FROM python:3.8-slim
+FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
 WORKDIR /app
-
 COPY requirements.txt /app/
-RUN apt-get update
-RUN apt-get install -y pkg-config
-RUN apt-get install -y python3-dev build-essential
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+ pip install --no-cache-dir -r requirements.txt
 COPY ./app /app/
 EXPOSE 8000
 

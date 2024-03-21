@@ -3,12 +3,17 @@ from pymongo.collection import Collection
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import status
-from app.app import app
+import sys  
 from pymongo.database import Database
-from app.database.connector import Connector
 from typing import Any, Callable
 import os
 from mongomock import MongoClient as MockMongoClient
+sys.path.append('app')
+
+from database.connector import Connector
+from app.app import app
+
+
 
 client = TestClient(app)
 

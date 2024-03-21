@@ -1,0 +1,1 @@
+docker cp auth-microservice:/app/test_results.xml .
