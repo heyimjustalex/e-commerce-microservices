@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from exceptions.handlers import *
-from exceptions.definitions import *
-from controllers.auth_controller import router as user_router
-import sys
+from app.exceptions.handlers import *
+from app.exceptions.definitions import *
+from app.controllers.auth_controller import router as user_router
 
 app = FastAPI()
 app.add_exception_handler(UserAlreadyExists,user_already_exists_exception_handler)

@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.results import InsertOneResult
-from models.models import User
+from app.models.models import User
 from typing import Any, Dict, Union
 
 class UserRepository:

@@ -1,10 +1,10 @@
 
 import re
 from pymongo.database import Database
-from repositories.user_repository import UserRepository
-from models.models import User
+from app.repositories.user_repository import UserRepository
+from app.models.models import User
 from hashlib import sha256
-from exceptions.definitions import UserAlreadyExists, UserEmailIncorrectFormat, UserInvalidCredentials
+from app.exceptions.definitions import UserAlreadyExists, UserEmailIncorrectFormat, UserInvalidCredentials
 from typing import Union
 
 

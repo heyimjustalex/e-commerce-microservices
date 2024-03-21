@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status, Response
 from pymongo.database import Database
-from schemas.schemas import UserCreate, UserRegisterResponse
-from services.user_service import UserService
-from database.connector import Connector
-from models.models import User
-from dependencies.dependencies import get_user_service
+from app.schemas.schemas import UserCreate, UserRegisterResponse
+from app.services.user_service import UserService
+from app.database.connector import Connector
+from app.models.models import User
+from app.dependencies.dependencies import get_user_service
 import jwt
 router = APIRouter(
     prefix='/api/auth',

@@ -8,9 +8,7 @@ from pymongo.database import Database
 from typing import Any, Callable
 import os
 from mongomock import MongoClient as MockMongoClient
-sys.path.append('app')
-
-from database.connector import Connector
+from app.database.connector import Connector
 from app.app import app
 
 
