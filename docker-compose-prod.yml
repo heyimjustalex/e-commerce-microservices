@@ -61,6 +61,9 @@ services:
       - ME_CONFIG_MONGODB_AUTH_USERNAME=root
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
+      - JWT_ACCESS_TOKEN_ALG=HS256
+      - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
     # to login to panel use: admin/pass
 
     networks:

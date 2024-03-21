@@ -22,6 +22,9 @@ services:
       - DB_PASSWORD=root
       - DB_PORT=27017
       - DB_NAME=shop
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
+      - JWT_ACCESS_TOKEN_ALG=HS256
+      - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
 
     networks:
       - network

@@ -13,7 +13,6 @@ class UserRepository:
     def create_user(self, user: User) -> User:
         user_dict: Dict[str, Any] = user.model_dump()
         id: InsertOneResult = self.users.insert_one(user_dict)
-        # napraw se potem
         user._id = id.inserted_id
         return user
 

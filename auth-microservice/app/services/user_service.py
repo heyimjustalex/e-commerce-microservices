@@ -4,6 +4,7 @@ from pymongo.database import Database
 from app.repositories.user_repository import UserRepository
 from app.models.models import User
 from hashlib import sha256
+from app.schemas.schemas import UserCreateRequest
 from app.exceptions.definitions import UserAlreadyExists, UserEmailIncorrectFormat, UserInvalidCredentials
 from typing import Union
 
@@ -20,14 +21,16 @@ class UserService:
     def __init__(self, repository:UserRepository) -> None:
         self.repository: UserRepository = repository
 
-    def create_user(self, email:str, password:str) -> User:
-        if not is_email_valid(email):
+    def create_user(self, data:UserCreateRequest, role:str) -> User:
+        email :str = data.email
+        password : str = data.password
+        if not is_email_valid(data.email):
             raise UserEmailIncorrectFormat()
         if self.repository.get_user_by_email(email):
             raise UserAlreadyExists()
             
         password_hash: str = sha256(password.encode('utf-8')).hexdigest()
-        user:User = User(email=email,password_hash=password_hash)   
+        user:User = User(email=email,password_hash=password_hash, role=role)   
         user = self.repository.create_user(user)
         return user
 
