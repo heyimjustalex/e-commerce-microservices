@@ -18,6 +18,7 @@ def register(data: UserRegisterRequest, service:UserService = Depends(get_user_s
 @router.post("/login",response_model=UserLoginResponse, status_code=status.HTTP_200_OK)
 def login(data:UserLoginRequest, response: Response, user_service:UserService = Depends(get_user_service), token_service:TokenService = Depends(get_token_service)):
      user:User = user_service.check_user_credentials(data.email,data.password)
+     
      access_token :str = token_service.create_access_token(user)
      refresh_token : str = token_service.create_refresh_token(user)
  
