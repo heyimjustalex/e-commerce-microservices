@@ -1,1 +1,1 @@
-docker cp auth-microservice:/app/test_results.xml .
+docker cp authentication-ms:/app/test_results.xml .

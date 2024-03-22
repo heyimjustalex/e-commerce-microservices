@@ -1,23 +1,23 @@
 # Prod version is with tests
 version: "3.9"
 services:
-  auth-microservice:
-    container_name: auth-microservice
+  authentication-ms:
+    container_name: authentication-ms
     depends_on:
-      - auth-db
+      - authentication-db
     build:
-      context: ./auth-microservice
+      context: ./authentication-ms
       # Dev version of Dockerfile
       # dockerfile: Dockerfile
       # Prod version of Dockerfile
       dockerfile: Dockerfile.test
     volumes:
-      - ./auth-microservice/app/:/app/app:ro
+      - ./authentication-ms/app/:/app/app:ro
     ports:
       - 8000:8000
     environment:
       - WATCHFILES_FORCE_POLLING=true
-      - DB_HOSTNAME=auth-db
+      - DB_HOSTNAME=authentication-db
       - DB_USERNAME=root
       - DB_PASSWORD=root
       - DB_PORT=27017
@@ -32,20 +32,20 @@ services:
       - network
     restart: on-failure
 
-  auth-db:
+  authentication-db:
     image: mongo:7.0.7-rc2-jammy
-    container_name: auth-db
+    container_name: authentication-db
     restart: always
     ports:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: auth
+      MONGO_INITDB_DATABASE: authentication
     volumes:
-      # change it later
+      # change it you want to have volume persistant data
       # - users_db_data:/data/db
-      - ./db/auth-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - network
 
@@ -53,15 +53,15 @@ services:
     image: mongo-express:1-20-alpine3.19
     container_name: adminpanel-db
     depends_on:
-      - auth-db
+      - authentication-db
     restart: always
     ports:
       - "8081:8081"
     environment:
       # this does not seem to work to modify connection server
-      - ME_CONFIG_MONGODB_SERVER=auth-db
+      - ME_CONFIG_MONGODB_SERVER=authentication-db
       # but this does for some reason
-      - ME_CONFIG_MONGODB_URL=mongodb://root:root@auth-db:27017/
+      - ME_CONFIG_MONGODB_URL=mongodb://root:root@authentication-db:27017/
       # db connection username and password because one from link above don't work
       - ME_CONFIG_MONGODB_AUTH_USERNAME=root
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
