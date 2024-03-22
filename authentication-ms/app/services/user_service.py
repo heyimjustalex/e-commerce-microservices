@@ -1,6 +1,5 @@
 
 import re
-from pymongo.database import Database
 from app.repositories.user_repository import UserRepository
 from app.models.models import User
 from hashlib import sha256
@@ -33,8 +32,6 @@ class UserService:
         user:User = User(email=email,password_hash=password_hash, role=role)   
         user = self.repository.create_user(user)
         return user
-
-
     
     def check_user_credentials(self, email:str, password:str) -> User:
         if not is_email_valid(email):

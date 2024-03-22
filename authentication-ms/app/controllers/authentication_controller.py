@@ -21,7 +21,7 @@ def login(data:UserLoginRequest, response: Response, user_service:UserService = 
      access_token :str = token_service.create_access_token(user)
      refresh_token : str = token_service.create_refresh_token(user)
  
-     response_model : UserLoginResponse = UserLoginResponse(email=user.email,access_token=access_token, refresh_token=refresh_token, token_type='Bearer')
+     response_model : UserLoginResponse = UserLoginResponse(access_token=access_token, refresh_token=refresh_token)
      response.headers.append("Token-Type","Bearer")
      
      return response_model
