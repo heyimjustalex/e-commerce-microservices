@@ -16,7 +16,6 @@ class UserRepository:
         user._id = id.inserted_id
         return user
 
-
     def get_user_by_email(self,email:str) -> Union[User, None]:
         user: Union[User, None]  = self.users.find_one({"email": email})
         if not user:

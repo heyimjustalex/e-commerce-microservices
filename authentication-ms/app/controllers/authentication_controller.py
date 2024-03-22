@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, Response
-from app.schemas.schemas import UserCreateRequest, UserRegisterResponse, UserLoginRequest, UserLoginResponse
+from app.schemas.schemas import RefreshTokenRequest,RefreshTokenResponse, UserRegisterRequest, UserRegisterResponse, UserLoginRequest, UserLoginResponse
 from app.services.user_service import UserService
 from app.services.token_service import TokenService
 from app.models.models import User
@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 @router.post("/register", response_model=UserRegisterResponse, status_code=status.HTTP_201_CREATED)
-def register(data: UserCreateRequest, service:UserService = Depends(get_user_service)):   
+def register(data: UserRegisterRequest, service:UserService = Depends(get_user_service)):   
     user:User = service.create_user(data,"user")
     return UserRegisterResponse(email=user.email, role=user.role)
 
@@ -25,3 +25,10 @@ def login(data:UserLoginRequest, response: Response, user_service:UserService = 
      response.headers.append("Token-Type","Bearer")
      
      return response_model
+
+@router.post("/refresh",response_model=RefreshTokenResponse, status_code=status.HTTP_200_OK)
+def refresh_token(data:RefreshTokenRequest, response: Response, token_service:TokenService = Depends(get_token_service)):
+    access_token: str = token_service.refresh_access_token(data)
+    response_model : RefreshTokenResponse = RefreshTokenResponse(access_token=access_token)
+    response.headers.append("Token-Type","Bearer")
+    return response_model

@@ -8,5 +8,5 @@ from app.database.connector import Connector
 
 def get_user_service(db: Database = Depends(Connector.get_db)) -> UserService:
     return UserService(UserRepository(db))
-def get_token_service() -> TokenService:
-    return TokenService()
+def get_token_service(db: Database = Depends(Connector.get_db)) -> TokenService:
+    return TokenService(UserRepository(db))

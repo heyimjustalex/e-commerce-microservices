@@ -3,7 +3,7 @@ import re
 from app.repositories.user_repository import UserRepository
 from app.models.models import User
 from hashlib import sha256
-from app.schemas.schemas import UserCreateRequest
+from app.schemas.schemas import UserRegisterRequest
 from app.exceptions.definitions import UserAlreadyExists, UserEmailIncorrectFormat, UserInvalidCredentials
 from typing import Union
 
@@ -20,7 +20,7 @@ class UserService:
     def __init__(self, repository:UserRepository) -> None:
         self.repository: UserRepository = repository
 
-    def create_user(self, data:UserCreateRequest, role:str) -> User:
+    def create_user(self, data:UserRegisterRequest, role:str) -> User:
         email :str = data.email
         password : str = data.password
         if not is_email_valid(data.email):
@@ -45,9 +45,14 @@ class UserService:
             raise UserInvalidCredentials()
         return user
 
+    def check_user_exists(self,email) -> User:     
+        if not is_email_valid(email):
+            raise UserEmailIncorrectFormat()
         
-        
-
+        user:Union[User,None] = self.repository.get_user_by_email(email)
+        if not user:
+            raise UserInvalidCredentials()    
+        return user
   
     
 
