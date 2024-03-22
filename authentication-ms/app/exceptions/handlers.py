@@ -17,7 +17,7 @@ async def user_register_email_bad_format_exception_handler(request: Request, exc
 async def refreshing_token_error(request: Request, exc:RefreshTokenInvalid):
     return JSONResponse(   
         status_code=exc.status_code,
-        content={'detail':exc.detail, 'access_token':exc.access_token}
+        content={'detail':exc.detail}
     )
     
 

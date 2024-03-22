@@ -14,6 +14,6 @@ class UserInvalidCredentials(HTTPException):
         super().__init__(status_code=status_code, detail=detail)
 
 class RefreshTokenInvalid(HTTPException):
-    def __init__(self, status_code: int = status.HTTP_401_UNAUTHORIZED, detail: str="Incorrect token", access_token:str=""):
+    def __init__(self, status_code: int = status.HTTP_401_UNAUTHORIZED, detail: str="Incorrect token"):
         super().__init__(status_code=status_code, detail=detail)
-        self.access_token: str = access_token
+      

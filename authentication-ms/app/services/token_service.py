@@ -23,7 +23,6 @@ class TokenService:
 
     def create_access_token(self, data:User) -> str:
         expire: datetime = datetime.now(timezone.utc) + timedelta(minutes=self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-        print("ACCECSS TOKEN CREATE", expire)
         data_to_encode:dict[str,Any] = {"email":data.email,"role":data.role, "exp":expire}
         encoded_jwt:str = jwt.encode(data_to_encode,str(self.JWT_ACCESS_TOKEN_SECRET_KEY),str(self.JWT_TOKEN_ALG))
         return encoded_jwt
@@ -38,8 +37,9 @@ class TokenService:
         try:
             decoded_jwt:dict[str,Any]= jwt.decode(data.refresh_token,str(self.JWT_REFRESH_TOKEN_SECRET_KEY),[str(self.JWT_TOKEN_ALG)])
             email:str = decoded_jwt['email']
+            role:str = decoded_jwt['role']
             exp:float = decoded_jwt['exp']
-            if not email or not exp:
+            if not email or not exp or not role:
                 raise RefreshTokenInvalid()
             
             user:Union[User, None] = self.user_repository.get_user_by_email(email)
