@@ -1,16 +1,13 @@
 from httpx import Response
-from pymongo.collection import Collection
-import pytest
-from fastapi.testclient import TestClient
-from mongomock import MongoClient as MockMongoClient
 from fastapi import status
 from app import app
 from pymongo.database import Database
 from typing import Any, Callable
 import os
 from app.database.connector import Connector
-from tests.conftest.conftest import client, inmemory_database_creation_function,app
+from tests.conftest.conftest import client, inmemory_database_creation_function,app, API_AUTHENTICATION_PREFIX
 from freezegun import freeze_time
+
 
 envs: dict[str, str] = {
     'JWT_ACCESS_TOKEN_SECRET_KEY': 'accesstokenkey',
@@ -36,7 +33,7 @@ def test_GivenRefreshToken_When_Refresh_Then_ReturnAccessToken(
     }
     with freeze_time("2012-01-14"):
     # When
-        response: Response = client.post("/api/auth/refresh", json=user_data)
+        response: Response = client.post(API_AUTHENTICATION_PREFIX+"/refresh", json=user_data)
         response_json = response.json()
 
     # Then
@@ -61,7 +58,7 @@ def test_GivenRefreshTokenWithoutEmail_When_Refresh_Then_ReturnRequestUnauthoriz
 
     # When
     with freeze_time("2012-01-14"):
-        response: Response = client.post("/api/auth/refresh", json=user_data)
+        response: Response = client.post(API_AUTHENTICATION_PREFIX+"/refresh", json=user_data)
         response_json = response.json()
 
     # Then
@@ -86,7 +83,7 @@ def test_GivenRefreshTokenWithoutRole_When_Refresh_Then_ReturnRequestUnauthorize
     # When
     with freeze_time("2012-01-14"):
 
-        response: Response = client.post("/api/auth/refresh", json=user_data)
+        response: Response = client.post(API_AUTHENTICATION_PREFIX+"/refresh", json=user_data)
         response_json = response.json()
 
     # Then
@@ -110,7 +107,7 @@ def test_GivenRefreshTokenWithoutExp_When_Refresh_Then_ReturnRequestUnauthorized
 
     # When
     with freeze_time("2012-01-14"):   
-        response: Response = client.post("/api/auth/refresh", json=user_data)
+        response: Response = client.post(API_AUTHENTICATION_PREFIX+"/refresh", json=user_data)
         response_json = response.json()
 
     # Then
@@ -134,7 +131,7 @@ def test_GivenFaultyRefreshToken_When_Refresh_Then_ReturnRequestUnauthorized(
 
     # When
     with freeze_time("2012-01-14"):   
-        response: Response = client.post("/api/auth/refresh", json=user_data)
+        response: Response = client.post(API_AUTHENTICATION_PREFIX+"/refresh", json=user_data)
         response_json = response.json()
         
     # Then

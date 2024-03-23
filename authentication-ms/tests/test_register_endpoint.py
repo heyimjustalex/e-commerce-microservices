@@ -1,14 +1,9 @@
 from httpx import Response
-from pymongo.collection import Collection
-import pytest
-from fastapi.testclient import TestClient
-from mongomock import MongoClient as MockMongoClient
 from fastapi import status
 from pymongo.database import Database
 from typing import Any, Callable
 from app.database.connector import Connector
-from tests.conftest.conftest import app, client
-from tests.conftest.conftest import client, app, inmemory_database_creation_function
+from tests.conftest.conftest import client, app, inmemory_database_creation_function, API_AUTHENTICATION_PREFIX
 
 def test_Given_ProperUser_When_RegisteringTheUser_Then_CreatedRequestIsReturned(
     inmemory_database_creation_function: Callable[[], Database[Any]],
@@ -21,10 +16,10 @@ def test_Given_ProperUser_When_RegisteringTheUser_Then_CreatedRequestIsReturned(
     user_data: dict[str, str] = {
         "email": "test@test.com",
         "password": "password123",
-            "role":"user"
+        "role":"user"
     }
     # When
-    response: Response = client.post("/api/auth/register", json=user_data)
+    response: Response = client.post(API_AUTHENTICATION_PREFIX+"/register", json=user_data)
 
     # Then
     assert response.status_code == status.HTTP_201_CREATED
@@ -63,7 +58,7 @@ def test_Given_ExistingUser_When_RegisteringTheSameUser_Then_BadRequestIsReturne
     }
     
     # When
-    response: Response = client.post("/api/auth/register", json=user_data)
+    response: Response = client.post(API_AUTHENTICATION_PREFIX+"/register", json=user_data)
 
     # Then
     assert response.status_code == status.HTTP_400_BAD_REQUEST

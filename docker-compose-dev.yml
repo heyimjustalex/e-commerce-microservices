@@ -1,4 +1,4 @@
-# Dev version is without tests
+# Dev version is without tests and live reload
 version: "3.9"
 services:
   authentication-ms:
@@ -22,7 +22,9 @@ services:
       - DB_PASSWORD=root
       - DB_PORT=27017
       - DB_NAME=shop
-
+      # API ROUTES
+      - API_AUTHENTICATION_PREFIX=/api/auth
+      # JWT CONF
       - JWT_TOKEN_ALG=HS256
       - JWT_REFRESH_TOKEN_SECRET_KEY=fasfsafasfasfas
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok

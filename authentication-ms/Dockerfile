@@ -2,9 +2,9 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app
-COPY requirements.txt /app/
+COPY requirements.dev /app/
 RUN apt-get update && \
- pip install --no-cache-dir -r requirements.txt
+ pip install --no-cache-dir -r requirements.dev
 COPY ./app /app/
 WORKDIR /
 EXPOSE 8000

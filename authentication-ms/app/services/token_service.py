@@ -1,12 +1,10 @@
 from typing import Union, Any
 import os
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.repositories.user_repository import UserRepository
 from datetime import datetime, timedelta, timezone
 from app.models.models import User
-from app.schemas.schemas import UserLoginRequest, RefreshTokenRequest
+from app.schemas.schemas import RefreshTokenRequest
 import jwt
-
 from jwt.exceptions import InvalidTokenError
 from app.exceptions.definitions import RefreshTokenInvalid
 

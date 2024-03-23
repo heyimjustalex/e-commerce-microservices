@@ -1,15 +1,11 @@
 from httpx import Response
-from pymongo.collection import Collection
-import pytest
-from fastapi.testclient import TestClient
-from mongomock import MongoClient as MockMongoClient
 from fastapi import status
 from app import app
 from pymongo.database import Database
 from typing import Any, Callable
 import os
 from app.database.connector import Connector
-from tests.conftest.conftest import client, app, inmemory_database_creation_function
+from tests.conftest.conftest import client, app, inmemory_database_creation_function, API_AUTHENTICATION_PREFIX
 
 
 envs: dict[str, str] = {
@@ -38,7 +34,7 @@ def test_GivenNonExistingAccount_When_LogingIn_Then_UnauthorizedtIsReturned(
     }
     
     # When
-    response: Response = client.post("/api/auth/login", json=user_data)
+    response: Response = client.post(API_AUTHENTICATION_PREFIX+"/login", json=user_data)
     response_json = response.json()
 
     # Then
@@ -64,7 +60,7 @@ def test_GivenBadEmailFormat_When_LogingIn_Then_UnauthorizedtIsReturned(
     }
     
     # When
-    response: Response = client.post("/api/auth/login", json=user_data)
+    response: Response = client.post(API_AUTHENTICATION_PREFIX+"/login", json=user_data)
     response_json = response.json()
   
     # Then
@@ -89,7 +85,7 @@ def test_GivenExistingAccount_When_LogingIn_Then_ResponseParametersAreOk(
     }
     
     # When
-    response: Response = client.post("/api/auth/login", json=user_data)
+    response: Response = client.post(API_AUTHENTICATION_PREFIX+"/login", json=user_data)
     response_json = response.json()
 
     # Then
