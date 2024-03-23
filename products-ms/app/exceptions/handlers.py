@@ -15,13 +15,16 @@ async def product_incorrect_format_exception_handler(request: Request, exc:Produ
     )
 
 async def product_not_found_exception_handler(request: Request, exc:ProductNotFound):
-    return Response(   
-        status_code=exc.status_code
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail':exc.detail}
     )
-async def   category_not_found_exception_handler(request: Request, exc:CategoryNotFound):
-    return Response(   
-        status_code=exc.status_code
-    ) 
+
+async def category_not_found_exception_handler(request: Request, exc:CategoryNotFound):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail':exc.detail}
+    )
 
   
 
