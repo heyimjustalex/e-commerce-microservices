@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from app.models.models import Product, ObjectIdStr
+from app.models.models import Product
 from typing import List
 
 class ProductRequestByName(BaseModel):

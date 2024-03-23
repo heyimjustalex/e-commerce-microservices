@@ -18,8 +18,8 @@ def get_products(service:ProductService = Depends(get_products_service)):
 
 @router.get("/products/{product_name}", response_model=ProductResponse)
 def get_product_by_name(product_name: str, service:ProductService = Depends(get_products_service)):
-    product:Tuple[Product, List] = service.get_product_by_name(product_name)
-    response:ProductResponse = ProductResponse(name=product[0].name, description=product[0].description, price=product[0].price, categories=product[1])
+    product:Product = service.get_product_by_name(product_name)
+    response:ProductResponse = ProductResponse(name=product.name, description=product.description, price=product.price, categories=product.categories)
     return response
 
 @router.get("/products/category/{category_name}", response_model=ProductsResponse)

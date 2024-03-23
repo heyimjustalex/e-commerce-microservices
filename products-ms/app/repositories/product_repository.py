@@ -1,7 +1,7 @@
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.results import InsertOneResult
-from app.models.models import Product,ObjectIdStr
+from app.models.models import Product,PyObjectId
 from typing import Any, Dict, Union
 from typing import List
 from bson import ObjectId
@@ -27,7 +27,7 @@ class ProductRepository:
             return None
         return Product(**product)
     
-    def get_products_of_category(self, category_id:ObjectIdStr) -> Union[List[Product], None]:
+    def get_products_of_category(self, category_id:PyObjectId) -> Union[List[Product], None]:
 
         products_data = list(self.products.find({"categories": ObjectId(category_id)}))
 

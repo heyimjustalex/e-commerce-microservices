@@ -1,4 +1,4 @@
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi import  Request
 from app.exceptions.definitions import *
 
@@ -15,10 +15,14 @@ async def product_incorrect_format_exception_handler(request: Request, exc:Produ
     )
 
 async def product_not_found_exception_handler(request: Request, exc:ProductNotFound):
-    return JSONResponse(   
-        status_code=exc.status_code,
-        content={'detail':exc.detail}
+    return Response(   
+        status_code=exc.status_code
     )
-    
+async def   category_not_found_exception_handler(request: Request, exc:CategoryNotFound):
+    return Response(   
+        status_code=exc.status_code
+    ) 
+
+  
 
     
