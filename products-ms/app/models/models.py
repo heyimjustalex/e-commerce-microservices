@@ -1,6 +1,7 @@
-from pydantic import BaseModel, validator, Field
-from typing import Optional, List
+from pydantic import BaseModel, validator, Field,BeforeValidator
+from typing import Optional, List,  Annotated
 from bson import ObjectId
+PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class ObjectIdStr(str):
     @classmethod
@@ -13,15 +14,11 @@ class ObjectIdStr(str):
             raise ValueError(f'Invalid ObjectId: {v}')
         return str(v)
 
-class User(BaseModel):   
-    _id: Optional[ObjectIdStr] = None
-    email: str
-    role: str
-    password_hash: str
 
 class Category(BaseModel):
-    _id: Optional[ObjectIdStr] = None
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
+    
 
 class Product(BaseModel):
     _id: Optional[ObjectIdStr] = None

@@ -12,3 +12,7 @@ class ProductAlreadyExists(HTTPException):
 class ProductNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_204_NO_CONTENT, detail: str = "Product already exists"):
         super().__init__(status_code=status_code, detail=detail)
+
+class CategoryNotFound(HTTPException):
+    def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND, detail: str = "Category not found"):
+        super().__init__(status_code=status_code, detail=detail)

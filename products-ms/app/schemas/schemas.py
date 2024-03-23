@@ -20,9 +20,9 @@ class ProductResponse(BaseModel):
     price:float
     categories:List[str]
 
+
 class ProductsResponse(BaseModel):
     products:List[Product]
-
 
 
 class UserRegisterRequest(BaseModel):

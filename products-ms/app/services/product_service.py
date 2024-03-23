@@ -3,7 +3,7 @@ import re
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.schemas import ProductCreateRequest
-from app.exceptions.definitions import ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
+from app.exceptions.definitions import CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple
 from app.models.models import Product, Category, ObjectIdStr
 
@@ -33,7 +33,7 @@ class ProductService:
             temp_categories : List[ObjectIdStr] = []
 
             for category_id in product.categories:
-                category:Union[Category, None] = self.category_repository.get_category_name_by_id(category_id)
+                category:Union[Category, None] = self.category_repository.get_category_by_id(category_id)
                 if category:
                     category_name : str = category.name
                     temp_categories.append(ObjectIdStr(category_name))              
@@ -48,14 +48,32 @@ class ProductService:
         named_categories : List[ObjectIdStr] = []
 
         for category_id in product.categories:
-            category:Union[Category, None] = self.category_repository.get_category_name_by_id(category_id)
+            category:Union[Category, None] = self.category_repository.get_category_by_id(category_id)
             if category:
                 category_name : str = category.name
                 named_categories.append(ObjectIdStr(category_name))        
-
-
         return product, named_categories
+    
+    def get_products_by_category(self, category_name: str) -> List[Product]:
+        category: Category | None = self.category_repository.get_category_by_name(category_name)
+        if not category:
+            raise CategoryNotFound()
+        products: List[Product] | None = self.product_repository.get_products_of_category(ObjectIdStr(category.id))
+        if not products:
+            return []
+        
+        for product in products:
+            temp_categories : List[ObjectIdStr] = []
 
+            for category_id in product.categories:
+                category:Union[Category, None] = self.category_repository.get_category_by_id(category_id)
+                if category:
+                    temp_name : str = category.name
+                    temp_categories.append(ObjectIdStr(temp_name))              
+            product.categories = temp_categories     
+       
+        return products
+    
     def create_product(self, data:ProductCreateRequest) -> Product:
         name :str = data.name
         description : str = data.description

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.schemas.schemas import ProductsRequest, ProductRequestByName, ProductResponse, ProductsResponse
+from app.schemas.schemas import ProductResponse, ProductsResponse
 from app.services.product_service import ProductService
 from typing import List, Tuple
 from app.models.models import Product
@@ -22,8 +22,9 @@ def get_product_by_name(product_name: str, service:ProductService = Depends(get_
     response:ProductResponse = ProductResponse(name=product[0].name, description=product[0].description, price=product[0].price, categories=product[1])
     return response
 
-# @router.get("/products/category/{category_name}", response_model=ProductResponse)
-# def get_products_by_categories(product_name: str, service:ProductService = Depends(get_products_service)):
-#     product:Product = service.get_product_by_name(product_name)
-#     response:ProductResponse = ProductResponse(name=product.name, description=product.description, price=product.price)
-#     return response
+@router.get("/products/category/{category_name}", response_model=ProductsResponse)
+def get_products_by_categories(category_name: str, service:ProductService = Depends(get_products_service)):
+    products:List[Product] = service.get_products_by_category(category_name)
+
+    response:ProductsResponse = ProductsResponse(products=products)
+    return response
