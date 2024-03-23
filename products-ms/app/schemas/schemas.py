@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from app.models.models import Product
+from app.models.models import Product, ObjectIdStr
 from typing import List
 
 class ProductRequestByName(BaseModel):
@@ -9,6 +9,7 @@ class ProductCreateRequest(BaseModel):
     name:str
     description:str
     price:float   
+    categories:List[str]
 
 class ProductsRequest(BaseModel):
     pass
@@ -17,6 +18,7 @@ class ProductResponse(BaseModel):
     name:str
     description:str
     price:float
+    categories:List[str]
 
 class ProductsResponse(BaseModel):
     products:List[Product]

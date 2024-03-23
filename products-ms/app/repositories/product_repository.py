@@ -17,10 +17,13 @@ class ProductRepository:
         return product
     
     def get_products(self) -> List[Product]:
-        return list(self.products.find({}))
+        products_data = list(self.products.find({}))  
+        products: List[Product] = [Product(**data) for data in products_data]  
+        return products
+    
 
     def get_product_by_name(self,name:str) -> Union[Product, None]:
-        product: Union[Product, None]  = self.products.find_one({"name": name})
+        product: Union[Product, None]  = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
         if not product:
             return None
         return Product(**product)
