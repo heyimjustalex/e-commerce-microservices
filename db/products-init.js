@@ -7,28 +7,28 @@ db.createCollection("categories");
 db.categories.insertMany([
   {
     _id: ObjectId("21fefe4a1cad4140785928a4"),
-    name: "Electronics",
+    name: "electronics",
   },
   {
     _id: ObjectId("22fefe4a1cad4140785928a4"),
-    name: "Kitchen",
+    name: "kitchen",
   },
   {
     _id: ObjectId("23fefe4a1cad4140785928a4"),
-    name: "Furniture",
+    name: "furniture",
   },
 ]);
 db.products.insertMany([
   {
     _id: ObjectId("10fefe4a1cad4140785928a4"),
-    name: "Cuterly",
+    name: "cuterly",
     description: "An interesting set of cuterly",
     price: 5.99,
     categories: [ObjectId("22fefe4a1cad4140785928a4")],
   },
   {
     _id: ObjectId("11fefe4a1cad4140785928a4"),
-    name: "Chair",
+    name: "chair",
     description: "A comfortable armchair",
     price: 29.99,
     categories: [
@@ -38,7 +38,7 @@ db.products.insertMany([
   },
   {
     _id: ObjectId("12fefe4a1cad4140785928a4"),
-    name: "Laptop",
+    name: "laptop",
     description: "A powerful computing device",
     price: 1299.99,
     categories: [ObjectId("21fefe4a1cad4140785928a4")],

@@ -80,11 +80,26 @@ class ProductService:
         name :str = data.name
         description : str = data.description
         price : float = data.price 
-        product : Product = Product(name=name, description=description, price=price)
-        self.check_product_format(product)
+        categories:List[str] = data.categories
+
+        if not name or not description or not price or not categories:
+            ProductIncorrectFormat()
 
         if self.product_repository.get_product_by_name(name):
             raise ProductAlreadyExists()
-            
-        return self.product_repository.create_product(product)
+        
+        categories_ids:List[str] = []
+        for i in categories:
+            category:Union[Category,None]= self.category_repository.get_category_by_name(i)
+            if not category:
+                raise CategoryNotFound()
+            categories_ids.append(category.id)
+
+        product : Product = Product(name=name, description=description, price=price,categories=categories_ids)
+        self.check_product_format(product)
+
+        created_product : Product = self.product_repository.create_product(product)
+        created_product.categories = categories
+
+        return created_product
 
