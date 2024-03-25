@@ -18,6 +18,12 @@ db.users.insertMany([
       "77cd27bc3de668c18ed6be5f5c2909ffdacdf67705c30d132003ad5a89085deb",
   },
   {
+    email: "admin@admin.com",
+    role: "admin",
+    password_hash:
+      "5edfa2692bdacc5e6ee805c626c50cb44cebb065f092d9a1067d89f74dacd326",
+  },
+  {
     email: "ccc@ccc.com",
     role: "admin",
     password_hash:

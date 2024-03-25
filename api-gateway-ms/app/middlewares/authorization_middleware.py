@@ -62,12 +62,13 @@ class AuthorizationMiddleware:
             role: str = "visitor"
             try:
                 body = await request.json()  
-                if body:               
-                    token: Union[str, None] = body.get("access_token")
-                    if token:
-                        role = self.get_role_from_token(token)
             except:
-                raise 
+                body = None
+            if body:               
+                token: Union[str, None] = body.get("access_token")
+                if token:
+                    role = self.get_role_from_token(token)
+    
 
             access_to_endpoint: bool = self.determine_request_access(path, method, role)
 

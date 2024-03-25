@@ -36,7 +36,6 @@ async def gateway(path: str, name: Optional[str] = None):
     
 @router.post("/{path:path}")
 async def post_gateway(path: str, data:dict):
-    print("POST GATEWAY", data)
     path = "/"+path
     if path not in ENDPOINT_MAP:
         raise HTTPException(status_code=404, detail="Endpoint not found")
