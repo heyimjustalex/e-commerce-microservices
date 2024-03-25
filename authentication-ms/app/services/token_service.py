@@ -22,12 +22,14 @@ class TokenService:
     def create_access_token(self, data:User) -> str:
         expire: datetime = datetime.now(timezone.utc) + timedelta(minutes=self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
         data_to_encode:dict[str,Any] = {"email":data.email,"role":data.role, "exp":expire}
+       #exception?
         encoded_jwt:str = jwt.encode(data_to_encode,str(self.JWT_ACCESS_TOKEN_SECRET_KEY),str(self.JWT_TOKEN_ALG))
         return encoded_jwt
     
     def create_refresh_token(self, data:User) -> str:
         expire: datetime = datetime.now(timezone.utc) + timedelta(minutes=self.JWT_REFRESH_TOKEN_EXPIRE_MINUTES)
         data_to_encode:dict[str,Any] = {"email":data.email,"role":data.role, "exp":expire}
+        #exception?
         encoded_jwt:str = jwt.encode(data_to_encode,str(self.JWT_REFRESH_TOKEN_SECRET_KEY),str(self.JWT_TOKEN_ALG))
         return encoded_jwt
     

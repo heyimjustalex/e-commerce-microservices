@@ -10,4 +10,3 @@ app.add_exception_handler(UserInvalidCredentials,user_invalid_credentials_except
 app.add_exception_handler(RefreshTokenInvalid,refreshing_token_bad_format_exception_handler)
 
 app.include_router(user_router)
- 
