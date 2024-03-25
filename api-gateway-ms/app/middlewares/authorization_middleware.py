@@ -60,9 +60,11 @@ class AuthorizationMiddleware:
             path: str = request.url.path
             method: str = request.method
             role: str = "visitor"
+            exc:Exception|None=None
             try:
                 body = await request.json()  
-            except:
+            except Exception as ex:
+                exc = ex
                 body = None
             if body:               
                 token: Union[str, None] = body.get("access_token")
@@ -73,6 +75,8 @@ class AuthorizationMiddleware:
             access_to_endpoint: bool = self.determine_request_access(path, method, role)
 
             if not access_to_endpoint:   
+                if exc:
+                    raise exc
                 raise NoAccessToResource()      
             
            

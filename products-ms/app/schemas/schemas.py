@@ -5,11 +5,15 @@ from typing import List
 class ProductRequestByName(BaseModel):
     name:str
 
+class ProductItem(BaseModel):
+    name: str
+    description: str
+    price: float
+    categories: List[str]
+
+
 class ProductCreateRequest(BaseModel):
-    name:str
-    description:str
-    price:float   
-    categories:List[str]
+    product:ProductItem
 
 class ProductResponse(BaseModel):
     name:str

@@ -2,7 +2,7 @@
 import re
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
-from app.schemas.schemas import ProductCreateRequest
+from app.schemas.schemas import ProductCreateRequest, ProductItem
 from app.exceptions.definitions import CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple
 from app.models.models import Product, Category, PyObjectId
@@ -77,10 +77,11 @@ class ProductService:
         return products
     
     def create_product(self, data:ProductCreateRequest) -> Product:
-        name :str = data.name.lower()
-        description : str = data.description
-        price : float = data.price
-        categories: List[str] = [category.lower() for category in data.categories]  
+        product_item : ProductItem = data.product
+        name :str = product_item.name.lower()
+        description : str = product_item.description
+        price : float = product_item.price
+        categories: List[str] = [category.lower() for category in product_item.categories]  
 
         if not name or not description or not price or not categories:
             ProductIncorrectFormat()
