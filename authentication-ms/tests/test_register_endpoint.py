@@ -38,7 +38,7 @@ def test_Given_UserWithWrongEmailFromat_When_RegisteringTheUser_Then_BadRequestI
         "role":"user"
     }
     # When
-    response: Response = client.post("/api/auth/register", json=user_data)
+    response: Response = client.post(API_AUTHENTICATION_PREFIX+"/register", json=user_data)
 
     # Then    
     assert response.status_code == status.HTTP_400_BAD_REQUEST

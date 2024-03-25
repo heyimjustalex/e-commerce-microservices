@@ -1,6 +1,21 @@
 # Dev version is without tests and live reload
 version: "3.9"
 services:
+  api-gateway-ms:
+    container_name: api-gateway-ms
+    build:
+      context: ./api-gateway-ms
+      dockerfile: Dockerfile
+    networks:
+      - network
+    restart: on-failure
+    volumes:
+      - ./api-gateway-ms/app/:/app:ro
+    ports:
+      - 8080:8000
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+
   adminpanel-authentication-db:
     image: mongo-express:1-20-alpine3.19
     container_name: adminpanel-authentication-db
@@ -65,7 +80,7 @@ services:
       - DB_PORT=27017
       - DB_NAME=shop
       # API ROUTES
-      - API_AUTHENTICATION_PREFIX=/api/auth
+      - API_AUTHENTICATION_PREFIX=/api
       # JWT CONF
       - JWT_TOKEN_ALG=HS256
       - JWT_REFRESH_TOKEN_SECRET_KEY=fasfsafasfasfas
@@ -115,7 +130,8 @@ services:
       - DB_PORT=27017
       - DB_NAME=shop
       # API ROUTES
-      - API_PRODUCT_PREFIX=/api/prod
+      - API_PRODUCT_PREFIX=/api
+
       # JWT CONF
       - JWT_TOKEN_ALG=HS256
       - JWT_REFRESH_TOKEN_SECRET_KEY=fasfsafasfasfas

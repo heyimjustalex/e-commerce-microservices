@@ -11,7 +11,7 @@ import os
 
 from app.app import app
 client = TestClient(app)
-API_AUTHENTICATION_PREFIX:str = os.getenv('API_AUTHENTICATION_PREFIX','/api/auth')
+API_AUTHENTICATION_PREFIX:str = os.getenv('API_AUTHENTICATION_PREFIX','/api')
 
 @pytest.fixture()
 def inmemory_database_creation_function() -> Callable[[], Database[Any]]:

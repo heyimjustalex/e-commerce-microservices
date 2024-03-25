@@ -6,7 +6,7 @@ from app.models.models import User
 from app.dependencies.dependencies import get_user_service, get_token_service
 import os
 router = APIRouter(
-    prefix=os.getenv('API_AUTHENTICATION_PREFIX','/api/auth'),
+    prefix=os.getenv('API_AUTHENTICATION_PREFIX','/api'),
     tags=['auth']
 )
 

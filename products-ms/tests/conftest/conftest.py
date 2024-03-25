@@ -9,7 +9,7 @@ import os
 from bson.objectid import ObjectId
 from app.app import app
 client = TestClient(app)
-API_PRODUCT_PREFIX:str = os.getenv('API_PRODUCT_PREFIX','/api/prod')
+API_PRODUCT_PREFIX:str = os.getenv('API_PRODUCT_PREFIX','/api')
 
 envs: dict[str, str] = {
     'JWT_ACCESS_TOKEN_SECRET_KEY': 'accesstokenkey',

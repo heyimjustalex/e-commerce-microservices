@@ -6,7 +6,7 @@ from app.models.models import Product
 from app.dependencies.dependencies import get_products_service
 import os
 router = APIRouter(
-    prefix=os.getenv('API_PRODUCT_PREFIX','/api/prod'),
+    prefix=os.getenv('API_PRODUCT_PREFIX','/api'),
     tags=['prod']
 )
 

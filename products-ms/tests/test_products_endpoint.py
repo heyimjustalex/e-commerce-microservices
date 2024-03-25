@@ -116,9 +116,6 @@ def test_Given_Nothing_When_RequestingProducts_Then_ProductsAreReturned(
     assert "_id" not in returned_products[0]
     assert "id" not in returned_products[0]
 
-
-
-
 def test_Given_ProductName_When_RequestingExistingProductByName_Then_ProductIsReturned(
     inmemory_database_creation_function: Callable[[], Database[Any]],
     monkeypatch
