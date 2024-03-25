@@ -21,8 +21,8 @@ db.categories.insertMany([
 db.products.insertMany([
   {
     _id: ObjectId("10fefe4a1cad4140785928a4"),
-    name: "cuterly",
-    description: "An interesting set of cuterly",
+    name: "cutlery",
+    description: "An interesting set of cutlery",
     price: 5.99,
     categories: [ObjectId("22fefe4a1cad4140785928a4")],
   },
@@ -45,7 +45,7 @@ db.products.insertMany([
   },
   {
     _id: ObjectId("13fefe4a1cad4140785928a4"),
-    name: "Headphones",
+    name: "headphones",
     description: "Wireless noise-cancelling headphones",
     price: 99.99,
     categories: [ObjectId("21fefe4a1cad4140785928a4")],

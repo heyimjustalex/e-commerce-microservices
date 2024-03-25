@@ -77,10 +77,10 @@ class ProductService:
         return products
     
     def create_product(self, data:ProductCreateRequest) -> Product:
-        name :str = data.name
+        name :str = data.name.lower()
         description : str = data.description
-        price : float = data.price 
-        categories:List[str] = data.categories
+        price : float = data.price
+        categories: List[str] = [category.lower() for category in data.categories]  
 
         if not name or not description or not price or not categories:
             ProductIncorrectFormat()

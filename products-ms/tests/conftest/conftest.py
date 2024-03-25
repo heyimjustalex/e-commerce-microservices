@@ -3,24 +3,79 @@ from pymongo.database import Database
 from typing import Any, Callable
 from pymongo.collection import Collection
 import pytest
-from pytest import MonkeyPatch  # Correct import
 from fastapi.testclient import TestClient
 from mongomock import MongoClient as MockMongoClient
-from typing import Union
 import os
-
+from bson.objectid import ObjectId
 from app.app import app
 client = TestClient(app)
-API_AUTHENTICATION_PREFIX:str = os.getenv('API_AUTHENTICATION_PREFIX','/api/auth')
+API_PRODUCT_PREFIX:str = os.getenv('API_PRODUCT_PREFIX','/api/prod')
+
+envs: dict[str, str] = {
+    'JWT_ACCESS_TOKEN_SECRET_KEY': 'accesstokenkey',
+    'JWT_REFRESH_TOKEN_SECRET_KEY': "refreshtokenkey",
+    'JWT_ACCESS_TOKEN_EXPIRE_MINUTES': '10080',
+    'JWT_TOKEN_ALG': 'HS256',
+    'JWT_REFRESH_TOKEN_EXPIRE_MINUTES': '30'
+}
+
 
 @pytest.fixture()
 def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
     def db_creation() -> Database[Any]:
         client = MockMongoClient()  
         db: Database[Any] = client['shop']
-        collection: Collection[Any] = db['users']
-        collection.insert_one({'email': 'aaa@aaa.com',    "role":"user", 'password_hash': '9c520caf74cff9b9a891be3694b20b3586ceb17f2891ceb1d098709c1e0969a3'})
-        collection.insert_one({'email': 'bbb@bbb.com',    "role":"user", 'password_hash': '77cd27bc3de668c18ed6be5f5c2909ffdacdf67705c30d132003ad5a89085deb'})
-        collection.insert_one({'email': 'a64cb39621534d604e02@d9fc5f.com',  "role":"user", 'password_hash': '27aca3b16db6ef313dd6ff97d36c2fa9608af08f48a7e2b1da1527a234f008fd'})
-        return db 
+        
+        products: Collection[Any] = db['products']
+        categories : Collection[Any] = db['categories']
+
+        categories.insert_many([  
+            {
+                '_id': ObjectId("21fefe4a1cad4140785928a4"),
+                'name': "electronics",
+            },
+            {
+                '_id': ObjectId("22fefe4a1cad4140785928a4"),  
+                'name': "kitchen",
+            },
+            {
+                '_id': ObjectId("23fefe4a1cad4140785928a4"),
+                'name': "furniture",
+            },
+        ])
+        products.insert_many([  
+            {
+                '_id': ObjectId("10fefe4a1cad4140785928a4"),
+                'name': "cutlery", 
+                'description': "An interesting set of cutlery",
+                'price': 5.99,
+                'categories': [ObjectId("22fefe4a1cad4140785928a4")],
+            },
+            {
+                '_id': ObjectId("11fefe4a1cad4140785928a4"),
+                'name': "chair",
+                'description': "A comfortable armchair",
+                'price': 29.99,
+                'categories': [
+                    ObjectId("23fefe4a1cad4140785928a4"),
+                    ObjectId("22fefe4a1cad4140785928a4"),
+                ],
+            },
+            {
+                '_id': ObjectId("12fefe4a1cad4140785928a4"),
+                'name': "laptop",
+                'description': "A powerful computing device",
+                'price': 1299.99,
+                'categories': [ObjectId("21fefe4a1cad4140785928a4")],
+            },
+            {
+                '_id': ObjectId("13fefe4a1cad4140785928a4"),
+                'name': "headphones",  
+                'description': "Wireless noise-cancelling headphones",
+                'price': 99.99,
+                'categories': [ObjectId("21fefe4a1cad4140785928a4")],
+            },
+        ])
+        return db  
+
     return db_creation

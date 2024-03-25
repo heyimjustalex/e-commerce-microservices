@@ -19,7 +19,7 @@ class ProductResponse(BaseModel):
 
 
 class ProductsResponse(BaseModel):
-    products:List[Product]
+    products:List[ProductResponse]
 
 
 

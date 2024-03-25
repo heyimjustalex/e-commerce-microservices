@@ -15,11 +15,14 @@ router = APIRouter(
 def get_products(name: Optional[str] = None, service: ProductService = Depends(get_products_service)):
     if name:
         product:Product = service.get_product_by_name(name)
-        products: List[Product] = [product]
-        response:ProductsResponse = ProductsResponse(products=products)
+        product_response:ProductResponse = ProductResponse(name=product.name, description=product.description,price=product.price, categories=product.categories)
+        products_response: List[ProductResponse] = [product_response]
+        response:ProductsResponse = ProductsResponse(products=products_response)
+
     else:
         products: List[Product]= service.get_products()
-        response : ProductsResponse = ProductsResponse(products=products)
+        products_response: List[ProductResponse] = [ProductResponse(name=product.name, description=product.description, price=product.price, categories=product.categories) for product in products] 
+        response : ProductsResponse = ProductsResponse(products= products_response)
     return response
 
 
@@ -28,8 +31,10 @@ def add_product(data: ProductCreateRequest, service: ProductService = Depends(ge
     product:Product=service.create_product(data)
     response:ProductResponse = ProductResponse(name=product.name, description=product.description, price= product.price, categories=product.categories)
     return response
+
 @router.get("/products/category", response_model=ProductsResponse, status_code=status.HTTP_200_OK)
 def get_products_by_categories(name: str, service:ProductService = Depends(get_products_service)):
     products:List[Product] = service.get_products_by_category(name)
-    response:ProductsResponse = ProductsResponse(products=products)
+    products_response: List[ProductResponse] = [ProductResponse(name=product.name, description=product.description, price=product.price, categories=product.categories) for product in products] 
+    response:ProductsResponse = ProductsResponse(products=products_response)
     return response
