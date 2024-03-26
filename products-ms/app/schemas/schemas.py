@@ -9,6 +9,7 @@ class ProductItem(BaseModel):
     name: str
     description: str
     price: float
+    quantity:int
     categories: List[str]
 
 
@@ -19,6 +20,7 @@ class ProductResponse(BaseModel):
     name:str
     description:str
     price:float
+    quantity:int
     categories:List[str]
 
 

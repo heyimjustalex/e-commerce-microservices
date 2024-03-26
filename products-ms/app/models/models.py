@@ -7,6 +7,7 @@ class Product(BaseModel):
     name: str
     description: str
     price: float
+    quantity:int
     categories: List[PyObjectId]= Field(default=None)
 
 class Category(BaseModel):

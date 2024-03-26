@@ -28,9 +28,7 @@ class ProductRepository:
         return Product(**product)
     
     def get_products_of_category(self, category_id:PyObjectId) -> Union[List[Product], None]:
-
         products_data = list(self.products.find({"categories": ObjectId(category_id)}))
-
         if not products_data:
             return None
         products: List[Product] = [Product(**data) for data in products_data]

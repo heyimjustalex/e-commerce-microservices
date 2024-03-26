@@ -24,6 +24,8 @@ class ProductService:
 
         if product.price < 0:
             raise ProductIncorrectFormat(detail="Price should be a positive value")
+        if not isinstance(product.quantity,int):
+            raise ProductIncorrectFormat(detail="Quantity should be an int")
 
         return True
 
@@ -81,6 +83,7 @@ class ProductService:
         name :str = product_item.name.lower()
         description : str = product_item.description
         price : float = product_item.price
+        quantity: int = product_item.quantity
         categories: List[str] = [category.lower() for category in product_item.categories]  
 
         if not name or not description or not price or not categories:
@@ -96,7 +99,7 @@ class ProductService:
                 raise CategoryNotFound()
             categories_ids.append(category.id)
 
-        product : Product = Product(name=name, description=description, price=price,categories=categories_ids)
+        product : Product = Product(name=name, description=description, price=price,categories=categories_ids, quantity=quantity)
         self.check_product_format(product)
 
         created_product : Product = self.product_repository.create_product(product)

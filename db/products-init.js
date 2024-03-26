@@ -24,6 +24,7 @@ db.products.insertMany([
     name: "cutlery",
     description: "An interesting set of cutlery",
     price: 5.99,
+    quantity: 200,
     categories: [ObjectId("22fefe4a1cad4140785928a4")],
   },
   {
@@ -31,6 +32,7 @@ db.products.insertMany([
     name: "chair",
     description: "A comfortable armchair",
     price: 29.99,
+    quantity: 30,
     categories: [
       ObjectId("23fefe4a1cad4140785928a4"),
       ObjectId("22fefe4a1cad4140785928a4"),
@@ -41,6 +43,7 @@ db.products.insertMany([
     name: "laptop",
     description: "A powerful computing device",
     price: 1299.99,
+    quantity: 1,
     categories: [ObjectId("21fefe4a1cad4140785928a4")],
   },
   {
@@ -48,6 +51,7 @@ db.products.insertMany([
     name: "headphones",
     description: "Wireless noise-cancelling headphones",
     price: 99.99,
+    quantity: 1,
     categories: [ObjectId("21fefe4a1cad4140785928a4")],
   },
 ]);
