@@ -1,14 +1,13 @@
-// Script for creating init products in mongoDB
-
 db = db.getSiblingDB("shop");
 
 db.createCollection("orders");
 
 db.orders.insertMany([
   {
-    _id: ObjectId("10fefe4a1cad4140785928a4"),
-    client: "aaa@aaa.com",
+    _id: ObjectId("71fefe4a1cad4140785928a4"),
+    client_email: "aaa@aaa.com",
     status: "PENDING",
+    cost: 83.94,
     products: [
       {
         name: "cutlery",
@@ -23,26 +22,28 @@ db.orders.insertMany([
     ],
   },
   {
-    _id: ObjectId("11fgfe4a1cad4140785928a5"),
-    client: "bbb@bbb.com",
+    _id: ObjectId("72fefe4a1cad4140785928a4"),
+    client_email: "bbb@bbb.com",
     status: "ORDERED",
+    cost: 1299.99,
     products: [
       {
         name: "laptop",
-        description: "A powerful computing device",
         price: 1299.99,
         quantity: 1,
       },
     ],
   },
   {
-    _id: ObjectId("12fgfe4a1cad4140785928a6"),
-    client: "ccc@ccc.com",
+    _id: ObjectId("73fefe4a1cad4140785928a4"),
+    client_email: "ccc@ccc.com",
+    status: "PENDING",
+    cost: 699.93,
     products: [
       {
         name: "headphones",
-        description: "Wireless noise-cancelling headphones",
         price: 99.99,
+        quantity: 7,
       },
     ],
   },
