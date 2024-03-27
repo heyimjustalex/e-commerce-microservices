@@ -12,5 +12,7 @@ app.add_exception_handler(TokenInvalid,token_invalid_exception_handler)
 app.add_exception_handler(NoAccessToResource,no_access_to_resource_exception_handler)
 app.add_exception_handler(TokenExpired,token_expired_exception_handler)
 app.include_router(router)
+
+
  
 

@@ -21,7 +21,6 @@ class OrdersIncorrectFormat(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
         super().__init__(status_code=status_code, detail="Bad request format")
 
-
 class InvalidTokenFormat(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
         super().__init__(status_code=status_code, detail="Invalid token format")
