@@ -13,7 +13,7 @@ from bson import ObjectId
 class MessageBroker:
     KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
     KAFKA_TOPIC:str = 'shop'
-    KAFKA_GROUP:str = 'group'
+    KAFKA_GROUP:str = 'group' 
     def __init__(self) -> None:
         pass
 

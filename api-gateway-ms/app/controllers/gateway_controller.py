@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import JSONResponse
 import httpx
 from typing import Optional
 from  httpx import Request
@@ -26,14 +27,15 @@ async def gateway(path: str, name: Optional[str] = None):
         raise HTTPException(status_code=404, detail="Endpoint not found")
 
     backend_service_url = ENDPOINT_MAP[path]
-
-    async with httpx.AsyncClient() as client:
-        if name is not None:
-            response = await client.get(backend_service_url + path, params={"name": name})
-        else:
-            response = await client.get(backend_service_url + path)
-        return response.json()
-    
+    try:
+        async with httpx.AsyncClient() as client:
+            if name is not None:
+                response = await client.get(backend_service_url + path, params={"name": name})
+            else:
+                response = await client.get(backend_service_url + path)
+            return JSONResponse(status_code=response.status_code,content=response.json())
+    except:
+         return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={'detail':"Service unavaliable!"})
 @router.post("/{path:path}")
 async def post_gateway(path: str, data:dict):
     path = "/"+path
@@ -42,8 +44,9 @@ async def post_gateway(path: str, data:dict):
 
     backend_service_url: str = ENDPOINT_MAP[path]
     
-
-    async with httpx.AsyncClient() as client:
-        response: httpx.Response = await client.post(backend_service_url + path, json=data)
-        return response.json()
-
+    try:
+        async with httpx.AsyncClient() as client:
+            response: httpx.Response = await client.post(backend_service_url + path, json=data)
+            return JSONResponse(status_code=response.status_code,content=response.json())
+    except:
+         return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={'detail':"Service unavaliable!"})
