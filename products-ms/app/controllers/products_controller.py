@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from app.schemas.schemas import ProductResponse, ProductsResponse, ProductCreateRequest
 from app.services.product_service import ProductService
+from app.brokers.message_broker import MessageBroker
 from typing import List, Optional
 from app.models.models import Product
 from app.dependencies.dependencies import get_products_service
@@ -26,8 +27,8 @@ def get_products(name: Optional[str] = None, service: ProductService = Depends(g
 
 
 @router.post("/products", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-def add_product(data: ProductCreateRequest, service: ProductService = Depends(get_products_service)):
-    product:Product=service.create_product(data)
+async def add_product(data: ProductCreateRequest ,product_service: ProductService = Depends(get_products_service)):
+    product:Product= await product_service.create_product_with_event(data)
     response:ProductResponse = ProductResponse(name=product.name, description=product.description, price= product.price, categories=product.categories,quantity=product.quantity)
     return response
 

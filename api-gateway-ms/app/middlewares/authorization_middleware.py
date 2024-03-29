@@ -46,6 +46,7 @@ class AuthorizationMiddleware:
     def determine_request_access(self, path: str, method: str, role: str) -> bool:
    
         map_key: tuple[str, str, str] = (path.lower(), method.upper(), role.lower())
+        print("API MAP KEY", map_key)
         if map_key not in ENDPOINT_ACCESS_MAP:
             return True
         return ENDPOINT_ACCESS_MAP[map_key]

@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from confluent_kafka import Producer, Consumer, KafkaError
 import json
 import logging
-
+import time
 app = FastAPI()
 
 # Configure logging
@@ -55,25 +55,24 @@ async def subscribe_messages():
 
     messages = []
 
-    try:
-        # Poll Kafka for messages
 
-        msg = consumer.poll(timeout=5.0)
+    while True:
+        try: 
+            message = consumer.poll(10.0)
 
-        if msg.error():
-            raise HTTPException(status_code=500, detail=f"Kafka Consumer error: {msg.error()}")
-        else:
-            messages.append(json.loads(msg.value().decode('utf-8')))
-            logger.info(f"Received message: {messages[-1]}")
-            logger.info("Returning messages...")
+            if not message:
+                time.sleep(120) # Sleep for 2 minutes
+
+            if message.error():
+                print(f"Consumer error: {message.error()}")
+                continue
+
+            print(f"Received message: {message.value().decode('utf-8')}")
+        except:
+            pass
+
+        finally:
             consumer.close()
-            return {"messages": messages}
-
-    except Exception as e:
-        logger.error(f"Error occurred while subscribing to messages: {e}")
-        raise HTTPException(status_code=500, detail=f"Error occurred while subscribing to messages: {e}")
-    finally:
-        # Close consumer
-        consumer.close()
+            print("Goodbye")
 
 

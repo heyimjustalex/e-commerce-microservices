@@ -26,6 +26,10 @@ async def category_not_found_exception_handler(request: Request, exc:CategoryNot
         content={'detail':exc.detail}
     )
 
+async def broker_message_publish_exception_handler(request: Request, exc:BrokerMessagePublishError
+    ):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail':exc.detail}
+    )
   
-
-    

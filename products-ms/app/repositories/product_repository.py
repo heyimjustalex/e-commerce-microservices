@@ -4,17 +4,22 @@ from pymongo.results import InsertOneResult
 from app.models.models import Product,PyObjectId
 from typing import Any, Dict, Union
 from typing import List
+from pymongo import MongoClient
 from bson import ObjectId
 class ProductRepository:
-    def __init__(self, db: Database) -> None:
+    def __init__(self, db: Database, client:MongoClient) -> None:
         self.db: Database = db
         self.products: Collection = self.db['products']
+        self.client:MongoClient = client
 
     def create_product(self, product: Product) -> Product:
         product_dict: Dict[str, Any] = product.model_dump()
         id: InsertOneResult = self.products.insert_one(product_dict)
-        product._id = id.inserted_id
+        product.id = str(id.inserted_id)
         return product
+    
+    def get_mongo_client(self)-> MongoClient:
+        return self.client
     
     def get_products(self) -> List[Product]:
         products_data = list(self.products.find({}))  

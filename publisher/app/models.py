@@ -4,6 +4,12 @@ import json
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
+
+class Category(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    name: str
+    
+
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     name: str
@@ -11,20 +17,10 @@ class Product(BaseModel):
     price: float
     quantity:int
     categories: List[PyObjectId]= Field(default=None)
-    class Config:
-        include_private_fields = True
-
-class Category(BaseModel):
-    id: PyObjectId = Field(alias="_id", default=None)
-    name: str
-    
-
 
 
 class ShopProductEvent(BaseModel):
     type: str
     product:Product
-    class Config:
-        include_private_fields = True
 
 

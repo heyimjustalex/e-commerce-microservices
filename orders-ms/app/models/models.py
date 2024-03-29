@@ -7,13 +7,16 @@ class ProductItem(BaseModel):
     price: float
     quantity:int
 
-
 class Order(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     client_email:str
     cost:float
     status: str
     products: List[ProductItem]
+
+class ShopProductEvent:
+    type:str
+    data:object
 
 
 

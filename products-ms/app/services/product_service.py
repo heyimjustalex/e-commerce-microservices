@@ -3,14 +3,17 @@ import re
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.schemas import ProductCreateRequest, ProductItem
-from app.exceptions.definitions import CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
+from app.exceptions.definitions import BrokerMessagePublishError, CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple
-from app.models.models import Product, Category, PyObjectId
+from app.models.models import Product, Category, PyObjectId, ShopProductEvent
+from app.brokers.message_broker import MessageBroker
+from pymongo import MongoClient
 
 class ProductService:
-    def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository) -> None:
+    def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository, message_broker:MessageBroker) -> None:
         self.product_repository: ProductRepository = product_repository
         self.category_repository:CategoryRepository = category_repository
+        self.message_broker: MessageBroker = message_broker
 
     def check_product_format(self, product:Product):
         if not re.match(r'^[a-zA-Z\s]+$', product.name):
@@ -78,6 +81,34 @@ class ProductService:
        
         return products
     
+    async def create_product_with_event(self, data:ProductCreateRequest):
+        client:MongoClient = self.product_repository.get_mongo_client()
+        with client.start_session() as session:
+            with session.start_transaction():
+                try:
+                    # Helper function for verification 
+                    prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
+                    product: Product=prod_tuple[0]
+                    categories:List[str] = prod_tuple[1]
+                    
+                   
+                    created_product : Product = self.product_repository.create_product(product)
+                    # Publish message
+                     # Create event
+                    create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
+                    await self.message_broker.publish_message(create_product_event)
+                    
+                  
+                    print("PRODUCT23",created_product)
+                    created_product.categories = categories
+
+                    session.commit_transaction()                
+                    return created_product
+                
+                except Exception as e:
+                    session.abort_transaction()
+                    raise BrokerMessagePublishError()
+
     def create_product(self, data:ProductCreateRequest) -> Product:
         product_item : ProductItem = data.product
         name :str = product_item.name.lower()
@@ -86,7 +117,7 @@ class ProductService:
         quantity: int = product_item.quantity
         categories: List[str] = [category.lower() for category in product_item.categories]  
 
-        if not name or not description or not price or not categories:
+        if not name or not description or not price or not categories or not quantity or not price:
             ProductIncorrectFormat()
 
         if self.product_repository.get_product_by_name(name):
@@ -106,4 +137,30 @@ class ProductService:
         created_product.categories = categories
 
         return created_product
+
+    def _create_product_helper(self, data:ProductCreateRequest) -> Tuple[Product,List[str]]:
+        product_item : ProductItem = data.product
+        name :str = product_item.name.lower()
+        description : str = product_item.description
+        price : float = product_item.price
+        quantity: int = product_item.quantity
+        categories: List[str] = [category.lower() for category in product_item.categories]  
+
+        if not name or not description or not price or not categories or not quantity or not price:
+            ProductIncorrectFormat()
+
+        if self.product_repository.get_product_by_name(name):
+            raise ProductAlreadyExists()
+        
+        categories_ids:List[str] = []
+        for i in categories:
+            category:Union[Category,None]= self.category_repository.get_category_by_name(i)
+            if not category:
+                raise CategoryNotFound()
+            categories_ids.append(category.id)
+
+        product : Product = Product(name=name, description=description, price=price,categories=categories_ids, quantity=quantity)
+        self.check_product_format(product)
+
+        return product, categories
 
