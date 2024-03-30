@@ -12,5 +12,6 @@ setuptools==69.2.0
 mongomock==4.1.2
 freezegun==1.4.0 
 asyncio==3.4.3 
-confluent-kafka==2.3.0
 jsonpickle
+confluent-kafka==2.3.0
+aiokafka==0.8.0

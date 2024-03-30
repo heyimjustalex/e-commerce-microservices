@@ -14,9 +14,19 @@ class Order(BaseModel):
     status: str
     products: List[ProductItem]
 
-class ShopProductEvent:
-    type:str
-    data:object
+class Product(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    name: str
+    description: str
+    price: float
+    quantity:int
+    categories: List[PyObjectId]= Field(default=None)
+
+
+class ShopProductEvent(BaseModel):
+    type: str
+    product:Product
+
 
 
 
