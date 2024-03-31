@@ -6,19 +6,17 @@ import json
 from json.decoder import JSONDecodeError
 from app.models.models import *
 from app.models.models import ShopProductEvent
+from app.repositories.order_repository import OrderRepository
 
+class MessageConsumer:
+    def __init__(self, order_repository:OrderRepository) -> None:
+        self.order_repository:OrderRepository = order_repository
+        self.KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
+        self.KAFKA_TOPIC:str = 'shop'
+        self.KAFKA_GROUP:str = 'group'
+        self.consumer: AIOKafkaConsumer | None = None
 
-class MessageBroker:
-    KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
-    KAFKA_TOPIC:str = 'shop'
-    KAFKA_GROUP:str = 'group'   
-
-    @classmethod
-    def _serializer(cls, message):
-        return json.dumps(message).encode('utf-8')
-    
-    @classmethod
-    def _deserializer(cls,message):
+    def _deserializer(self,message):
         try:
             return json.loads(message.decode('utf-8'))
         except JSONDecodeError:
@@ -27,38 +25,21 @@ class MessageBroker:
             else:
                 return message           
 
-    @classmethod
-    async def startup_consumer(cls):
-        consumer = AIOKafkaConsumer(
-        cls.KAFKA_TOPIC,
-        value_deserializer=cls._deserializer,
-        bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
-        group_id=cls.KAFKA_GROUP)
-        await consumer.start()
-        return consumer
-    
-    @classmethod
-    async def startup_producer(cls):
-        producer = AIOKafkaProducer(
-        value_serializer=cls._serializer,
-        bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
-        )
-    
-        await producer.start()
-        return producer
-    
-    @classmethod          
-    async def shutdown_consumer(cls,consumer:AIOKafkaConsumer):
+    async def get_consumer(self):
+        if not self.consumer:
+            self.consumer = AIOKafkaConsumer(self.KAFKA_TOPIC,
+            value_deserializer=self._deserializer,
+            bootstrap_servers=self.KAFKA_BOOTSTRAP_SERVERS,
+             group_id=self.KAFKA_GROUP)
+            await self.consumer.start()
+        return self.consumer  
+         
+    async def shutdown_consumer(self,consumer:AIOKafkaConsumer):
         await consumer.stop()
 
-    @classmethod  
-    async def shutdown_producer(cls, producer: AIOKafkaProducer):
-        await producer.stop()
-    
-    @classmethod
-    async def consume(cls,consumer:AIOKafkaConsumer):
+ 
+    async def consume(self,consumer:AIOKafkaConsumer):
         try:
-
             async for message in consumer:
                 print("consumed: ",  message.value)
                 print("type: ",  type(message.value))

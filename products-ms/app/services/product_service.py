@@ -1,19 +1,21 @@
 
 import re
+
+from aiokafka import AIOKafkaProducer
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.schemas import ProductCreateRequest, ProductItem
 from app.exceptions.definitions import BrokerMessagePublishError, CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple
 from app.models.models import Product, Category, PyObjectId, ShopProductEvent
-from app.brokers.message_broker import MessageBroker
 from pymongo import MongoClient
+from app.brokers.producers.producer import MessageProducer
 
 class ProductService:
-    def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository, message_broker:MessageBroker) -> None:
+    def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository, message_producer:MessageProducer) -> None:
         self.product_repository: ProductRepository = product_repository
         self.category_repository:CategoryRepository = category_repository
-        self.message_broker: MessageBroker = message_broker
+        self.message_producer:MessageProducer = message_producer
 
     def check_product_format(self, product:Product):
         if not re.match(r'^[a-zA-Z\s]+$', product.name):
@@ -87,25 +89,30 @@ class ProductService:
             with session.start_transaction():
                 try:
                     # Helper function for verification 
-                    prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
-                    product: Product=prod_tuple[0]
-                    categories:List[str] = prod_tuple[1]
                     
-                   
-                    created_product : Product = self.product_repository.create_product(product)
+                    prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
+                    
+                    product: Product=prod_tuple[0]
+                    categories:List[str] = prod_tuple[1]                
+                    
+                    
+                    created_product : Product = self.product_repository.create_product(product,session)
+                    
                     # Publish message
                      # Create event
                     create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
-                    await self.message_broker.publish_message(create_product_event)
-                    
-                  
-                    print("PRODUCT23",created_product)
+                    message_producer: AIOKafkaProducer = await self.message_producer.get_producer()
+                   
+                    await message_producer.send(topic='shop', value=create_product_event.model_dump_json())
+                   
                     created_product.categories = categories
 
-                    session.commit_transaction()                
+                    session.commit_transaction()      
+
                     return created_product
                 
                 except Exception as e:
+                    print("EXCEPTION", e)
                     session.abort_transaction()
                     raise BrokerMessagePublishError()
 
@@ -161,6 +168,6 @@ class ProductService:
 
         product : Product = Product(name=name, description=description, price=price,categories=categories_ids, quantity=quantity)
         self.check_product_format(product)
-
+   
         return product, categories
 

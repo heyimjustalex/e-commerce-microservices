@@ -5,11 +5,12 @@ from app.services.product_service import ProductService
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
 from app.database.connector import Connector
-from app.brokers.message_broker import MessageBroker
+
 from pymongo import MongoClient
+from app.brokers.producers.producer import MessageProducer
 
 def get_products_service(db: Database = Depends(Connector.get_db),client: MongoClient = Depends(Connector.get_db_client)) -> ProductService:
-    return ProductService(ProductRepository(db,client),CategoryRepository(db),MessageBroker())
+    return ProductService(ProductRepository(db,client),CategoryRepository(db),MessageProducer())
 
 
 

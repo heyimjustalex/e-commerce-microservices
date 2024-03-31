@@ -4,75 +4,43 @@ import json
 import logging
 import time
 app = FastAPI()
+from pymongo import MongoClient
+from pymongo.errors import OperationFailure
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+uri = "mongodb://root:root@products-db:27017"
+print("DUPA")
+# Connect to MongoDB
+client = MongoClient(uri)
 
-# Kafka configuration
-KAFKA_BOOTSTRAP_SERVERS = 'message-broker:19092'
-KAFKA_TOPIC = 'test_topic'
+# Access a database
+db = client["shop"]
 
+# Access a collection
+collection = db["products"]
 
-def kafka_consumer():
-    conf = {
-        'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,
-        'group.id': 'my_consumer_group',
-        'auto.offset.reset': 'earliest'
-    }
-    return Consumer(**conf)
-
-def kafka_producer():
-    conf = {        'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,
-        'group.id': 'my_consumer_group',
-        'auto.offset.reset': 'earliest'}
-    return Producer(**conf)
-
-
-@app.post("/publish/")
-async def publish_message(message: dict):
-    # Initialize Kafka producer
-    producer = kafka_producer()
-
-    try:
-        # Produce message to Kafka topic
-        producer.produce(KAFKA_TOPIC, json.dumps(message))
-        # Flush producer to ensure message is sent
-        producer.flush()
-        return {"message": "Message published successfully"}
-    except KafkaError as e:
-        raise HTTPException(status_code=500, detail=f"Error publishing message to Kafka: {e}")
+# Start a session
+with client.start_session() as session:
+    # Start a transaction
+    with session.start_transaction():
+        try:
+            # Perform operations within the transaction
+            # For example, insert a document into the collection
+            test = {'key':'OMFG2'}
+            print(test)
+            collection.insert_one(test, session=session)
+          #  raise OperationFailure("Test transaction rollbac k")
+            
+            # If an error occurs, raise an exception to roll back the transaction
+            # For testing purposes, let's raise an OperationFailure
 
 
+            # If no exception is raised, commit the transaction
+            session.commit_transaction()
+        except OperationFailure as e:
+            # If an OperationFailure occurs, the transaction will be aborted
+            print(f"Transaction failed: {e}")
+            session.abort_transaction()
 
-@app.get("/subscribe/")
-async def subscribe_messages():
-    # Initialize Kafka consumer
-    consumer = kafka_consumer()
-
-    # Subscribe to Kafka topic
-    consumer.subscribe([KAFKA_TOPIC])
-
-    messages = []
-
-
-    while True:
-        try: 
-            message = consumer.poll(10.0)
-
-            if not message:
-                time.sleep(120) # Sleep for 2 minutes
-
-            if message.error():
-                print(f"Consumer error: {message.error()}")
-                continue
-
-            print(f"Received message: {message.value().decode('utf-8')}")
-        except:
-            pass
-
-        finally:
-            consumer.close()
-            print("Goodbye")
-
+# Close the MongoDB connection
+client.close()
 

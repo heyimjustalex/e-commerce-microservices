@@ -1,23 +1,7 @@
 # Dev version is without tests and live reload
 version: "3.9"
 services:
-  publisher:
-    container_name: publisher
-    build:
-      context: ./publisher
-      dockerfile: Dockerfile
-    ports:
-      - 8009:8000
-    environment:
-      - WATCHFILES_FORCE_POLLING=true
-    networks:
-      - network
-    restart: on-failure
-    volumes:
-      - ./publisher/app/:/app:ro
-
   ###  ----------------------------- MESSAGE-BROKER  -----------------------------
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
     hostname: zookeeper
@@ -57,39 +41,41 @@ services:
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zookeeper
+
   ###  ----------------------------- API GATEWAY  -----------------------------
   api-gateway-ms:
-    container_name: api-gateway-ms
     build:
       context: ./api-gateway-ms
       dockerfile: Dockerfile
-    networks:
-      - network
-    restart: on-failure
-    volumes:
-      - ./api-gateway-ms/app/:/app:ro
+    container_name: api-gateway-ms
+    restart: always
     ports:
       - 8080:8000
+    volumes:
+      - ./api-gateway-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - JWT_TOKEN_ALG=HS256
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
+    networks:
+      - network
 
   ### ----------------------------- AUTHENTICATION -----------------------------
   authentication-ms:
-    container_name: authentication-ms
-    depends_on:
-      - authentication-db
     build:
       context: ./authentication-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
       # Prod version of Dockerfile
       # dockerfile: Dockerfile.test
-    volumes:
-      - ./authentication-ms/app/:/app:ro
+    container_name: authentication-ms
+    restart: always
+    depends_on:
+      - authentication-db
     ports:
       - 8000:8000
+    volumes:
+      - ./authentication-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=authentication-db
@@ -107,19 +93,19 @@ services:
       - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
     networks:
       - network
-    restart: on-failure
 
   authentication-db:
-    image: mongo:7.0.7-rc2-jammy
+    image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: authentication-db
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: authentication
     volumes:
-      # - users_db_data:/data/db
-      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_KEY=123456
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=root
     networks:
       - network
 
@@ -128,7 +114,8 @@ services:
     container_name: adminpanel-authentication-db
     depends_on:
       - authentication-db
-    restart: always
+    ports:
+      - "8081:8081"
     environment:
       # this does not seem to work to modify connection server
       - ME_CONFIG_MONGODB_SERVER=authentication-db
@@ -139,24 +126,25 @@ services:
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
     # to login to panel use: admin/pass
+    restart: always
     networks:
       - network
 
   ### ----------------------------- PRODUCTS -----------------------------
   products-ms:
-    container_name: products-ms
-    depends_on:
-      - products-db
     build:
       context: ./products-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
       # Prod version of Dockerfile
       # dockerfile: Dockerfile.test
-    volumes:
-      - ./products-ms/app/:/app:ro
+    container_name: products-ms
+    depends_on:
+      - products-db
     ports:
       - 8001:8000
+    volumes:
+      - ./products-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=products-db
@@ -179,25 +167,26 @@ services:
     restart: on-failure
 
   products-db:
-    image: mongo:7.0.7-rc2-jammy
+    image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: products-db
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: products
     volumes:
-      # - users_db_data:/data/db
-      - ./db/products-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_KEY=123456
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=root
     networks:
       - network
 
   adminpanel-products-db:
     image: mongo-express:1-20-alpine3.19
     container_name: adminpanel-products-db
+    restart: always
     depends_on:
       - products-db
-    restart: always
     ports:
       - "8082:8081"
     environment:
@@ -214,19 +203,20 @@ services:
       - network
   ### ----------------------------- ORDERS -----------------------------
   orders-ms:
-    container_name: orders-ms
-    depends_on:
-      - orders-db
     build:
       context: ./orders-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
       # Prod version of Dockerfile
       # dockerfile: Dockerfile.test
-    volumes:
-      - ./orders-ms/app/:/app:ro
+    container_name: orders-ms
+    restart: always
+    depends_on:
+      - orders-db
     ports:
       - 8002:8000
+    volumes:
+      - ./orders-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=orders-db
@@ -242,22 +232,21 @@ services:
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
       - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
-
     networks:
       - network
-    restart: on-failure
 
   orders-db:
-    image: mongo:7.0.7-rc2-jammy
+    image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: orders-db
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: orders
     volumes:
-      # - orders_db_data:/data/db
-      - ./db/orders-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_KEY=123456
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=root
     networks:
       - network
 
@@ -278,10 +267,9 @@ services:
       - ME_CONFIG_MONGODB_AUTH_USERNAME=root
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
-    # to login to panel use: admin/pass
+      # to login to panel use: admin/pass
     networks:
       - network
-
 volumes:
   users_db_data:
     name: users_db_data

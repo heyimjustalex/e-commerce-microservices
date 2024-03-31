@@ -5,6 +5,7 @@ from app.models.models import Product,PyObjectId
 from typing import Any, Dict, Union
 from typing import List
 from pymongo import MongoClient
+from pymongo.client_session import ClientSession
 from bson import ObjectId
 class ProductRepository:
     def __init__(self, db: Database, client:MongoClient) -> None:
@@ -12,9 +13,9 @@ class ProductRepository:
         self.products: Collection = self.db['products']
         self.client:MongoClient = client
 
-    def create_product(self, product: Product) -> Product:
-        product_dict: Dict[str, Any] = product.model_dump()
-        id: InsertOneResult = self.products.insert_one(product_dict)
+    def create_product(self, product: Product, session:None|ClientSession = None) -> Product:
+        product_dict: Dict[str, Any] = product.model_dump()  
+        id: InsertOneResult = self.products.insert_one(product_dict,session=session)
         product.id = str(id.inserted_id)
         return product
     

@@ -1,0 +1,62 @@
+version: "3.9"
+services:
+  products-db:
+    image: bitnami/mongodb:7.0.7-debian-12-r0
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
+    networks:
+      - network
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_KEY=123456
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=root
+
+  adminpanel-products-db:
+    image: mongo-express:1-20-alpine3.19
+    container_name: adminpanel-products-db
+    depends_on:
+      - products-db
+    restart: always
+    ports:
+      - "8084:8081"
+    environment:
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=root
+      # this does not seem to work to modify connection server
+      - ME_CONFIG_MONGODB_SERVER=products-db
+      # but this does for some reason
+      - ME_CONFIG_MONGODB_URL=mongodb://root:root@products-db:27017/
+      # db connection username and password because one from link above don't work
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
+      - ME_CONFIG_MONGODB_PORT=27017
+
+    # to login to panel use: admin/pass
+    networks:
+      - network
+
+  subscriber:
+    container_name: subscriber
+    build:
+      context: ./subscriber
+      dockerfile: Dockerfile
+    volumes:
+      - ./subscriber/app/:/app:ro
+    ports:
+      - 8002:8000
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+    networks:
+      - network
+    restart: on-failure
+
+volumes:
+  users_db_data:
+    name: users_db_data
+
+networks:
+  network:
