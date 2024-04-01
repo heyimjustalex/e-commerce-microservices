@@ -13,6 +13,12 @@ class ProductNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
         super().__init__(status_code=status_code, detail="The requested product does not exist.")
 
+class ProductQuantityBad(HTTPException):
+    def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
+        super().__init__(status_code=status_code, detail="The requested amount not exist.")
+
+
+
 class OrdersNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
         super().__init__(status_code=status_code, detail="No orders found.")

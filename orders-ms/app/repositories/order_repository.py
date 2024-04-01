@@ -4,12 +4,13 @@ from pymongo.results import InsertOneResult
 from app.models.models import Order, PyObjectId
 from typing import Any, Dict, Union
 from typing import List
+from pymongo import MongoClient
 
 class OrderRepository:
-    def __init__(self, db: Database) -> None:
+    def __init__(self, db: Database, client:MongoClient) -> None:
         self.db: Database = db
         self.orders: Collection = self.db['orders']
-
+        self.client:MongoClient = client
     def create_order(self, order: Order) -> Order:
         order_dict: Dict[str, Any] = order.model_dump()
         id: InsertOneResult = self.orders.insert_one(order_dict)

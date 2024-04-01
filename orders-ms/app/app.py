@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from app.exceptions.handlers import *
 from app.exceptions.definitions import *
 from app.controllers.orders_controller import router as orders_router
@@ -7,7 +7,6 @@ from app.broker.producers.producer import MessageProducer
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import asyncio
 from app.database.connector import Connector
-from queue import Queue
 from app.repositories.product_repository import ProductRepository
 
 
@@ -22,7 +21,9 @@ app = ExtendedFastAPI()
 @app.on_event("startup")
 async def startup():
     app.consumer = await MessageConsumer.startup_consumer()
+    app.producer = await MessageProducer.startup_producer()
     product_repository = ProductRepository(Connector.get_db(), Connector.get_db_client())
+    #await MessageConsumer.consume_when_launched(app.consumer,product_repository)
     asyncio.create_task(MessageConsumer.consume(app.consumer,product_repository))    
 
 @app.on_event("shutdown")

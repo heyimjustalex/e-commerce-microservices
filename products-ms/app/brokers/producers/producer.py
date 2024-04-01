@@ -1,11 +1,5 @@
-from fastapi import FastAPI, HTTPException
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-import asyncio
+from aiokafka import AIOKafkaProducer
 import json
-from json.decoder import JSONDecodeError
-from app.models.models import *
-from app.models.models import ShopProductEvent
-from pydantic import BaseModel
 
 class MessageProducer:
     KAFKA_TOPIC:str = 'shop'
@@ -17,20 +11,19 @@ class MessageProducer:
     @classmethod   
     async def get_producer(cls):  
         if not cls.isStarted:
-            cls._producer: AIOKafkaProducer = await cls._create_producer()
+            cls._producer: AIOKafkaProducer = await cls.startup_producer()
             cls.isStarted = True
-            print("CREATING")
+
         return cls._producer  
     
     @classmethod  
-    async def _create_producer(cls):
+    async def startup_producer(cls):
+        print("STARTUP PRODUCER")
         producer = AIOKafkaProducer(
             value_serializer=cls._serializer,        
             bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
-        )
-        print("STARTINGS")
-        await producer.start()
-        print("STARTEDS")
+        )      
+        await producer.start() 
         return producer
     
     @classmethod      

@@ -1,33 +1,36 @@
-
-from fastapi import FastAPI, HTTPException
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-import asyncio
+from aiokafka import  AIOKafkaProducer
 import json
-from json.decoder import JSONDecodeError
-from app.models.models import *
-from app.models.models import ShopProductEvent
-from app.repositories.order_repository import OrderRepository
+
 
 class MessageProducer:
-    def __init__(self) -> None:
-        self.KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
-        self.KAFKA_TOPIC:str = 'shop'
-        self.KAFKA_GROUP:str = 'group'
-        self.producer:AIOKafkaProducer | None = None
+    KAFKA_TOPIC:str = 'shop'
+    KAFKA_GROUP:str = 'group'
+    KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
+    isStarted = False
+    _producer:AIOKafkaProducer
 
-    def _serializer(self, message):
-        return json.dumps(message).encode('utf-8')
-
-
-    async def get_producer(self):
+    @classmethod   
+    async def get_producer(cls):  
+        if not cls.isStarted:
+            cls._producer: AIOKafkaProducer = await cls.startup_producer()
+            cls.isStarted = True
+        return cls._producer  
+    
+    @classmethod  
+    async def startup_producer(cls):
         producer = AIOKafkaProducer(
-        value_serializer=self._serializer,
-        bootstrap_servers=self.KAFKA_BOOTSTRAP_SERVERS,
+            value_serializer=cls._serializer,        
+            bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
         )
-    
         await producer.start()
-        return producer  
+        return producer
     
-    async def shutdown_producer(self, producer: AIOKafkaProducer):
-        await producer.stop()
-   
+    @classmethod      
+    async def shutdown_producer(cls):
+        if cls.isStarted:
+            await cls._producer.stop()
+            
+    @classmethod  
+    def _serializer(cls, message):
+        test: bytes = json.dumps(message).encode('utf-8')
+        return test
