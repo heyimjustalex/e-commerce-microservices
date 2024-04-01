@@ -6,30 +6,40 @@ from pymongo.database import Database
 from typing import Any, Callable
 import os
 from app.database.connector import Connector
-from tests.conftest.conftest import client, app,envs, API_PRODUCT_PREFIX,inmemory_database_creation_function
+from tests.conftest.conftest import MessageProducerMock,client_creation_function, client, app,envs, API_PRODUCT_PREFIX,inmemory_database_creation_function
+from app.brokers.producers.producer import MessageProducer
+import mongomock
+import mock
 
 def test_GivenNonExistingProduct_When_Adding_Then_ProductIsAdded(
     inmemory_database_creation_function: Callable[[], Database[Any]],
+    client_creation_function,
+
     monkeypatch
 ) -> None: 
     # Update ENV variables
     monkeypatch.setattr(os, 'environ', envs)
     # Mock DB
+
+            
     app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
-    
+    app.dependency_overrides[Connector.get_db_client] = client_creation_function
+    # app.dependency_overrides[MessageProducer.get_producer]=MessageProducerMock.get_producer
     # Given
     product_data:dict[str,Any] = {
-        'name': "Mixer", 
-        'description': "An interesting set of cutlery",
-        'price': 5.99,
-        'quantity':5,
-        'categories': ["Kitchen"],
+    "product":{
+    "name": "okhiiddi",
+    "quantity":"5",
+    "description": "An interestdddhing set of cutlery",
+    "price": 5.99,
+    "categories": ["kitchen" ]
+    }
     }
     
     # When
     response: Response = client.post(API_PRODUCT_PREFIX+"/products", json=product_data)
     response_json = response.json()
-  
+    print(response_json)
     # Then
     assert response.status_code == status.HTTP_201_CREATED
     assert response_json['name']=='mixer'
@@ -49,12 +59,16 @@ def test_GivenProductWithoutCategories_When_Adding_Then_ProductAdded(
     # Mock DB
     app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
 
+
     # Given
     product_data:dict[str,Any] = {
-        'name': "Mixer", 
-        'description': "An interesting set of cutlery",
-        'price': 5.99,
-        'categories': [],
+    "product":{
+    "name": "okhiiddi",
+    "quantity":"5",
+    "description": "An interestdddhing set of cutlery",
+    "price": 5.99,
+    "categories": ["kitchen" ]
+    }
     }
     
     # When
@@ -125,7 +139,7 @@ def test_Given_ProductName_When_RequestingExistingProductByName_Then_ProductIsRe
     monkeypatch.setattr(os, 'environ', envs)
     # Mock DB
     app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
-
+    app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
     # Given
 
     # When

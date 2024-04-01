@@ -10,28 +10,35 @@ from pydantic import BaseModel
 class MessageProducer:
     KAFKA_TOPIC:str = 'shop'
     KAFKA_GROUP:str = 'group'
-    def __init__(self) -> None:
-        self.KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
-        self.isStarted = False
-       
-    async def get_producer(self):  
-        if not self.isStarted:
-            self._producer: AIOKafkaProducer = await self._create_producer()
-            self.isStarted = True
-        return self._producer  
+    KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
+    isStarted = False
+    _producer:AIOKafkaProducer
 
-    async def _create_producer(self):
+    @classmethod   
+    async def get_producer(cls):  
+        if not cls.isStarted:
+            cls._producer: AIOKafkaProducer = await cls._create_producer()
+            cls.isStarted = True
+            print("CREATING")
+        return cls._producer  
+    
+    @classmethod  
+    async def _create_producer(cls):
         producer = AIOKafkaProducer(
-            value_serializer=self._serializer,        
-            bootstrap_servers=self.KAFKA_BOOTSTRAP_SERVERS,
+            value_serializer=cls._serializer,        
+            bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
         )
+        print("STARTINGS")
         await producer.start()
+        print("STARTEDS")
         return producer
-        
-    async def shutdown_producer(self):
-        if self.isStarted:
-            await self._producer.stop()
-
-    def _serializer(self, message):
+    
+    @classmethod      
+    async def shutdown_producer(cls):
+        if cls.isStarted:
+            await cls._producer.stop()
+            
+    @classmethod  
+    def _serializer(cls, message):
         test: bytes = json.dumps(message).encode('utf-8')
         return test

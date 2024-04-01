@@ -12,10 +12,10 @@ from pymongo import MongoClient
 from app.brokers.producers.producer import MessageProducer
 
 class ProductService:
-    def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository, message_producer:MessageProducer) -> None:
+    def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository) -> None:
         self.product_repository: ProductRepository = product_repository
         self.category_repository:CategoryRepository = category_repository
-        self.message_producer:MessageProducer = message_producer
+
 
     def check_product_format(self, product:Product):
         if not re.match(r'^[a-zA-Z\s]+$', product.name):
@@ -84,29 +84,31 @@ class ProductService:
         return products
     
     async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest):
-        client:MongoClient = self.product_repository.get_mongo_client()
-        with client.start_session() as session:
-            with session.start_transaction():
-                try:
-                    # Helper function for verification                     
-                    prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
-                    product: Product=prod_tuple[0]
-                    categories:List[str] = prod_tuple[1]    
-                    # Create product and event                           
-                    created_product : Product = self.product_repository.create_product(product,session)
-                    create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
-                    # Get message producer
-                    message_producer: AIOKafkaProducer = await self.message_producer.get_producer()                    
-                    # Send message
-                    await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
-                    created_product.categories = categories
-                    # Save in local DB
-                    session.commit_transaction()    
-                    return created_product
-                
-                except Exception as e:
-                    session.abort_transaction()
-                    raise BrokerMessagePublishError()
+       
+            client:MongoClient = self.product_repository.get_mongo_client()
+            with client.start_session() as session:
+                with session.start_transaction():
+                    try:
+                        # Helper function for verification                     
+                        prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
+                        product: Product=prod_tuple[0]
+                        categories:List[str] = prod_tuple[1]    
+                        # Create product and event                           
+                        created_product : Product = self.product_repository.create_product(product,session)
+                        create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
+                        # Get message producer
+                        message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
+                        # Send message
+                        await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
+                        created_product.categories = categories
+                        # Save in local DB
+                        session.commit_transaction()    
+                        return created_product
+                    
+                    except Exception as e:
+                        print("EXCEPTION", e)
+                        session.abort_transaction()
+                        raise BrokerMessagePublishError()
 
     def create_product(self, data:ProductCreateRequest) -> Product:
         product_item : ProductItem = data.product

@@ -8,6 +8,7 @@ from mongomock import MongoClient as MockMongoClient
 import os
 from bson.objectid import ObjectId
 from app.app import app
+import mock
 client = TestClient(app)
 API_PRODUCT_PREFIX:str = os.getenv('API_PRODUCT_PREFIX','/api')
 
@@ -16,9 +17,51 @@ envs: dict[str, str] = {
     'JWT_REFRESH_TOKEN_SECRET_KEY': "refreshtokenkey",
     'JWT_ACCESS_TOKEN_EXPIRE_MINUTES': '10080',
     'JWT_TOKEN_ALG': 'HS256',
-    'JWT_REFRESH_TOKEN_EXPIRE_MINUTES': '30'
-}
+    'JWT_REFRESH_TOKEN_EXPIRE_MINUTES': '30',
 
+
+}
+    
+class AIOKafkaProducerMock:
+    def send(self, topic, object):
+        pass
+
+class MessageProducerMock:
+    isStarted = False 
+
+    @classmethod
+    async def _create_producer(cls):
+        return AIOKafkaProducerMock()
+
+    @classmethod   
+    async def get_producer(cls): 
+        if not cls.isStarted:
+            cls._producer: AIOKafkaProducerMock = await cls._create_producer()
+            cls.isStarted = True
+        return cls._producer
+
+
+class SessionMock:
+    def start_transaction(self):
+        pass
+
+@pytest.fixture()
+def client_creation_function() -> Callable[[], MockMongoClient]:
+    def get_client() -> MockMongoClient:
+        client = MockMongoClient() 
+        # this does not work for some reason 
+        with mock.patch.object(client, 'start_session') as mock_start_session:
+            # Set up the mock behavior
+            mock_session = mock_start_session.return_value
+            mock_session.__enter__.return_value = SessionMock()
+
+            # Call the function or code that uses MongoClient.start_session()
+            session = client.start_session()
+
+            # Assertion to verify if the mocked session is returned
+            print(session)
+        return client
+    return get_client
 
 @pytest.fixture()
 def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
