@@ -83,36 +83,28 @@ class ProductService:
        
         return products
     
-    async def create_product_with_event(self, data:ProductCreateRequest):
+    async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest):
         client:MongoClient = self.product_repository.get_mongo_client()
         with client.start_session() as session:
             with session.start_transaction():
                 try:
-                    # Helper function for verification 
-                    
+                    # Helper function for verification                     
                     prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
-                    
                     product: Product=prod_tuple[0]
-                    categories:List[str] = prod_tuple[1]                
-                    
-                    
+                    categories:List[str] = prod_tuple[1]    
+                    # Create product and event                           
                     created_product : Product = self.product_repository.create_product(product,session)
-                    
-                    # Publish message
-                     # Create event
                     create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
-                    message_producer: AIOKafkaProducer = await self.message_producer.get_producer()
-                   
-                    await message_producer.send(topic='shop', value=create_product_event.model_dump_json())
-                   
+                    # Get message producer
+                    message_producer: AIOKafkaProducer = await self.message_producer.get_producer()                    
+                    # Send message
+                    await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
                     created_product.categories = categories
-
-                    session.commit_transaction()      
-
+                    # Save in local DB
+                    session.commit_transaction()    
                     return created_product
                 
                 except Exception as e:
-                    print("EXCEPTION", e)
                     session.abort_transaction()
                     raise BrokerMessagePublishError()
 

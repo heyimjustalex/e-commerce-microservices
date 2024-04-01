@@ -49,6 +49,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "cutlery", 
                 'description': "An interesting set of cutlery",
                 'price': 5.99,
+                'quantity':4,
                 'categories': [ObjectId("22fefe4a1cad4140785928a4")],
             },
             {
@@ -56,6 +57,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "chair",
                 'description': "A comfortable armchair",
                 'price': 29.99,
+                'quantity':2,
                 'categories': [
                     ObjectId("23fefe4a1cad4140785928a4"),
                     ObjectId("22fefe4a1cad4140785928a4"),
@@ -66,6 +68,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "laptop",
                 'description': "A powerful computing device",
                 'price': 1299.99,
+                'quantity':1,
                 'categories': [ObjectId("21fefe4a1cad4140785928a4")],
             },
             {
@@ -73,6 +76,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "headphones",  
                 'description': "Wireless noise-cancelling headphones",
                 'price': 99.99,
+                'quantity':100,
                 'categories': [ObjectId("21fefe4a1cad4140785928a4")],
             },
         ])

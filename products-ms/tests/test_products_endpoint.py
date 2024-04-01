@@ -16,12 +16,13 @@ def test_GivenNonExistingProduct_When_Adding_Then_ProductIsAdded(
     monkeypatch.setattr(os, 'environ', envs)
     # Mock DB
     app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
-
+    
     # Given
     product_data:dict[str,Any] = {
         'name': "Mixer", 
         'description': "An interesting set of cutlery",
         'price': 5.99,
+        'quantity':5,
         'categories': ["Kitchen"],
     }
     
@@ -103,7 +104,7 @@ def test_Given_Nothing_When_RequestingProducts_Then_ProductsAreReturned(
     monkeypatch.setattr(os, 'environ', envs)
     # Mock DB
     app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
-
+    
     # Given
 
     # When

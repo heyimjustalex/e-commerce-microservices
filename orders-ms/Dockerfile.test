@@ -1,23 +1,23 @@
-FROM python:3.12-slim as tester
+FROM python:3.11-slim as tester
 WORKDIR /app
-COPY requirements.test /app
+COPY requirements.dev /app
 RUN apt-get update && \
  apt-get install -y python3-pip && \
  pip3 install pytest && \
- pip3 install --no-cache-dir -r requirements.test
+ pip3 install --no-cache-dir -r requirements.dev
 COPY . /app/
 RUN [ "python3", "-m", "pytest", "--junit-xml", "/app/test_results.xml"]
 
-FROM python:3.12-slim
+FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app/
 COPY --from=tester /app/test_results.xml .
-COPY requirements.prod /app/
+COPY requirements.dev /app/
 RUN apt-get update && \
  apt-get install -y python3-pip && \
  pip3 install pytest && \
- pip3 install --no-cache-dir -r requirements.prod
+ pip3 install --no-cache-dir -r requirements.dev
  # Difference, we don't want test folder no more
 COPY ./app /app/
 
