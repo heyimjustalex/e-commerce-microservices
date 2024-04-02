@@ -14,6 +14,9 @@ class ProductRepository:
 
     def create_product(self, product: Product) -> Product:
         product_dict: Dict[str, Any] = product.model_dump()
+        if product_dict['id']:
+            product_dict['_id'] = ObjectId(product_dict['id'])
+            product_dict.pop('id') 
         id: InsertOneResult = self.products.insert_one(product_dict)
         product.id = str(id.inserted_id)
         return product

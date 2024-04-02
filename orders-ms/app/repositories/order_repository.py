@@ -11,6 +11,7 @@ class OrderRepository:
         self.db: Database = db
         self.orders: Collection = self.db['orders']
         self.client:MongoClient = client
+
     def create_order(self, order: Order) -> Order:
         order_dict: Dict[str, Any] = order.model_dump()
         id: InsertOneResult = self.orders.insert_one(order_dict)

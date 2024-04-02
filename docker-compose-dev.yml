@@ -110,7 +110,7 @@ services:
       - network
 
   adminpanel-authentication-db:
-    image: mongo-express:1-20-alpine3.19
+    image: mongo-express:1.0.2-20-alpine3.19
     container_name: adminpanel-authentication-db
     depends_on:
       - authentication-db
@@ -182,7 +182,7 @@ services:
       - network
 
   adminpanel-products-db:
-    image: mongo-express:1-20-alpine3.19
+    image: mongo-express:1.0.2-20-alpine3.19
     container_name: adminpanel-products-db
     restart: always
     depends_on:
@@ -251,7 +251,7 @@ services:
       - network
 
   adminpanel-orders-db:
-    image: mongo-express:1-20-alpine3.19
+    image: mongo-express:1.0.2-20-alpine3.19
     container_name: adminpanel-orders-db
     depends_on:
       - orders-db

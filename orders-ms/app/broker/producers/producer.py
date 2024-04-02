@@ -10,27 +10,28 @@ class MessageProducer:
     _producer:AIOKafkaProducer
 
     @classmethod   
-    async def get_producer(cls):  
+    async def get_producer(cls) -> AIOKafkaProducer:  
         if not cls.isStarted:
             cls._producer: AIOKafkaProducer = await cls.startup_producer()
             cls.isStarted = True
         return cls._producer  
     
     @classmethod  
-    async def startup_producer(cls):
-        producer = AIOKafkaProducer(
+    async def startup_producer(cls) -> AIOKafkaProducer:
+        cls._producer = AIOKafkaProducer(
             value_serializer=cls._serializer,        
             bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
         )
-        await producer.start()
-        return producer
+        await cls._producer.start()
+        return cls._producer
     
     @classmethod      
-    async def shutdown_producer(cls):
+    async def shutdown_producer(cls) -> None:
         if cls.isStarted:
             await cls._producer.stop()
+        cls.isStarted = False
             
     @classmethod  
-    def _serializer(cls, message):
-        test: bytes = json.dumps(message).encode('utf-8')
-        return test
+    def _serializer(cls, message) -> bytes:
+        output: bytes = json.dumps(message).encode('utf-8')
+        return output

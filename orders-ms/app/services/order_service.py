@@ -42,9 +42,8 @@ class OrderService:
         except:
             raise InvalidTokenFormat()        
         return (email,role)
-    
-    
-    def _verify_create_request_format(self, data: OrderCreateRequest):
+        
+    def _verify_create_request_format(self, data: OrderCreateRequest) -> None:
         bought_products: List[BuyProductItem] = data.products
 
         if bought_products is None :
