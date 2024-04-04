@@ -23,9 +23,14 @@ class Product(BaseModel):
     categories: List[PyObjectId]= Field(default=None)
 
 
-class ShopProductEvent(BaseModel):
+class ProductCreateEvent(BaseModel):
     type: str
     product:Product
+
+class OrderCreateEvent(BaseModel):
+    type: str
+    order: Order
+
 
 
 

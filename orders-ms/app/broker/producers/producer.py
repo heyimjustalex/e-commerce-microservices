@@ -33,5 +33,5 @@ class MessageProducer:
             
     @classmethod  
     def _serializer(cls, message) -> bytes:
-        output: bytes = json.dumps(message).encode('utf-8')
-        return output
+        return json.dumps(message).encode('utf-8')
+

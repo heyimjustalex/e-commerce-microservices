@@ -3,11 +3,11 @@ from app.models.models import BuyProductItem
 from typing import List
 
 class OrderCreateRequest(BaseModel):
-    access_token:str
+    email:str
     products:List[BuyProductItem]
 
 class OrdersRequest(BaseModel):
-    access_token:str
+    email:str
 
 class OrderCreatedResponse(BaseModel):
     status: str

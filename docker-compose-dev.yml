@@ -2,57 +2,63 @@
 version: "3.9"
 services:
   ###  ----------------------------- MESSAGE-BROKER  -----------------------------
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.2
-    hostname: zookeeper
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_SERVERS: zookeeper:2888:3888
-    networks:
-      - network
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.3.2
+  #   hostname: zookeeper
+  #   container_name: zookeeper
+  #   ports:
+  #     - "2181:2181"
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_SERVER_ID: 1
+  #     ZOOKEEPER_SERVERS: zookeeper:2888:3888
+  #   networks:
+  #     - network
 
-  message-broker:
-    image: confluentinc/cp-kafka:7.3.2
-    hostname: message-broker
-    container_name: message-broker
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-      - "9999:9999"
-    networks:
-      - network
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://message-broker:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_JMX_PORT: 9999
-      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
-      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-    depends_on:
-      - zookeeper
+  # message-broker:
+  #   image: confluentinc/cp-kafka:7.3.2
+  #   hostname: message-broker
+  #   container_name: message-broker
+  #   ports:
+  #     - "9092:9092"
+  #     - "29092:29092"
+  #     - "9999:9999"
+  #   networks:
+  #     - network
+  #   environment:
+  #     KAFKA_ADVERTISED_LISTENERS: INTERNAL://message-broker:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  #     KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+  #     KAFKA_JMX_PORT: 9999
+  #     KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
+  #     KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
+  #     KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+  #   depends_on:
+  #     - zookeeper
+  #   healthcheck:
+  #     test: nc -z localhost 19092 || exit -1
+  #     start_period: 25s
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 10
 
   ###  ----------------------------- API GATEWAY  -----------------------------
-  api-gateway-ms:
+  gateway-ms:
     build:
-      context: ./api-gateway-ms
+      context: ./gateway-ms
       dockerfile: Dockerfile
-    container_name: api-gateway-ms
+    container_name: gateway-ms
     restart: always
     ports:
       - 8080:8000
     volumes:
-      - ./api-gateway-ms/app/:/app:ro
+      - ./gateway-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - JWT_TOKEN_ALG=HS256
@@ -108,10 +114,17 @@ services:
       - MONGODB_ROOT_PASSWORD=root
     networks:
       - network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   adminpanel-authentication-db:
     image: mongo-express:1.0.2-20-alpine3.19
     container_name: adminpanel-authentication-db
+    restart: always
     depends_on:
       - authentication-db
     ports:
@@ -126,7 +139,7 @@ services:
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
     # to login to panel use: admin/pass
-    restart: always
+
     networks:
       - network
 
@@ -139,8 +152,11 @@ services:
       # Prod version of Dockerfile
       # dockerfile: Dockerfile.test
     container_name: products-ms
+    restart: always
     depends_on:
+      # - message-broker
       - products-db
+
     ports:
       - 8001:8000
     volumes:
@@ -164,7 +180,6 @@ services:
 
     networks:
       - network
-    restart: on-failure
 
   products-db:
     image: bitnami/mongodb:7.0.7-debian-12-r0
@@ -180,6 +195,12 @@ services:
       - MONGODB_ROOT_PASSWORD=root
     networks:
       - network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   adminpanel-products-db:
     image: mongo-express:1.0.2-20-alpine3.19
@@ -212,7 +233,9 @@ services:
     container_name: orders-ms
     restart: always
     depends_on:
+      # - message-broker
       - orders-db
+
     ports:
       - 8002:8000
     volumes:
@@ -249,6 +272,12 @@ services:
       - MONGODB_ROOT_PASSWORD=root
     networks:
       - network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   adminpanel-orders-db:
     image: mongo-express:1.0.2-20-alpine3.19

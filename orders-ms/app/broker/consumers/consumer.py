@@ -4,7 +4,7 @@ import json
 from json.decoder import JSONDecodeError
 from ...models.models import Product
 from app.models.models import *
-from app.models.models import ShopProductEvent
+from app.models.models import ProductCreateEvent
 from app.repositories.product_repository import ProductRepository
 import os
 
@@ -40,6 +40,7 @@ class MessageConsumer:
 
     @classmethod
     async def startup_consumer(cls) -> AIOKafkaConsumer:
+        print("ORDERS STARTUP CONSUMER")
         try:
             cls._consumer = AIOKafkaConsumer(
             cls.KAFKA_TOPIC,
@@ -68,7 +69,7 @@ class MessageConsumer:
     
     @classmethod
     async def consume(cls,consumer:AIOKafkaConsumer, product_repository:ProductRepository) -> None:
-       
+        print("Invoked consumer")
         try:
             async for message in consumer:
                 print("IN MESSAGES")
@@ -77,10 +78,10 @@ class MessageConsumer:
                     print("ORDER GOT MESS", json_mess)
                     if json_mess['type'] == 'ProductCreate':
                         sent_id = json_mess['product']['id']
-                        message_fix: ShopProductEvent = ShopProductEvent.model_validate_json(message.value)
+                        message_fix: ProductCreateEvent = ProductCreateEvent.model_validate_json(message.value)
                         message_fix.product._id= sent_id           
                         message_fix.product.id= sent_id        
-                        new_event : ShopProductEvent = ShopProductEvent(type=message_fix.type, product=message_fix.product)
+                        new_event : ProductCreateEvent = ProductCreateEvent(type=message_fix.type, product=message_fix.product)
                         existing_product: Product | None = product_repository.get_product_by_name(new_event.product.name)
                         if not existing_product:
                             print("not existing product", new_event.product.name)
@@ -90,4 +91,3 @@ class MessageConsumer:
                             print("product exists, so im not creating")
         except Exception as e:
             print("ORDERSEXCEPTION: ProductCreate event consuming Error")
-

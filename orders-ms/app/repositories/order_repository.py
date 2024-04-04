@@ -5,6 +5,7 @@ from app.models.models import Order, PyObjectId
 from typing import Any, Dict, Union
 from typing import List
 from pymongo import MongoClient
+from pymongo.client_session import ClientSession
 
 class OrderRepository:
     def __init__(self, db: Database, client:MongoClient) -> None:
@@ -12,9 +13,9 @@ class OrderRepository:
         self.orders: Collection = self.db['orders']
         self.client:MongoClient = client
 
-    def create_order(self, order: Order) -> Order:
+    def create_order(self, order: Order, session:None|ClientSession = None) -> Order:
         order_dict: Dict[str, Any] = order.model_dump()
-        id: InsertOneResult = self.orders.insert_one(order_dict)
+        id: InsertOneResult = self.orders.insert_one(order_dict, session=session)
         order._id = id.inserted_id
         return order
  

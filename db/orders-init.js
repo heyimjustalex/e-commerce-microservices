@@ -25,7 +25,7 @@ db.orders.insertMany([
   {
     _id: ObjectId("72fefe4a1cad4140785928a4"),
     client_email: "bbb@bbb.com",
-    status: "ORDERED",
+    status: "ACCEPTED",
     cost: 1299.99,
     products: [
       {

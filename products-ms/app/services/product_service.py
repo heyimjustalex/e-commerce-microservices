@@ -84,7 +84,7 @@ class ProductService:
         return products
     
     async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest):
-       
+            print("ASD")
             client:MongoClient = self.product_repository.get_mongo_client()
             with client.start_session() as session:
                 with session.start_transaction():
@@ -97,9 +97,10 @@ class ProductService:
                         created_product : Product = self.product_repository.create_product(product,session)
                         create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
                         # Get message producer
-                        message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
+                       # message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
+             
                         # Send message
-                        await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
+                        # await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
                         created_product.categories = categories
                         # Save in local DB
                         session.commit_transaction()    
@@ -108,6 +109,7 @@ class ProductService:
                     except Exception as e:
                         print("EXCEPTION", e)
                         session.abort_transaction()
+                        #TODO FIX BAD EXCEPTION RAISING
                         raise BrokerMessagePublishError()
 
     def create_product(self, data:ProductCreateRequest) -> Product:
@@ -151,6 +153,7 @@ class ProductService:
             ProductIncorrectFormat()
 
         if self.product_repository.get_product_by_name(name):
+            print("ALREADY EXISTIS")
             raise ProductAlreadyExists()
         
         categories_ids:List[str] = []
