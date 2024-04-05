@@ -1,7 +1,6 @@
 // Script for creating init users in mongoDB
-
+// Hashes are SHA-256
 db = db.getSiblingDB("shop");
-
 db.createCollection("users");
 
 db.users.insertMany([

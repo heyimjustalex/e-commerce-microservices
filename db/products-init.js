@@ -4,6 +4,7 @@ db = db.getSiblingDB("shop");
 
 db.createCollection("products");
 db.createCollection("categories");
+
 db.categories.insertMany([
   {
     _id: ObjectId("21fefe4a1cad4140785928a4"),

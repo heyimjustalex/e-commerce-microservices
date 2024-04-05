@@ -27,7 +27,6 @@ async def product_quantity_bad_exception_handler(request: Request, exc:ProductQu
         content={'detail':exc.detail}
     )
 
-
 async def orders_not_found_exception_handler(request: Request, exc:OrdersNotFound):
     return JSONResponse(
         status_code=exc.status_code,
@@ -40,6 +39,11 @@ async def orders_incorrect_format_exception_handler(request: Request, exc:Orders
         content={'detail':exc.detail}
     )
 
+async def orders_placing_failed_exception_handler(request: Request, exc:OrderPlacingFailed):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail':exc.detail}
+    )
 
 async def invalid_token_format_exception_handler(request: Request, exc:InvalidTokenFormat):
     return JSONResponse(
@@ -47,7 +51,11 @@ async def invalid_token_format_exception_handler(request: Request, exc:InvalidTo
         content={'detail':exc.detail}
     )
 
-
+async def invalid_token_email_exception_handler(request: Request, exc:InvalidTokenEmail):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail':exc.detail}
+    )
 
 async def category_not_found_exception_handler(request: Request, exc:CategoryNotFound):
     return JSONResponse(

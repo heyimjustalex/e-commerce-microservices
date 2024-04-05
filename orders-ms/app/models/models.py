@@ -22,7 +22,6 @@ class Product(BaseModel):
     quantity:int
     categories: List[PyObjectId]= Field(default=None)
 
-
 class ProductCreateEvent(BaseModel):
     type: str
     product:Product

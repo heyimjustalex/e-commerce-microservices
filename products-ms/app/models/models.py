@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field,BeforeValidator
-from typing import List,  Annotated, Any, Dict
-import json
+from typing import List,  Annotated
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -16,10 +15,7 @@ class Product(BaseModel):
 
 class Category(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
-    name: str
-    
-
-
+    name: str  
 
 class ShopProductEvent(BaseModel):
     type: str

@@ -20,7 +20,6 @@ async def token_expired_exception_handler(request: Request, exc:NoAccessToResour
         content={'detail':exc.detail}
     )
 
-
 async def endpoint_not_found_exception_handler(request: Request, exc:EndpointNotFound):
     return JSONResponse(
         status_code=exc.status_code,

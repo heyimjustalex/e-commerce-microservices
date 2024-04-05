@@ -18,7 +18,6 @@ class CategoryRepository:
             return None
         return Category(**category)
 
-
     def get_category_by_name(self, category_name: str) -> Union[Category, None]:
         category_data:Union[Category, None] = self.categories.find_one({"name": {"$regex": f"^{category_name}$", "$options": "i"}})
 

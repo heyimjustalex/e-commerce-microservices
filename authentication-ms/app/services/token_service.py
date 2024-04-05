@@ -8,11 +8,9 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from app.exceptions.definitions import RefreshTokenInvalid
 
-
 class TokenService:
     def __init__(self, user_repository:UserRepository) -> None:
-        self.user_repository: UserRepository = user_repository
-        
+        self.user_repository: UserRepository = user_repository        
         self.JWT_ACCESS_TOKEN_SECRET_KEY : Union[str, None]  = os.getenv('JWT_ACCESS_TOKEN_SECRET_KEY')
         self.JWT_REFRESH_TOKEN_SECRET_KEY : Union[str, None]  = os.getenv('JWT_REFRESH_TOKEN_SECRET_KEY')
         self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES : int = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRE_MINUTES',7*24*60))
@@ -22,14 +20,12 @@ class TokenService:
     def create_access_token(self, data:User) -> str:
         expire: datetime = datetime.now(timezone.utc) + timedelta(minutes=self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
         data_to_encode:dict[str,Any] = {"email":data.email,"role":data.role, "exp":expire}
-       #exception?
         encoded_jwt:str = jwt.encode(data_to_encode,str(self.JWT_ACCESS_TOKEN_SECRET_KEY),str(self.JWT_TOKEN_ALG))
         return encoded_jwt
     
     def create_refresh_token(self, data:User) -> str:
         expire: datetime = datetime.now(timezone.utc) + timedelta(minutes=self.JWT_REFRESH_TOKEN_EXPIRE_MINUTES)
         data_to_encode:dict[str,Any] = {"email":data.email,"role":data.role, "exp":expire}
-        #exception?
         encoded_jwt:str = jwt.encode(data_to_encode,str(self.JWT_REFRESH_TOKEN_SECRET_KEY),str(self.JWT_TOKEN_ALG))
         return encoded_jwt
     

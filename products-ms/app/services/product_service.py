@@ -1,6 +1,5 @@
 
 import re
-
 from aiokafka import AIOKafkaProducer
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
@@ -84,13 +83,14 @@ class ProductService:
         return products
     
     async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest):
-            print("ASD")
             client:MongoClient = self.product_repository.get_mongo_client()
+            # Helper function for verification 
+            prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
             with client.start_session() as session:
                 with session.start_transaction():
                     try:
-                        # Helper function for verification                     
-                        prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
+                                            
+                       
                         product: Product=prod_tuple[0]
                         categories:List[str] = prod_tuple[1]    
                         # Create product and event                           
@@ -107,7 +107,7 @@ class ProductService:
                         return created_product
                     
                     except Exception as e:
-                        print("EXCEPTION", e)
+                  
                         session.abort_transaction()
                         #TODO FIX BAD EXCEPTION RAISING
                         raise BrokerMessagePublishError()
@@ -153,7 +153,6 @@ class ProductService:
             ProductIncorrectFormat()
 
         if self.product_repository.get_product_by_name(name):
-            print("ALREADY EXISTIS")
             raise ProductAlreadyExists()
         
         categories_ids:List[str] = []

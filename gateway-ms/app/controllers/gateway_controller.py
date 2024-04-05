@@ -25,8 +25,6 @@ async def get_orders(request:Request):
 
    params : QueryParams = QueryParams({'email':email})
 
-
-
    try:
         async with httpx.AsyncClient() as client:      
             response: httpx.Response = await client.get(backend_service_url + path,params=params)

@@ -1,4 +1,4 @@
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from fastapi import  Request
 from app.exceptions.definitions import *
 

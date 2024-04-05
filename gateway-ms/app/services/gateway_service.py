@@ -1,4 +1,3 @@
-from fastapi.datastructures import QueryParams
 from app.exceptions.definitions import *
 from app.exceptions.handlers import *
 from typing import Union, Any
@@ -17,13 +16,11 @@ class GatewayService:
         map_key: tuple[str, str, str] = (path.lower(), method.upper(), role.lower())
         
         if map_key not in endpoint_access_map:
-            print("MAP KEY", map_key)
             return True
         return endpoint_access_map[map_key]
 
     def _get_role_email_tuple_from_token(self, access_token: str) -> tuple[str,str]:
-        if not self.JWT_ACCESS_TOKEN_SECRET_KEY or not self.JWT_TOKEN_ALG:
-          
+        if not self.JWT_ACCESS_TOKEN_SECRET_KEY or not self.JWT_TOKEN_ALG:          
             raise TokenInvalid()        
         try:    
             decoded_jwt: dict[str, Any] = jwt.decode(access_token, str(self.JWT_ACCESS_TOKEN_SECRET_KEY), [str(self.JWT_TOKEN_ALG)])
@@ -32,18 +29,15 @@ class GatewayService:
         email: str = decoded_jwt['email']
         role: str = decoded_jwt['role']
         exp: float = decoded_jwt['exp']
-        if not email or not role or not exp:
-            
-            raise TokenInvalid()
-       
+        if not email or not role or not exp:            
+            raise TokenInvalid()       
         
         expiration_time: datetime = datetime.fromtimestamp(exp).replace(tzinfo=timezone.utc)
         if expiration_time < datetime.now(timezone.utc):
             raise TokenInvalid()
         return role, email         
     
-    def verify_request(self, request:Request):
-        print("DUPA")
+    def verify_request(self, request:Request): 
         path: str = request.url.path
 
         if path not in endpoint_redirect_map:
@@ -51,7 +45,6 @@ class GatewayService:
 
         method:str = request.method
         token: str | None = request.headers.get('Authorization')
-
         role:str = "visitor"
 
         if token:

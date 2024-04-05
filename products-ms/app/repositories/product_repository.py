@@ -7,6 +7,7 @@ from typing import List
 from pymongo import MongoClient
 from pymongo.client_session import ClientSession
 from bson import ObjectId
+
 class ProductRepository:
     def __init__(self, db: Database, client:MongoClient) -> None:
         self.db: Database = db

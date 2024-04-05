@@ -170,14 +170,6 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_PRODUCT_PREFIX=/api
-
-      # JWT CONF
-      - JWT_TOKEN_ALG=HS256
-      - JWT_REFRESH_TOKEN_SECRET_KEY=fasfsafasfasfas
-      - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
-      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
-      - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
-
     networks:
       - network
 
@@ -249,12 +241,7 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_ORDERS_PREFIX=/api
-      # JWT CONF
-      - JWT_TOKEN_ALG=HS256
-      - JWT_REFRESH_TOKEN_SECRET_KEY=fasfsafasfasfas
-      - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
-      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
-      - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
+
     networks:
       - network
 

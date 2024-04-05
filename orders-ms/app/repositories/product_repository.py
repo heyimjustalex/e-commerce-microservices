@@ -6,6 +6,7 @@ from typing import Any, Dict, Union
 from typing import List
 from pymongo import MongoClient
 from bson import ObjectId
+
 class ProductRepository:
     def __init__(self, db: Database, client:MongoClient) -> None:
         self.db: Database = db

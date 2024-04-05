@@ -40,11 +40,12 @@ app.add_exception_handler(ProductNotFound, product_not_found_exception_handler)
 app.add_exception_handler(ProductQuantityBad,product_quantity_bad_exception_handler)
 app.add_exception_handler(OrdersNotFound, orders_not_found_exception_handler)
 app.add_exception_handler(OrdersIncorrectFormat, orders_not_found_exception_handler)
+app.add_exception_handler(OrderPlacingFailed, orders_placing_failed_exception_handler)
+
 app.add_exception_handler(InvalidTokenFormat, invalid_token_format_exception_handler)
+app.add_exception_handler(InvalidTokenEmail, invalid_token_email_exception_handler)
 
 app.add_exception_handler(CategoryNotFound,category_not_found_exception_handler)
-
 app.add_exception_handler(BrokerMessagePublishError, broker_message_publish_exception_handler)
-
 app.include_router(orders_router)
  

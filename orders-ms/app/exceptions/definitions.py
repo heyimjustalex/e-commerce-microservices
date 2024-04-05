@@ -25,9 +25,17 @@ class OrdersIncorrectFormat(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
         super().__init__(status_code=status_code, detail="Bad request format")
 
+class OrderPlacingFailed(HTTPException):
+    def __init__(self, status_code: int =status.HTTP_500_INTERNAL_SERVER_ERROR):
+        super().__init__(status_code=status_code, detail="Placing order failed, try again later")
+
 class InvalidTokenFormat(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
         super().__init__(status_code=status_code, detail="Invalid token format")
+        
+class InvalidTokenEmail(HTTPException):
+    def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
+        super().__init__(status_code=status_code, detail="Invalid email from JWT token") 
 
 class CategoryNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
@@ -36,3 +44,4 @@ class CategoryNotFound(HTTPException):
 class BrokerMessagePublishError(HTTPException):
     def __init__(self, status_code: int =status.HTTP_503_SERVICE_UNAVAILABLE):
         super().__init__(status_code=status_code, detail="Broker publish error") 
+
