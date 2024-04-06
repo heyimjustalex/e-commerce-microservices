@@ -1,18 +1,29 @@
 
-from fastapi import FastAPI, HTTPException
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-import asyncio
+from aiokafka import AIOKafkaConsumer
 import json
 from json.decoder import JSONDecodeError
+from app.models.models import Product
 from app.models.models import *
-from app.models.models import ShopProductEvent
 from app.repositories.product_repository import ProductRepository
-from queue import Queue
-
+import os
+import traceback
+import sys
+import time
+import asyncio
 class MessageConsumer:
-    KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
-    KAFKA_TOPIC:str = 'shop'
-    KAFKA_GROUP:str = 'group'
+  
+    KAFKA_TOPIC:str  = os.getenv('KAFKA_TOPIC', 'shop')
+    KAFKA_GROUP:str =  os.getenv('KAFKA_GROUP', 'group')
+    KAFKA_BOOTSTRAP_SERVERS:str = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'message-broker:19092')
+    isStarted = False
+    _consumer : AIOKafkaConsumer
+
+    @classmethod   
+    async def get_consumer(cls) -> AIOKafkaConsumer:  
+        if not cls.isStarted:
+            cls._consumer: AIOKafkaConsumer 
+            cls.isStarted = True
+        return cls._consumer
     
     @classmethod
     def _deserializer(cls,message):
@@ -22,37 +33,69 @@ class MessageConsumer:
             if isinstance(message, bytes):
                 return message.decode('utf-8')
             else:
-                return message           
+                return message       
 
     @classmethod
-    async def startup_consumer(cls):
-        consumer = AIOKafkaConsumer(
-        cls.KAFKA_TOPIC,
-        value_deserializer=cls._deserializer,
-        bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
-        group_id=cls.KAFKA_GROUP)
-        await consumer.start()
-        return consumer
+    async def _retrieve_messages(cls) -> None:
+        for tp in cls._consumer.assignment():
+           await cls._consumer.seek_to_beginning(tp)    
+
+    @classmethod
+    async def startup_consumer(cls) -> AIOKafkaConsumer:
+        print("ORDERS STARTUP CONSUMER")
+        try:
+            cls._consumer = AIOKafkaConsumer(          
+            cls.KAFKA_TOPIC,
+            # loop=loop,
+            value_deserializer=cls._deserializer,
+            bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
+            auto_offset_reset='earliest',
+            max_poll_records=100,
+            enable_auto_commit=False,
+            group_id=cls.KAFKA_GROUP)
+
+            # await cls._consumer.start()      
+            cls.isStarted = True
+            # await cls._retrieve_messages()
+          
+        except:
+            await cls._consumer.stop()
+            cls.isStarted = False
+  
+        return cls._consumer
+        
         
     @classmethod          
-    async def shutdown_consumer(cls,consumer:AIOKafkaConsumer):
+    async def shutdown_consumer(cls,consumer:AIOKafkaConsumer) -> None:
         await consumer.stop()
+        cls.isStarted = False
     
     @classmethod
-    async def consume(cls,consumer:AIOKafkaConsumer, product_repository:ProductRepository):
-        try:
-            async for message in consumer:
-                print("consumed: ",  message.value)
-                print("type: ",  type(message.value))
-                if type(message.value) == dict:
-                    json_mess = json.dumps(message.value)
-                    if message.value['type'] == 'ProductCreate':
-                        sent_id = message.value['product']['id']
-                        message_fix: ShopProductEvent = ShopProductEvent.model_validate_json(json_mess)
-                        message_fix.product.id= sent_id               
-                        new_event : ShopProductEvent = ShopProductEvent(type=message_fix.type, product=message_fix.product)
+    async def consume(cls, product_repository:ProductRepository) -> None:
+            await cls.startup_consumer()
+            await cls._consumer.start()
+            await cls._retrieve_messages()
+            try:
+                print("KURWA")
+                async for message in cls._consumer:
+                    print("IN  M E SSAGES")
+                    if type(message.value) == str:
+                        json_mess = json.loads(message.value)
+                        print("ORDER GOT MESS", json_mess)
+                        if json_mess['type'] == 'ProductCreate':
+                            sent_id = json_mess['product']['id']
+                            message_fix: ProductCreateEvent = ProductCreateEvent.model_validate_json(message.value)
+                            message_fix.product._id= sent_id           
+                            message_fix.product.id= sent_id        
+                            new_event : ProductCreateEvent = ProductCreateEvent(type=message_fix.type, product=message_fix.product)
+                            existing_product: Product | None = product_repository.get_product_by_name(new_event.product.name)
+                            if not existing_product:
+                                print("not existing  product", new_event.product.name)
 
-                        product_repository.create_product(product=new_event.product)
-                    print("ORDERS MODEL",new_event.model_dump())
-        finally:    
-            pass
+                                prod: Product = product_repository.create_product(product=new_event.product)
+                            else:
+                                print("product exis ts, so im not creating")
+            except Exception as e:
+
+                print("ORDERSEXCE PTION: ProductCreate event consuming Error", traceback.print_exc())
+                # sys.exit(-1)

@@ -24,3 +24,6 @@ class ShopProductEvent(BaseModel):
         include_private_fields = True
 
 
+class ProductCreateEvent(BaseModel):
+    type: str
+    product:Product

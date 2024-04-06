@@ -70,6 +70,7 @@ class OrderService:
             raise BrokerMessagePublishError()
 
     async def create_order_with_event_OrderCreate(self, data:OrderCreateRequest) -> Order:
+       
         self._verify_create_request_format(data)             
        
         email : str = data.email

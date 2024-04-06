@@ -15,9 +15,9 @@ class ProductRepository:
         self.client:MongoClient = client
 
     def create_product(self, product: Product, session:None|ClientSession = None) -> Product:
-        product_dict: Dict[str, Any] = product.model_dump()  
-        id: InsertOneResult = self.products.insert_one(product_dict,session=session)
-        product.id = str(id.inserted_id)
+        product_dict: Dict[str, Any] = product.model_dump(exclude_none=True)  
+        row: InsertOneResult = self.products.insert_one(product_dict,session=session)
+        product.id = str(row.inserted_id)
         return product
     
     def get_mongo_client(self)-> MongoClient:

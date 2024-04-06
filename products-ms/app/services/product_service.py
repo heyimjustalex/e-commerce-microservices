@@ -83,7 +83,7 @@ class ProductService:
         return products
     
     async def _publish_ProductCreateEvent_to_broker(self,product:Product) -> None:        
-        try:
+        try:     
             create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=product)
             message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
             await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
@@ -103,11 +103,13 @@ class ProductService:
 
                         # Create product and publish an event                           
                         created_product : Product = self.product_repository.create_product(product,session)
-                        created_product.categories = categories
-                        # await self._publish_ProductCreateEvent_to_broker(product)
+                        
+                        await self._publish_ProductCreateEvent_to_broker(product)
 
                         # Save in local DB
                         session.commit_transaction()    
+
+                        created_product.categories = categories
                         return created_product
                     
                     except Exception as e:                  
