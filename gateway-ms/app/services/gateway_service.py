@@ -50,7 +50,6 @@ class GatewayService:
         if token:
             token = token[len('Bearer '):]
             role_email_pair : tuple[str,str] = self._get_role_email_tuple_from_token(token)
-            print(role_email_pair)
             role = role_email_pair[0]
         
         has_valid_access:bool = self._determine_request_access(path,method,role)

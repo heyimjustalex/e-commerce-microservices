@@ -4,7 +4,7 @@ from aiokafka import AIOKafkaProducer
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.schemas import ProductCreateRequest, ProductItem
-from app.exceptions.definitions import BrokerMessagePublishError, CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
+from app.exceptions.definitions import BrokerMessagePublishError,ProductCreationFailed, CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple
 from app.models.models import Product, Category, PyObjectId, ShopProductEvent
 from pymongo import MongoClient
@@ -60,7 +60,7 @@ class ProductService:
                 named_categories.append(category_name)   
         product.categories = named_categories     
         return product
-    
+        
     def get_products_by_category(self, category_name: str) -> List[Product]:
         category: Category | None = self.category_repository.get_category_by_name(category_name)
         if not category:
@@ -82,35 +82,37 @@ class ProductService:
        
         return products
     
+    async def _publish_ProductCreateEvent_to_broker(self,product:Product) -> None:        
+        try:
+            create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=product)
+            message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
+            await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
+        except:
+            raise BrokerMessagePublishError()
+           
+           
     async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest):
             client:MongoClient = self.product_repository.get_mongo_client()
             # Helper function for verification 
             prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)
             with client.start_session() as session:
                 with session.start_transaction():
-                    try:
-                                            
-                       
+                    try:                                           
                         product: Product=prod_tuple[0]
-                        categories:List[str] = prod_tuple[1]    
-                        # Create product and event                           
+                        categories:List[str] = prod_tuple[1]  
+
+                        # Create product and publish an event                           
                         created_product : Product = self.product_repository.create_product(product,session)
-                        create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=created_product)
-                        # Get message producer
-                       # message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
-             
-                        # Send message
-                        # await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
                         created_product.categories = categories
+                        # await self._publish_ProductCreateEvent_to_broker(product)
+
                         # Save in local DB
                         session.commit_transaction()    
                         return created_product
                     
-                    except Exception as e:
-                  
+                    except Exception as e:                  
                         session.abort_transaction()
-                        #TODO FIX BAD EXCEPTION RAISING
-                        raise BrokerMessagePublishError()
+                        raise ProductCreationFailed()
 
     def create_product(self, data:ProductCreateRequest) -> Product:
         product_item : ProductItem = data.product

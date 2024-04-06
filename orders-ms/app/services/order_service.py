@@ -1,10 +1,9 @@
 
 import re
-from fastapi import Request
 from app.models.models import Product, OrderCreateEvent
 from app.repositories.order_repository import OrderRepository
 from app.schemas.schemas import OrderCreateRequest, OrdersRequest
-from app.exceptions.definitions import OrderPlacingFailed, ProductQuantityBad, InvalidTokenEmail, ProductNotFound,OrdersIncorrectFormat, OrdersNotFound,CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
+from app.exceptions.definitions import BrokerMessagePublishError,OrderPlacingFailed, ProductQuantityBad, InvalidTokenEmail, ProductNotFound,OrdersIncorrectFormat, OrdersNotFound,CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple, Any
 from app.models.models import Order, PyObjectId, BuyProductItem
 from app.repositories.product_repository import ProductRepository
@@ -61,24 +60,32 @@ class OrderService:
             if prod_got_by_name.quantity < product.quantity:
                 raise ProductQuantityBad()
 
+    async def _publish_OrderCreateEvent_to_broker(self,order:Order) -> None:                    
+        try:
+            create_order_event : OrderCreateEvent = OrderCreateEvent(type="OrderCreate", order=order)
+            message_producer: AIOKafkaProducer = await MessageProducer.get_producer()
+            await message_producer.send(topic='shop', value=create_order_event.model_dump_json())                
+            print("ORDERS-MS SENT MESSAGE", create_order_event.model_dump_json())
+        except:
+            raise BrokerMessagePublishError()
+
     async def create_order_with_event_OrderCreate(self, data:OrderCreateRequest) -> Order:
-        self._verify_create_request_format(data)               
+        self._verify_create_request_format(data)             
        
         email : str = data.email
+        #Bought product
         products: List[BuyProductItem] = [BuyProductItem(name=product.name.lower(), price=product.price, quantity=product.quantity) for product in data.products]  
         self._check_products_existance_and_quantity(products)
         order_cost:float = self._calculate_order_cost(products)  
         order : Order = Order(client_email=email.lower(),cost=order_cost, status="PENDING", products=products)
-        
+
         client:MongoClient = self.product_repository.get_mongo_client()
         with client.start_session() as session:
             with session.start_transaction():
                 try:
                     created_order: Order = self.order_repository.create_order(order, session)
-                   # create_order_event : OrderCreateEvent = OrderCreateEvent(type="OrderCreate", order=order)
-                   # message_producer: AIOKafkaProducer = await MessageProducer.get_producer()
-                   # await message_producer.send(topic='shop', value=create_order_event.model_dump_json())                     
-                   # print("ORDERS-MS SENT MESSAGE", create_order_event.model_dump_json())
+                    # await self._publish_OrderCreateEvent_to_broker(created_order)
+          
                 except Exception as e:
                     session.abort_transaction()   
                     raise OrderPlacingFailed()       

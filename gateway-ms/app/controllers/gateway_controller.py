@@ -20,7 +20,7 @@ gateway_service : GatewayService = GatewayService()
 async def get_orders(request:Request):
    path: str = request.url.path
    gateway_service.verify_request(request)
-   email  = gateway_service.get_email_from_jwt_params(request)
+   email: str  = gateway_service.get_email_from_jwt_params(request)
    backend_service_url: str = endpoint_redirect_map[path]
 
    params : QueryParams = QueryParams({'email':email})

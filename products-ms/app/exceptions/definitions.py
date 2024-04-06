@@ -13,6 +13,10 @@ class ProductNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
         super().__init__(status_code=status_code, detail="The requested product does not exist.")
 
+class ProductCreationFailed(HTTPException):
+    def __init__(self, status_code: int =status.HTTP_503_SERVICE_UNAVAILABLE):
+        super().__init__(status_code=status_code, detail="Creating product failed, try again later!") 
+
 class CategoryNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
         super().__init__(status_code=status_code, detail="The requested category does not exist.")

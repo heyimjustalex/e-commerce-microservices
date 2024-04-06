@@ -27,28 +27,62 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
         db: Database[Any] = client['shop']
         
         products: Collection[Any] = db['products']
-        categories : Collection[Any] = db['categories']
+        orders : Collection[Any] = db['orders']
 
-        categories.insert_many([  
+        orders.insert_many([
+        {
+            '_id': ObjectId("71fefe4a1cad4140785928a4"),
+            'client_email': "aaa@aaa.com",
+            'status': "PENDING",
+            'cost': 83.94,
+            'products': [
             {
-                '_id': ObjectId("21fefe4a1cad4140785928a4"),
-                'name': "electronics",
+                'name': "cutlery",
+                'price': 5.99,
+                'quantity': 4,
             },
             {
-                '_id': ObjectId("22fefe4a1cad4140785928a4"),  
-                'name': "kitchen",
+                'name': "chair",
+                'price': 29.99,
+                'quantity': 2,
             },
+            ],
+        },
+        {
+            '_id': ObjectId("72fefe4a1cad4140785928a4"),
+            'client_email': "bbb@bbb.com",
+            'status': "ACCEPTED",
+            'cost': 1299.99,
+            'products': [
             {
-                '_id': ObjectId("23fefe4a1cad4140785928a4"),
-                'name': "furniture",
+                'name': "laptop",
+                'price': 1299.99,
+                'quantity': 1,
             },
+            ],
+        },
+        {
+            '_id': ObjectId("73fefe4a1cad4140785928a4"),
+            'client_email': "ccc@ccc.com",
+            'status': "PENDING",
+           'cost': 699.93,
+            'products': [
+            {
+                'name': "headphones",
+                'price': 99.99,
+                'quantity': 7,
+            },
+            ],
+        },
         ])
+
         products.insert_many([  
             {
                 '_id': ObjectId("10fefe4a1cad4140785928a4"),
                 'name': "cutlery", 
                 'description': "An interesting set of cutlery",
                 'price': 5.99,
+                'quantity':4,
                 'categories': [ObjectId("22fefe4a1cad4140785928a4")],
             },
             {
@@ -56,6 +90,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "chair",
                 'description': "A comfortable armchair",
                 'price': 29.99,
+                'quantity':2,
                 'categories': [
                     ObjectId("23fefe4a1cad4140785928a4"),
                     ObjectId("22fefe4a1cad4140785928a4"),
@@ -66,6 +101,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "laptop",
                 'description': "A powerful computing device",
                 'price': 1299.99,
+                'quantity':1,
                 'categories': [ObjectId("21fefe4a1cad4140785928a4")],
             },
             {
@@ -73,6 +109,7 @@ def inmemory_database_creation_function() -> Callable[[], Database[Any]]:
                 'name': "headphones",  
                 'description': "Wireless noise-cancelling headphones",
                 'price': 99.99,
+                'quantity':100,
                 'categories': [ObjectId("21fefe4a1cad4140785928a4")],
             },
         ])

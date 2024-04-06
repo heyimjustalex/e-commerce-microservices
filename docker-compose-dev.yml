@@ -78,8 +78,6 @@ services:
     restart: always
     depends_on:
       - authentication-db
-    ports:
-      - 8000:8000
     volumes:
       - ./authentication-ms/app/:/app:ro
     environment:
@@ -156,9 +154,6 @@ services:
     depends_on:
       # - message-broker
       - products-db
-
-    ports:
-      - 8001:8000
     volumes:
       - ./products-ms/app/:/app:ro
     environment:
@@ -227,9 +222,6 @@ services:
     depends_on:
       # - message-broker
       - orders-db
-
-    ports:
-      - 8002:8000
     volumes:
       - ./orders-ms/app/:/app:ro
     environment:

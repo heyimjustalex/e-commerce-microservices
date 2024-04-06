@@ -5,6 +5,7 @@ class ProductIncorrectFormat(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST, detail: str = "Product format is not acceptable"):
         super().__init__(status_code=status_code, detail=detail)
 
+# Product conflict
 class ProductAlreadyExists(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST, detail: str = "Product already exists"):
         super().__init__(status_code=status_code, detail=detail)
@@ -15,7 +16,7 @@ class ProductNotFound(HTTPException):
 
 class ProductQuantityBad(HTTPException):
     def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
-        super().__init__(status_code=status_code, detail="The requested amount not exist.")
+        super().__init__(status_code=status_code, detail="The requested amount does not exist.")
 
 class OrdersNotFound(HTTPException):
     def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
