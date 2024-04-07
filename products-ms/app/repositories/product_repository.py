@@ -1,6 +1,6 @@
 from pymongo.collection import Collection
 from pymongo.database import Database
-from pymongo.results import InsertOneResult
+from pymongo.results import InsertOneResult, UpdateResult
 from app.models.models import Product,PyObjectId
 from typing import Any, Dict, Union
 from typing import List
@@ -34,6 +34,26 @@ class ProductRepository:
             return None
         return Product(**product)
     
+    def decrease_product_quantity_by_name(self, name: str, decrease_number: int, session: ClientSession) -> Product | None:
+        # Find the current quantity of the product
+        current_product:Union[Product, None] =  self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+        if current_product and current_product["quantity"] - decrease_number < 0:
+           return None
+        
+        update_result: UpdateResult = self.products.update_one(
+            {"name": name.lower()},
+            {"$inc": {"quantity": -decrease_number}},
+            session=session
+        )   
+        
+        if update_result.matched_count == 1:
+            product: Union[Product, None]  = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+            if not product:
+                return None
+            return Product(**product)
+        return None
+            
+        
     def get_products_of_category(self, category_id:PyObjectId) -> Union[List[Product], None]:
         products_data = list(self.products.find({"categories": ObjectId(category_id)}))
         if not products_data:

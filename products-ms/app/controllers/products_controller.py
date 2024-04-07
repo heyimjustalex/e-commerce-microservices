@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from app.schemas.schemas import ProductResponse, ProductsResponse, ProductCreateRequest
 from app.services.product_service import ProductService
 from typing import List, Optional
+
 from app.models.models import Product
 from app.dependencies.dependencies import get_products_service
 import os

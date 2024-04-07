@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field,BeforeValidator
 from typing import List,  Annotated, Optional
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-class BuyProductItem(BaseModel):
+class BoughtProduct(BaseModel):
     name: str
     price: Optional[float] = None
     quantity:int
@@ -12,7 +12,7 @@ class Order(BaseModel):
     client_email:str
     cost:float
     status: str
-    products: List[BuyProductItem]
+    products: List[BoughtProduct]
 
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -30,7 +30,10 @@ class OrderCreateEvent(BaseModel):
     type: str
     order: Order
 
-
+class OrderStatusUpdateEvent(BaseModel):
+    type: str
+    status: str
+    products: List[BoughtProduct]
 
 
 

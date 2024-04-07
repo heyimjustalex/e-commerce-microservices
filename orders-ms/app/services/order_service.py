@@ -5,10 +5,10 @@ from app.repositories.order_repository import OrderRepository
 from app.schemas.schemas import OrderCreateRequest, OrdersRequest
 from app.exceptions.definitions import BrokerMessagePublishError,OrderPlacingFailed, ProductQuantityBad, InvalidTokenEmail, ProductNotFound,OrdersIncorrectFormat, OrdersNotFound,CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple, Any
-from app.models.models import Order, PyObjectId, BuyProductItem
+from app.models.models import Order, PyObjectId, BoughtProduct
 from app.repositories.product_repository import ProductRepository
 from pymongo import MongoClient
-from app.broker.producers.producer import MessageProducer
+from app.brokers.producers.producer import MessageProducer
 from aiokafka import AIOKafkaProducer
 
 
@@ -18,7 +18,7 @@ class OrderService:
         self.product_repository: ProductRepository = product_repository
         
     def _verify_create_request_format(self, data: OrderCreateRequest) -> None:
-        bought_products: List[BuyProductItem] = data.products
+        bought_products: List[BoughtProduct] = data.products
 
         if bought_products is None :
            raise OrdersIncorrectFormat()
@@ -28,7 +28,7 @@ class OrderService:
         for product in bought_products:
             if product is None:
                 raise OrdersIncorrectFormat()
-            if not isinstance(product, BuyProductItem):
+            if not isinstance(product, BoughtProduct):
                 raise OrdersIncorrectFormat()
             if not isinstance(product.name, str) or not re.match(r'^[a-zA-Z0-9\s]+$', product.name):
                 raise OrdersIncorrectFormat()
@@ -41,7 +41,7 @@ class OrderService:
             raise OrdersNotFound()
         return orders   
     
-    def _calculate_order_cost(self, products:List[BuyProductItem])->float:
+    def _calculate_order_cost(self, products:List[BoughtProduct])->float:
         order_cost:float = 0
         for product in products:
             prod_got_by_name: Product | None = self.product_repository.get_product_by_name(product.name)
@@ -51,7 +51,7 @@ class OrderService:
             product.price = prod_got_by_name.price
         return order_cost
     
-    def _check_products_existance_and_quantity(self,products:List[BuyProductItem]):
+    def _check_products_existance_and_quantity(self,products:List[BoughtProduct]):
         for product in products:
             prod_got_by_name: Product | None = self.product_repository.get_product_by_name(product.name)
             if not prod_got_by_name:
@@ -75,7 +75,7 @@ class OrderService:
        
         email : str = data.email
         #Bought product
-        products: List[BuyProductItem] = [BuyProductItem(name=product.name.lower(), price=product.price, quantity=product.quantity) for product in data.products]  
+        products: List[BoughtProduct] = [BoughtProduct(name=product.name.lower(), price=product.price, quantity=product.quantity) for product in data.products]  
         self._check_products_existance_and_quantity(products)
         order_cost:float = self._calculate_order_cost(products)  
         order : Order = Order(client_email=email.lower(),cost=order_cost, status="PENDING", products=products)
@@ -85,7 +85,7 @@ class OrderService:
             with session.start_transaction():
                 try:
                     created_order: Order = self.order_repository.create_order(order, session)
-                    # await self._publish_OrderCreateEvent_to_broker(created_order)
+                    await self._publish_OrderCreateEvent_to_broker(created_order)
           
                 except Exception as e:
                     session.abort_transaction()   

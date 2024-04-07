@@ -24,3 +24,5 @@ class CategoryNotFound(HTTPException):
 class BrokerMessagePublishError(HTTPException):
     def __init__(self, status_code: int =status.HTTP_503_SERVICE_UNAVAILABLE):
         super().__init__(status_code=status_code, detail="Broker publish error") 
+
+# Event exceptions

@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from app.models.models import BuyProductItem
+from app.models.models import BoughtProduct
 from typing import List
 
 class OrderCreateRequest(BaseModel):
     email:str
-    products:List[BuyProductItem]
+    products:List[BoughtProduct]
 
 class OrdersRequest(BaseModel):
     email:str
@@ -12,12 +12,12 @@ class OrdersRequest(BaseModel):
 class OrderCreatedResponse(BaseModel):
     status: str
     cost:float
-    products: List[BuyProductItem]
+    products: List[BoughtProduct]
 
 class OrderResponse(BaseModel):
     status: str
     cost:float
-    products: List[BuyProductItem]
+    products: List[BoughtProduct]
 
 class OrdersResponse(BaseModel):
     orders : List[OrderResponse]

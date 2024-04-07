@@ -13,7 +13,6 @@ class MessageProducer:
         if not cls.isStarted:
             cls._producer: AIOKafkaProducer = await cls.startup_producer()
             cls.isStarted = True
-
         return cls._producer  
     
     @classmethod  

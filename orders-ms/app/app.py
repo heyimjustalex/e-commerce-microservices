@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from app.exceptions.handlers import *
 from app.exceptions.definitions import *
 from app.controllers.orders_controller import router as orders_router
-from app.broker.consumers.consumer import MessageConsumer
-from app.broker.producers.producer import MessageProducer
+from app.brokers.consumers.consumer import MessageConsumer
+from app.brokers.producers.producer import MessageProducer
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import asyncio
 from app.database.connector import Connector

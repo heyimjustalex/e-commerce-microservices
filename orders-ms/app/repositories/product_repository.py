@@ -5,7 +5,9 @@ from app.models.models import Product,PyObjectId
 from typing import Any, Dict, Union
 from typing import List
 from pymongo import MongoClient
+from pymongo.client_session import ClientSession
 from bson import ObjectId
+from pymongo.results import InsertOneResult, UpdateResult
 
 class ProductRepository:
     def __init__(self, db: Database, client:MongoClient) -> None:
@@ -35,6 +37,24 @@ class ProductRepository:
         if not product:
             return None
         return Product(**product)
+    
+    def update_product_quantity_by_name(self, name: str, decrease_number: int, session: ClientSession) -> Product | None:
+        # Find the current quantity of the product
+        current_product:Union[Product, None] =  self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+        if current_product and current_product["quantity"] - decrease_number < 0:
+           return None
+        update_result: UpdateResult = self.products.update_one(
+            {"name": name},
+            {"$inc": {"quantity": -decrease_number}},
+            session=session
+        )
+        
+        if update_result.matched_count == 1:
+            updated_product = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+            return updated_product
+        return None
+            
+            
     
     def get_products_of_category(self, category_id:PyObjectId) -> Union[List[Product], None]:
         products_data = list(self.products.find({"categories": ObjectId(category_id)}))

@@ -7,9 +7,9 @@ from app.models.models import *
 from app.repositories.product_repository import ProductRepository
 import os
 import traceback
-import sys
-import time
-import asyncio
+from app.brokers.consumers.event_handler import EventHandler
+
+
 class MessageConsumer:
   
     KAFKA_TOPIC:str  = os.getenv('KAFKA_TOPIC', 'shop')
@@ -42,21 +42,17 @@ class MessageConsumer:
 
     @classmethod
     async def startup_consumer(cls) -> AIOKafkaConsumer:
-        print("ORDERS STARTUP CONSUMER")
         try:
             cls._consumer = AIOKafkaConsumer(          
             cls.KAFKA_TOPIC,
-            # loop=loop,
             value_deserializer=cls._deserializer,
             bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
             auto_offset_reset='earliest',
             max_poll_records=100,
+            heartbeat_interval_ms=10,
             enable_auto_commit=False,
-            group_id=cls.KAFKA_GROUP)
-
-            # await cls._consumer.start()      
-            cls.isStarted = True
-            # await cls._retrieve_messages()
+            group_id=cls.KAFKA_GROUP)  
+            cls.isStarted = True  
           
         except:
             await cls._consumer.stop()
@@ -69,33 +65,30 @@ class MessageConsumer:
     async def shutdown_consumer(cls,consumer:AIOKafkaConsumer) -> None:
         await consumer.stop()
         cls.isStarted = False
-    
+
     @classmethod
     async def consume(cls, product_repository:ProductRepository) -> None:
+        while True: 
             await cls.startup_consumer()
             await cls._consumer.start()
-            await cls._retrieve_messages()
+            await cls._retrieve_messages()          
             try:
-                print("KURWA")
-                async for message in cls._consumer:
-                    print("IN  M E SSAGES")
+
+                event_handler:EventHandler=EventHandler(product_repostiory=product_repository) 
+                print("CONSUMER STARTED")
+                async for message in cls._consumer:  
+                    
                     if type(message.value) == str:
-                        json_mess = json.loads(message.value)
-                        print("ORDER GOT MESS", json_mess)
-                        if json_mess['type'] == 'ProductCreate':
-                            sent_id = json_mess['product']['id']
-                            message_fix: ProductCreateEvent = ProductCreateEvent.model_validate_json(message.value)
-                            message_fix.product._id= sent_id           
-                            message_fix.product.id= sent_id        
-                            new_event : ProductCreateEvent = ProductCreateEvent(type=message_fix.type, product=message_fix.product)
-                            existing_product: Product | None = product_repository.get_product_by_name(new_event.product.name)
-                            if not existing_product:
-                                print("not existing  product", new_event.product.name)
+                        json_mess = json.loads(message.value)                                    
+                        
+                        if json_mess['type'] == 'OrderCreate':
+                            print("got me ssage",message)
+                            sent_id:str = json_mess['order']['id']
+                            order_event: OrderCreateEvent = OrderCreateEvent.model_validate_json(message.value)
+                            order_event.order._id = sent_id           
+                            order_event.order.id = sent_id        
+                            await event_handler.handleEvent(order_event)
 
-                                prod: Product = product_repository.create_product(product=new_event.product)
-                            else:
-                                print("product exis ts, so im not creating")
             except Exception as e:
-
+                print(e)
                 print("ORDERSEXCE PTION: ProductCreate event consuming Error", traceback.print_exc())
-                # sys.exit(-1)
