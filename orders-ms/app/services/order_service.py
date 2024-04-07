@@ -62,7 +62,9 @@ class OrderService:
 
     async def _publish_OrderCreateEvent_to_broker(self,order:Order) -> None:                    
         try:
+            
             create_order_event : OrderCreateEvent = OrderCreateEvent(type="OrderCreate", order=order)
+            print("PUBLISH ORDER, ",create_order_event)
             message_producer: AIOKafkaProducer = await MessageProducer.get_producer()
             await message_producer.send(topic='shop', value=create_order_event.model_dump_json())                
             print("ORDERS-MS SENT MESSAGE", create_order_event.model_dump_json())
@@ -85,6 +87,7 @@ class OrderService:
             with session.start_transaction():
                 try:
                     created_order: Order = self.order_repository.create_order(order, session)
+                 
                     await self._publish_OrderCreateEvent_to_broker(created_order)
           
                 except Exception as e:

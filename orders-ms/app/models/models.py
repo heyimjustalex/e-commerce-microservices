@@ -27,10 +27,14 @@ class ProductCreateEvent(BaseModel):
     product:Product
 
 class OrderCreateEvent(BaseModel):
+
     type: str
     order: Order
+    class Config:
+        include_private_fields = True
 
 class OrderStatusUpdateEvent(BaseModel):
+    orderId:PyObjectId
     type: str
     status: str
     products: List[BoughtProduct]

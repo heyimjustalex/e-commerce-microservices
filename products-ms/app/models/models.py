@@ -23,7 +23,6 @@ class ShopProductEvent(BaseModel):
     class Config:
         include_private_fields = True
 
-
 class ProductCreateEvent(BaseModel):
     type: str
     product:Product
@@ -40,11 +39,16 @@ class Order(BaseModel):
     status: str
     products: List[BoughtProduct]
 
+
 class OrderCreateEvent(BaseModel):
     type: str
     order:Order
+ 
+
   
 class OrderStatusUpdateEvent(BaseModel):
+    orderId:PyObjectId
     type: str
     status: str
     products: List[BoughtProduct]
+

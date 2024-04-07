@@ -6,8 +6,10 @@ from app.models.models import Product
 from app.models.models import *
 from app.models.models import ProductCreateEvent
 from app.repositories.product_repository import ProductRepository
+from app.repositories.order_repository import OrderRepository
 import os
 import traceback
+import asyncio
 from app.brokers.consumers.event_handler import EventHandler
 class MessageConsumer:
   
@@ -47,7 +49,9 @@ class MessageConsumer:
             value_deserializer=cls._deserializer,
             bootstrap_servers=cls.KAFKA_BOOTSTRAP_SERVERS,
             auto_offset_reset='earliest',
-            max_poll_records=100,
+            max_poll_records=1,
+            max_poll_interval_ms=500,
+            heartbeat_interval_ms=3000,
             enable_auto_commit=False,
             group_id=cls.KAFKA_GROUP)  
             cls.isStarted = True  
@@ -65,13 +69,14 @@ class MessageConsumer:
         cls.isStarted = False
     
     @classmethod
-    async def consume(cls, product_repository:ProductRepository) -> None:
+    async def consume(cls, product_repository:ProductRepository, order_repository:OrderRepository) -> None:
         while True:           
             try:
+                await asyncio.sleep(1)
                 await cls.startup_consumer()
                 await cls._consumer.start()
                 await cls._retrieve_messages()
-                event_handler:EventHandler=EventHandler(product_repostiory=product_repository) 
+                event_handler:EventHandler=EventHandler(product_repostiory=product_repository, order_repository=order_repository) 
                 async for message in cls._consumer:  
                     if type(message.value) == str:
                         json_mess = json.loads(message.value)
@@ -79,13 +84,15 @@ class MessageConsumer:
                         if json_mess['type'] == 'ProductCreate':                           
                             sent_id = json_mess['product']['id']
                             product_create_event: ProductCreateEvent = ProductCreateEvent.model_validate_json(message.value)
-                            product_create_event.product._id= sent_id           
-                            product_create_event.product.id= sent_id       
+                                     
+                            product_create_event.product.id= sent_id    
                             await event_handler.handleEvent(product_create_event)
+
                         elif json_mess['type'] == 'OrderStatusUpdate':                
-                            print("VALUE",message.value)            
+                            print("Message value: ",message.value)            
                             order_status_update_event: OrderStatusUpdateEvent = OrderStatusUpdateEvent.model_validate_json(message.value)
-                            print(order_status_update_event)
+                            await event_handler.handleEvent(order_status_update_event)
+                            print("After handling",order_status_update_event)
 
 
             except Exception as e:

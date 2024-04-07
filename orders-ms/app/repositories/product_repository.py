@@ -38,20 +38,19 @@ class ProductRepository:
             return None
         return Product(**product)
     
-    def update_product_quantity_by_name(self, name: str, decrease_number: int, session: ClientSession) -> Product | None:
-        # Find the current quantity of the product
-        current_product:Union[Product, None] =  self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
-        if current_product and current_product["quantity"] - decrease_number < 0:
-           return None
+    def update_product_quantity_by_name(self, name: str, new_number: int, session: ClientSession) -> Product | None:
+        
         update_result: UpdateResult = self.products.update_one(
-            {"name": name},
-            {"$inc": {"quantity": -decrease_number}},
+            {"name": name.lower()},
+            {"$set": {"quantity": new_number}},
             session=session
-        )
+        )   
         
         if update_result.matched_count == 1:
-            updated_product = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
-            return updated_product
+            product: Union[Product, None]  = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+            if not product:
+                return None
+            return Product(**product)
         return None
             
             
