@@ -46,3 +46,14 @@ class BrokerMessagePublishError(HTTPException):
     def __init__(self, status_code: int =status.HTTP_503_SERVICE_UNAVAILABLE):
         super().__init__(status_code=status_code, detail="Broker publish error") 
 
+# Event exceptions
+
+class OrderStatusUpdateFailed(Exception):
+    def __init__(self, message="Order status after receiving OrderStatusUpdateEvent failed"):
+        super().__init__(message)
+        self.message = message
+
+class ProductQuantityUpdateFailed(Exception):
+    def __init__(self, message="Product quantity update failed after receiving ProductQuantityUpdateFailed failed"):
+        super().__init__(message)
+        self.message = message

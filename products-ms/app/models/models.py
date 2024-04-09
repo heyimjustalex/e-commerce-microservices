@@ -13,13 +13,22 @@ class Product(BaseModel):
     class Config:
         include_private_fields = True
 
+class ProductStub(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    name: str
+    price: Optional[float] = None
+    quantity:int
+
+
+
+
 class Category(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     name: str  
 
 class ShopProductEvent(BaseModel):
     type: str
-    product:Product
+    product:ProductStub
     class Config:
         include_private_fields = True
 
@@ -27,28 +36,24 @@ class ProductCreateEvent(BaseModel):
     type: str
     product:Product
 
-class BoughtProduct(BaseModel):
-    name: str
-    price: Optional[float] = None
-    quantity:int
 
 class Order(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     client_email:str
     cost:float
     status: str
-    products: List[BoughtProduct]
-
+    products: List[ProductStub]
 
 class OrderCreateEvent(BaseModel):
     type: str
     order:Order
- 
-
-  
+   
 class OrderStatusUpdateEvent(BaseModel):
     orderId:PyObjectId
     type: str
-    status: str
-    products: List[BoughtProduct]
+    status: str 
+
+class ProductsQuantityUpdate(BaseModel):
+    type: str
+    products: List[ProductStub]
 

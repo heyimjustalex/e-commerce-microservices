@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status
+from typing import List
+
 from app.schemas.schemas import OrderResponse, OrderCreateRequest, OrderCreatedResponse,OrdersResponse
 from app.services.order_service import OrderService
-from typing import List
-from app.models.models import  Order
 from app.dependencies.dependencies import get_orders_service
+from app.models.models import Order
+
 import os
 router = APIRouter(
     prefix=os.getenv('API_PRODUCT_PREFIX','/api'),

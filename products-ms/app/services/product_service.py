@@ -6,7 +6,7 @@ from app.repositories.category_repository import CategoryRepository
 from app.schemas.schemas import ProductCreateRequest, ProductItem
 from app.exceptions.definitions import BrokerMessagePublishError,ProductCreationFailed, CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
 from typing import Union, List, Tuple
-from app.models.models import Product, Category, PyObjectId, ShopProductEvent
+from app.models.models import Product, Category, PyObjectId, ShopProductEvent, ProductStub
 from pymongo import MongoClient
 from app.brokers.producers.producer import MessageProducer
 
@@ -82,7 +82,7 @@ class ProductService:
        
         return products
     
-    async def _publish_ProductCreateEvent_to_broker(self,product:Product) -> None:        
+    async def _publish_ProductCreateEvent_to_broker(self,product:ProductStub) -> None:        
         try:     
             create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=product)
             message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
@@ -103,8 +103,9 @@ class ProductService:
 
                         # Create product and publish an event                           
                         created_product : Product = self.product_repository.create_product(product,session)
-                        
-                        await self._publish_ProductCreateEvent_to_broker(product)
+                        created_product_stub : ProductStub = ProductStub(name=created_product.name, price=created_product.price, quantity=created_product.quantity)
+                        created_product_stub.id = created_product.id
+                        await self._publish_ProductCreateEvent_to_broker(created_product_stub)
 
                         # Save in local DB
                         session.commit_transaction()    

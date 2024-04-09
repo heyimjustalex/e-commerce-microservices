@@ -1,10 +1,16 @@
 from pydantic import BaseModel, Field,BeforeValidator
 from typing import List,  Annotated, Optional
+
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-class BoughtProduct(BaseModel):
+class ProductStub(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
     name: str
-    price: Optional[float] = None
+    price: float
+    quantity:int
+
+class BoughtProductStub(BaseModel):
+    name: str
     quantity:int
 
 class Order(BaseModel):
@@ -12,7 +18,7 @@ class Order(BaseModel):
     client_email:str
     cost:float
     status: str
-    products: List[BoughtProduct]
+    products: List[ProductStub]
 
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -22,22 +28,28 @@ class Product(BaseModel):
     quantity:int
     categories: List[PyObjectId]= Field(default=None)
 
+# Event models, related to broker consumer/producer
+
 class ProductCreateEvent(BaseModel):
     type: str
-    product:Product
+    product:ProductStub
 
 class OrderCreateEvent(BaseModel):
-
     type: str
     order: Order
     class Config:
         include_private_fields = True
 
 class OrderStatusUpdateEvent(BaseModel):
-    orderId:PyObjectId
+    order_id:PyObjectId
     type: str
     status: str
-    products: List[BoughtProduct]
+
+
+class ProductsQuantityUpdate(BaseModel):
+    type: str
+    products: List[ProductStub]
+
 
 
 

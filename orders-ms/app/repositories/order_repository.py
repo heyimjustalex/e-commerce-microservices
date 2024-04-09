@@ -37,7 +37,6 @@ class OrderRepository:
         
         if update_result.matched_count == 1:
             updated_order = self.orders.find_one({"_id": {"$regex": f"^{id}$", "$options": "i"}})
-            print("REPOSITORY UPDATED ORDER", updated_order)
             return updated_order
         return None
             

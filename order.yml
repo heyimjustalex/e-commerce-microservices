@@ -10,7 +10,8 @@ services:
       # dockerfile: Dockerfile.test
     container_name: orders-ms
     restart: always
-
+    ports:
+      - 8002:8000
     # depends_on:
     # - message-broker
     # - orders-db

@@ -1,7 +1,6 @@
 from aiokafka import  AIOKafkaProducer
 import json
 
-
 class MessageProducer:
     KAFKA_TOPIC:str = 'shop'
     KAFKA_GROUP:str = 'group'

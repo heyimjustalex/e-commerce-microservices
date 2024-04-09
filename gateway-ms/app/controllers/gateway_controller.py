@@ -36,12 +36,12 @@ async def get_orders(request:Request):
 async def post_orders(request:Request):
    path: str = request.url.path
    gateway_service.verify_request(request)
-   email  = gateway_service.get_email_from_jwt_params(request)
+   email: str  = gateway_service.get_email_from_jwt_params(request)
    backend_service_url: str = endpoint_redirect_map[path]
    body: bytes  = await request.body()   
    json_body : dict[str,str] = json.loads(body)
    json_body['email'] = email
- 
+   print(json_body)
    try:
         async with httpx.AsyncClient() as client:      
             response: httpx.Response = await client.post(backend_service_url + path,json=json_body)

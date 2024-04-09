@@ -19,6 +19,7 @@ db.categories.insertMany([
     name: "furniture",
   },
 ]);
+
 db.products.insertMany([
   {
     _id: ObjectId("10fefe4a1cad4140785928a4"),
