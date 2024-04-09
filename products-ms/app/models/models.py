@@ -49,9 +49,9 @@ class OrderCreateEvent(BaseModel):
     order:Order
    
 class OrderStatusUpdateEvent(BaseModel):
-    orderId:PyObjectId
+    order_id:PyObjectId
     type: str
-    status: str 
+    status: str
 
 class ProductsQuantityUpdate(BaseModel):
     type: str

@@ -89,6 +89,7 @@ class MessageConsumer:
 
                         elif json_mess['type'] == 'OrderStatusUpdate':               
                             order_status_update_event: OrderStatusUpdateEvent = OrderStatusUpdateEvent.model_validate_json(message.value)
+                            print("HERE2",order_status_update_event)
                             await event_handler.handleEvent(order_status_update_event)
                         
                         elif json_mess['type'] == 'ProductsQuantityUpdate':    

@@ -4,10 +4,11 @@ from typing import List,  Annotated, Optional
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class ProductStub(BaseModel):
-    id: PyObjectId = Field(alias="_id", default=None)
+    id: PyObjectId = Field(alias="_id", default=None, exclude=True)
     name: str
     price: float
     quantity:int
+
 
 class BoughtProductStub(BaseModel):
     name: str

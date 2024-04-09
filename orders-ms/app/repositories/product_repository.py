@@ -17,9 +17,10 @@ class ProductRepository:
 
     def create_product(self, product: ProductStub) -> ProductStub:
         product_dict: Dict[str, Any] = product.model_dump()
-        if product_dict['id']:
-            product_dict['_id'] = ObjectId(product_dict['id'])
-            product_dict.pop('id') 
+        retrived_id: str | None = product_dict.pop('id', None) 
+        if not retrived_id:
+            product_dict['_id'] = ObjectId(retrived_id)
+            
         id: InsertOneResult = self.products.insert_one(product_dict)
         product.id = str(id.inserted_id)
         return product
@@ -45,9 +46,10 @@ class ProductRepository:
             {"$set": {"quantity": new_number}},
             session=session
         )   
-        
+        print("UPDATED PRODUCT2",update_result)
         if update_result.matched_count == 1:
             product: Union[ProductStub, None]  = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+            print("UPDATED PRODUCT2",product)
             if not product:
                 return None
             return ProductStub(**product)

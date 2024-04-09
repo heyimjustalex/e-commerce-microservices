@@ -16,9 +16,11 @@ class OrderRepository:
         self.client:MongoClient = client
 
     def create_order(self, order: Order, session:None|ClientSession = None) -> Order:
-        order_dict: Dict[str, Any] = order.model_dump()
-        id: InsertOneResult = self.orders.insert_one(order_dict, session=session)
-        order.id = str(id.inserted_id)
+        order_dict: Dict[str, Any] = order.model_dump()      
+        order_dict.pop('id',None)
+        
+        insert_result: InsertOneResult = self.orders.insert_one(order_dict, session=session)
+        order.id = str(insert_result.inserted_id)
         return order
  
     def get_orders_by_email(self,email:str) -> Union[List[Order],None]:
@@ -36,7 +38,8 @@ class OrderRepository:
         session=session        )
         
         if update_result.matched_count == 1:
-            updated_order = self.orders.find_one({"_id": {"$regex": f"^{id}$", "$options": "i"}})
+            updated_order = self.orders.find_one({"_id": ObjectId(id)})
+            print("UPDATE SUCCESS233", updated_order)
             return updated_order
         return None
             
