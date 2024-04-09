@@ -1,8 +1,9 @@
 from pymongo.collection import Collection
 from pymongo.database import Database
-from app.models.models import Category,PyObjectId
 from typing import List, Union
 from bson import ObjectId
+
+from app.models.models import Category,PyObjectId
 
 class CategoryRepository:
     def __init__(self, db: Database) -> None:
@@ -22,8 +23,7 @@ class CategoryRepository:
         category_data:Union[Category, None] = self.categories.find_one({"name": {"$regex": f"^{category_name}$", "$options": "i"}})
 
         if not category_data:
-            return None
-                
+            return None                
         return Category(**category_data)
 
     

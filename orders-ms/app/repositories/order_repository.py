@@ -31,15 +31,14 @@ class OrderRepository:
         return orders
 
     def update_order_state_by_id(self, id:str, status:str, session: ClientSession) -> Order | None:
-        print("INVOKED REPOSITORY")
         update_result: UpdateResult = self.orders.update_one(
+
         {"_id": ObjectId(id)},
         {"$set": {"status": status}},
-        session=session        )
+        session=session  )
         
         if update_result.matched_count == 1:
             updated_order = self.orders.find_one({"_id": ObjectId(id)})
-            print("UPDATE SUCCESS233", updated_order)
             return updated_order
         return None
             

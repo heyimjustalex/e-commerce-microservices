@@ -1,5 +1,6 @@
 from typing import Any, Dict, Union, List
 from bson import ObjectId
+from fastapi.types import IncEx
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
@@ -16,13 +17,16 @@ class ProductRepository:
         self.client:MongoClient = client
 
     def create_product(self, product: ProductStub) -> ProductStub:
+        print("CREATE6",product)
         product_dict: Dict[str, Any] = product.model_dump()
-        retrived_id: str | None = product_dict.pop('id', None) 
-        if not retrived_id:
-            product_dict['_id'] = ObjectId(retrived_id)
+        retrived_id : str = product.id
+  
+        if retrived_id:
+            print("create6", retrived_id)
+            product_dict['_id'] = retrived_id
             
-        id: InsertOneResult = self.products.insert_one(product_dict)
-        product.id = str(id.inserted_id)
+        insert_result: InsertOneResult = self.products.insert_one(product_dict)
+        product.id = str(insert_result.inserted_id)
         return product
     
     def get_mongo_client(self)-> MongoClient:
@@ -46,10 +50,9 @@ class ProductRepository:
             {"$set": {"quantity": new_number}},
             session=session
         )   
-        print("UPDATED PRODUCT2",update_result)
+
         if update_result.matched_count == 1:
             product: Union[ProductStub, None]  = self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
-            print("UPDATED PRODUCT2",product)
             if not product:
                 return None
             return ProductStub(**product)

@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, status
-from app.schemas.schemas import ProductResponse, ProductsResponse, ProductCreateRequest
-from app.services.product_service import ProductService
 from typing import List, Optional
+import os
 
 from app.models.models import Product
+from app.services.product_service import ProductService
 from app.dependencies.dependencies import get_products_service
-import os
+from app.schemas.schemas import ProductResponse, ProductsResponse, ProductCreateRequest
+
 router = APIRouter(
     prefix=os.getenv('API_PRODUCT_PREFIX','/api'),
     tags=['prod']

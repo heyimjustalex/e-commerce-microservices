@@ -1,10 +1,11 @@
 from aiokafka import  AIOKafkaProducer
 import json
+import os
 
 class MessageProducer:
-    KAFKA_TOPIC:str = 'shop'
-    KAFKA_GROUP:str = 'group'
-    KAFKA_BOOTSTRAP_SERVERS:str = 'message-broker:19092'
+    KAFKA_TOPIC:str  = os.getenv('KAFKA_TOPIC', 'shop')
+    KAFKA_GROUP:str =  os.getenv('KAFKA_GROUP', 'group')
+    KAFKA_BOOTSTRAP_SERVERS:str = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'message-broker:19092')
     isStarted = False
     _producer:AIOKafkaProducer
 

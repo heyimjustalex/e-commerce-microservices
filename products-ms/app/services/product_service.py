@@ -1,22 +1,22 @@
 
 import re
 from aiokafka import AIOKafkaProducer
+from typing import Union, List, Tuple
+from pymongo import MongoClient
+
+from app.brokers.producers.producer import MessageProducer
 from app.repositories.product_repository import ProductRepository
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.schemas import ProductCreateRequest, ProductItem
 from app.exceptions.definitions import BrokerMessagePublishError,ProductCreationFailed, CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
-from typing import Union, List, Tuple
-from app.models.models import Product, Category, PyObjectId, ShopProductEvent, ProductStub
-from pymongo import MongoClient
-from app.brokers.producers.producer import MessageProducer
+from app.models.models import Product, Category, PyObjectId, ProductCreateEvent, ProductStub
 
 class ProductService:
     def __init__(self, product_repository: ProductRepository,category_repository:CategoryRepository) -> None:
         self.product_repository: ProductRepository = product_repository
         self.category_repository:CategoryRepository = category_repository
 
-
-    def check_product_format(self, product:Product):
+    def check_product_format(self, product:Product) -> None:
         if not re.match(r'^[a-zA-Z\s]+$', product.name):
             raise ProductIncorrectFormat(detail="Name should contain only letters and spaces")
 
@@ -31,7 +31,6 @@ class ProductService:
         if not isinstance(product.quantity,int):
             raise ProductIncorrectFormat(detail="Quantity should be an int")
 
-        return True
 
     def get_products(self) -> List[Product]:
         products: List[Product] =self.product_repository.get_products()        
@@ -84,14 +83,16 @@ class ProductService:
     
     async def _publish_ProductCreateEvent_to_broker(self,product:ProductStub) -> None:        
         try:     
-            create_product_event:ShopProductEvent = ShopProductEvent(type="ProductCreate",product=product)
+            create_product_event:ProductCreateEvent = ProductCreateEvent(type="ProductCreate",product=product)
+
             message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
             await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
-        except:
+        except Exception as e:
+            print("ex", e)
             raise BrokerMessagePublishError()
            
            
-    async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest):
+    async def create_product_with_event_ProductCreate(self, data:ProductCreateRequest) -> Product:
             client:MongoClient = self.product_repository.get_mongo_client()
             # Helper function for verification 
             prod_tuple:Tuple[Product,List[str]] = self._create_product_helper(data)

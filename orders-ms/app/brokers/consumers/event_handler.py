@@ -16,10 +16,8 @@ class EventHandler:
         self.order_repository: OrderRepository = order_repository
         self._producer:AIOKafkaProducer 
         
-    def _OrderStatusUpdateEvent_consume_handler(self,event:OrderStatusUpdateEvent, session:ClientSession):     
-            print("EVENT2", event.order_id)    
+    def _OrderStatusUpdateEvent_consume_handler(self,event:OrderStatusUpdateEvent, session:ClientSession):       
             updated_order : Order | None = self.order_repository.update_order_state_by_id(event.order_id,event.status, session)
-            print("UPDATED ORDER", updated_order)
             if not updated_order:
                 raise OrderStatusUpdateFailed ()
             

@@ -1,14 +1,15 @@
 
-from aiokafka import AIOKafkaConsumer
+import os
 import json
+import traceback
+import asyncio
 from json.decoder import JSONDecodeError
+from aiokafka import AIOKafkaConsumer
 
 from app.models.models import *
 from app.repositories.product_repository import ProductRepository
-import os
-import traceback
 from app.brokers.consumers.event_handler import EventHandler
-import asyncio
+
 class MessageConsumer:
   
     KAFKA_TOPIC:str  = os.getenv('KAFKA_TOPIC', 'shop')
@@ -74,27 +75,24 @@ class MessageConsumer:
                 await cls.startup_consumer()
                 await cls._consumer.start()
                 await cls._retrieve_messages()
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.5)
                 event_handler:EventHandler=EventHandler(product_repostiory=product_repository) 
-                print("PRODUCTS-MS CONSUMER STARTED")
+                print("PRODUCTS-MS: Consumer started")
                 async for message in cls._consumer:  
-                    print(message.value)
                     if type(message.value) == str:
                         json_mess = json.loads(message.value)                                    
-                        
+                       
                         if json_mess['type'] == 'OrderCreate':
-                            print("got message",message)
                             sent_id:str = json_mess['order']['id']            
-
                             order_event: OrderCreateEvent = OrderCreateEvent.model_validate_json(message.value)
                             order_event.order.id = sent_id     
  
                             await event_handler.handleEvent(order_event)
                         else:
-                            print(json_mess)
-
+                            print("PRODUCTS-MS: Unknown message ", json_mess)
 
             except Exception as e:
                 await cls._consumer.stop()
-                print("ORDER SEXCE PTION: ProductCreate event consuming Error", traceback.print_exc())
+                print("PRODUCTS-MS: Event consuming Error ",e, traceback.print_exc())
+                print("PRODUCTS-MS: Restarting...")
                 

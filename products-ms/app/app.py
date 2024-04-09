@@ -1,13 +1,12 @@
 from fastapi import FastAPI
+import asyncio
+
+from app.brokers.consumers.consumer import MessageConsumer
+from app.repositories.product_repository import ProductRepository
+from app.database.connector import Connector
 from app.exceptions.handlers import *
 from app.exceptions.definitions import *
 from app.controllers.products_controller import router as products_router
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-import asyncio
-from app.brokers.consumers.consumer import MessageConsumer
-from app.brokers.producers.producer import MessageProducer
-from app.repositories.product_repository import ProductRepository
-from app.database.connector import Connector
 
 app = FastAPI()   
 app.include_router(products_router)
@@ -22,7 +21,7 @@ async def startup_event():
     product_repository = ProductRepository(Connector.get_db(), Connector.get_db_client())
     asyncio.create_task(MessageConsumer.consume(product_repository))
 
-   
+
 
 
 
