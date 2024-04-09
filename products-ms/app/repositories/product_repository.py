@@ -15,6 +15,7 @@ class ProductRepository:
         self.client:MongoClient = client
 
     def create_product(self, product: Product, session:None|ClientSession = None) -> Product:
+        print("CREATED PRODUCT")
         product_dict: Dict[str, Any] = product.model_dump(exclude_none=True)  
         row: InsertOneResult = self.products.insert_one(product_dict,session=session)
         product.id = str(row.inserted_id)
@@ -36,6 +37,7 @@ class ProductRepository:
     
     def decrease_product_quantity_by_name(self, name: str, decrease_number: int, session: ClientSession) -> Product | None:
         # Find the current quantity of the product
+        print("DECREASED PRODUCT")
         current_product:Union[Product, None] =  self.products.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
         if current_product and current_product["quantity"] - decrease_number < 0:
            return None

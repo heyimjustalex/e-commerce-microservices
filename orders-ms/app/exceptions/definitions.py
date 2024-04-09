@@ -15,7 +15,7 @@ class ProductNotFound(HTTPException):
         super().__init__(status_code=status_code, detail="The requested product does not exist.")
 
 class ProductQuantityBad(HTTPException):
-    def __init__(self, status_code: int =status.HTTP_400_BAD_REQUEST):
+    def __init__(self, status_code: int =status.HTTP_404_NOT_FOUND):
         super().__init__(status_code=status_code, detail="The requested amount does not exist.")
 
 class OrdersNotFound(HTTPException):

@@ -67,15 +67,16 @@ class MessageConsumer:
         cls.isStarted = False
     
     @classmethod
-    async def consume(cls, product_repository:ProductRepository) -> None:
+    async def consume(cls, product_repository:ProductRepository) -> None:                      
+             
         while True:           
             try:
-                await asyncio.sleep(1)
                 await cls.startup_consumer()
                 await cls._consumer.start()
                 await cls._retrieve_messages()
+                await asyncio.sleep(1)
                 event_handler:EventHandler=EventHandler(product_repostiory=product_repository) 
-                print("CONSUMER STARTED")
+                print("PRODUCTS-MS CONSUMER STARTED")
                 async for message in cls._consumer:  
                     print(message.value)
                     if type(message.value) == str:
@@ -95,5 +96,5 @@ class MessageConsumer:
 
             except Exception as e:
                 await cls._consumer.stop()
-                print("ORDERSEXCE PTION: ProductCreate event consuming Error", traceback.print_exc())
+                print("ORDER SEXCE PTION: ProductCreate event consuming Error", traceback.print_exc())
                 

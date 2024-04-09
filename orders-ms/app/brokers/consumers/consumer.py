@@ -44,6 +44,7 @@ class MessageConsumer:
     @classmethod
     async def startup_consumer(cls) -> AIOKafkaConsumer:
         try:
+
             cls._consumer = AIOKafkaConsumer(          
             cls.KAFKA_TOPIC,
             value_deserializer=cls._deserializer,
@@ -52,7 +53,7 @@ class MessageConsumer:
             max_poll_records=1,
             max_poll_interval_ms=500,
             heartbeat_interval_ms=3000,
-            enable_auto_commit=False,
+            enable_auto_commit=True,
             group_id=cls.KAFKA_GROUP)  
             cls.isStarted = True  
           
@@ -66,16 +67,18 @@ class MessageConsumer:
     @classmethod          
     async def shutdown_consumer(cls,consumer:AIOKafkaConsumer) -> None:
         await consumer.stop()
-        cls.isStarted = False
+        cls.isStarted = False 
     
     @classmethod
     async def consume(cls, product_repository:ProductRepository, order_repository:OrderRepository) -> None:
+
         while True:           
             try:
-                await asyncio.sleep(1)
                 await cls.startup_consumer()
                 await cls._consumer.start()
-                await cls._retrieve_messages()
+                await cls._retrieve_messages()   
+                await asyncio.sleep(1)
+
                 event_handler:EventHandler=EventHandler(product_repostiory=product_repository, order_repository=order_repository) 
                 async for message in cls._consumer:  
                     if type(message.value) == str:
@@ -92,11 +95,13 @@ class MessageConsumer:
                             print("HERE2",order_status_update_event)
                             await event_handler.handleEvent(order_status_update_event)
                         
-                        elif json_mess['type'] == 'ProductsQuantityUpdate':    
+                        elif json_mess['type'] == 'ProductsQuantityUpdate':  
+                            await asyncio.sleep(2)  
                             products_quantity_update_event: ProductsQuantityUpdate = ProductsQuantityUpdate.model_validate_json(message.value)
                             await event_handler.handleEvent(products_quantity_update_event)
 
             except Exception as e:
                 await cls._consumer.stop()
+   
                 print("ORDERS-MS: Event consuming Error ",e , traceback.print_exc())
                 
