@@ -1,6 +1,24 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,pycharm
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python,pycharm
 
+
+### react ###
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+node_modules
+bower_components
+
+*.sublime*
+
+psd
+thumb
+sketch
+
+# End of https://www.toptal.com/developers/gitignore/api/react
+
 ### Mine
 auth-microservice/.vscode
 

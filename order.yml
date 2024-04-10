@@ -3,7 +3,7 @@ version: "3.9"
 services:
   orders-ms:
     build:
-      context: ./orders-ms
+      context: ./backend/orders-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
       # Prod version of Dockerfile
@@ -16,7 +16,7 @@ services:
     # - message-broker
     # - orders-db
     volumes:
-      - ./orders-ms/app/:/app:ro
+      - ./backend/orders-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=orders-db

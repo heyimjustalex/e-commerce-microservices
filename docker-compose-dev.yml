@@ -51,14 +51,14 @@ services:
   ###  ----------------------------- API GATEWAY  -----------------------------
   gateway-ms:
     build:
-      context: ./gateway-ms
+      context: ./backend/gateway-ms
       dockerfile: Dockerfile
     container_name: gateway-ms
     restart: always
     ports:
       - 8080:8000
     volumes:
-      - ./gateway-ms/app/:/app:ro
+      - ./backend/gateway-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - JWT_TOKEN_ALG=HS256
@@ -69,7 +69,7 @@ services:
   ### ----------------------------- AUTHENTICATION -----------------------------
   authentication-ms:
     build:
-      context: ./authentication-ms
+      context: ./backend/authentication-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
       # Prod version of Dockerfile
@@ -79,7 +79,7 @@ services:
     depends_on:
       - authentication-db
     volumes:
-      - ./authentication-ms/app/:/app:ro
+      - ./backend/authentication-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=authentication-db

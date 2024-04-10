@@ -3,7 +3,7 @@ services:
   ### ----------------------------- PRODUCTS -----------------------------
   products-ms:
     build:
-      context: ./products-ms
+      context: ./backend/products-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
       # Prod version of Dockerfile
@@ -14,7 +14,7 @@ services:
     #   # - message-broker
     #   - products-db
     volumes:
-      - ./products-ms/app/:/app:ro
+      - ./backend/products-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=products-db
