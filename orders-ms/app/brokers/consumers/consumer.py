@@ -76,13 +76,12 @@ class MessageConsumer:
                 await cls.startup_consumer()
                 await cls._consumer.start()
                 await cls._retrieve_messages()   
-     
-
                 event_handler:EventHandler=EventHandler(product_repostiory=product_repository, order_repository=order_repository) 
+                print("ORDERS-MS: Consumer started")
                 async for message in cls._consumer:  
                     if type(message.value) == str:
                         json_mess = json.loads(message.value)
-
+                        
                         if json_mess['type'] == 'ProductCreate':         
                             await asyncio.sleep(0.5)       
                             sent_id = json_mess['product']['id']
@@ -103,4 +102,4 @@ class MessageConsumer:
             except Exception as e:
                 await cls._consumer.stop()   
                 print("ORDERS-MS: Event consuming Error ",e , traceback.print_exc())
-                
+                print("PRODUCTS-MS: Restarting... ")    

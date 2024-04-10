@@ -26,3 +26,8 @@ class BrokerMessagePublishError(HTTPException):
         super().__init__(status_code=status_code, detail="Broker publish error") 
 
 # Event exceptions
+
+class OrderAlreadyExists(Exception):
+    def __init__(self, message="OrderStub already exists in the orders-document-db"):
+        super().__init__(message)
+        self.message: str = message

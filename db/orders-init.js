@@ -7,7 +7,7 @@ db.orders.insertMany([
   {
     _id: ObjectId("71fefe4a1cad4140785928a4"),
     client_email: "aaa@aaa.com",
-    status: "PENDING",
+    status: "ACCEPTED",
     cost: 83.94,
     products: [
       {
@@ -38,7 +38,7 @@ db.orders.insertMany([
   {
     _id: ObjectId("73fefe4a1cad4140785928a4"),
     client_email: "ccc@ccc.com",
-    status: "PENDING",
+    status: "REJECTED",
     cost: 699.93,
     products: [
       {

@@ -31,7 +31,6 @@ class ProductService:
         if not isinstance(product.quantity,int):
             raise ProductIncorrectFormat(detail="Quantity should be an int")
 
-
     def get_products(self) -> List[Product]:
         products: List[Product] =self.product_repository.get_products()        
         for product in products:
@@ -43,7 +42,6 @@ class ProductService:
                     category_name : str = category.name
                     temp_categories.append(category_name)              
             product.categories = temp_categories
-
         return products
 
     def get_product_by_name(self, name:str) -> Product:
@@ -88,7 +86,7 @@ class ProductService:
             message_producer: AIOKafkaProducer = await MessageProducer.get_producer()                    
             await message_producer.send(topic='shop', value=create_product_event.model_dump_json())                   
         except Exception as e:
-            print("ex", e)
+            print("PRODUCTS-MS: Broker publish error ", e)
             raise BrokerMessagePublishError()
            
            
@@ -122,7 +120,7 @@ class ProductService:
         product_item : ProductItem = data.product
         name :str = product_item.name.lower()
         description : str = product_item.description
-        price : float = product_item.price
+        price : float = round(product_item.price,2)
         quantity: int = product_item.quantity
         categories: List[str] = [category.lower() for category in product_item.categories]  
 

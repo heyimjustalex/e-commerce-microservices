@@ -47,7 +47,7 @@ class OrderService:
             raise OrdersNotFound()
         return orders   
     
-    def _calculate_order_cost(self, products:List[ProductStub])->float:
+    def _calculate_order_cost(self, products:List[ProductStub]) -> float:
         order_cost:float = 0
         for product in products:
             prod_got_by_name: ProductStub | None = self.product_repository.get_product_by_name(product.name)
@@ -55,7 +55,7 @@ class OrderService:
                 raise ProductNotFound()
             order_cost+=prod_got_by_name.price * product.quantity
             product.price = prod_got_by_name.price
-        return order_cost
+        return round(order_cost,2)
     
     def _check_products_existance_and_quantity(self,products:List[ProductStub]):
         for product in products:
@@ -77,7 +77,7 @@ class OrderService:
     async def create_order_with_event_OrderCreate(self, data:OrderCreateRequest) -> Order:
         self._verify_create_request_format(data)         
         email : str = data.email
-        
+
         #Bought product
         products: List[ProductStub] = [ProductStub(name=product.name.lower(), price=self._get_product_price(product), quantity=product.quantity) for product in data.products]  
         self._check_products_existance_and_quantity(products)

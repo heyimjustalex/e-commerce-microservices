@@ -13,7 +13,7 @@ class Product(BaseModel):
     class Config:
         include_private_fields = True
 
-# Product for generating events for order-ms (it doesn't need more)
+# Product for generating events for order-ms (it doesn't need more attribs)
 class ProductStub(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     name: str
@@ -31,8 +31,12 @@ class Order(BaseModel):
     status: str
     products: List[ProductStub]
 
-# Event models
+# Order stub for saving which order has already been consumed
+class OrderStub(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    status: str
 
+# Event models
 class ProductCreateEvent(BaseModel):
     type: str
     product:ProductStub
@@ -48,7 +52,7 @@ class OrderStatusUpdateEvent(BaseModel):
     type: str
     status: str
 
-class ProductsQuantityUpdate(BaseModel):
+class ProductsQuantityUpdateEvent(BaseModel):
     type: str
     products: List[ProductStub]
 

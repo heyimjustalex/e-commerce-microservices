@@ -4,6 +4,7 @@ db = db.getSiblingDB("shop");
 
 db.createCollection("products");
 db.createCollection("categories");
+db.createCollection("orders");
 
 db.categories.insertMany([
   {
@@ -55,5 +56,20 @@ db.products.insertMany([
     price: 99.99,
     quantity: 1,
     categories: [ObjectId("21fefe4a1cad4140785928a4")],
+  },
+]);
+
+db.orders.insertMany([
+  {
+    _id: ObjectId("71fefe4a1cad4140785928a4"),
+    status: "ACCEPTED",
+  },
+  {
+    _id: ObjectId("72fefe4a1cad4140785928a4"),
+    status: "ACCEPTED",
+  },
+  {
+    _id: ObjectId("73fefe4a1cad4140785928a4"),
+    status: "REJECTED",
   },
 ]);
