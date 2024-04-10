@@ -11,8 +11,7 @@ from app.repositories.product_repository import ProductRepository
 from app.repositories.order_repository import OrderRepository
 from app.brokers.consumers.event_handler import EventHandler
 
-class MessageConsumer:
-  
+class MessageConsumer:  
     KAFKA_TOPIC:str  = os.getenv('KAFKA_TOPIC', 'shop')
     KAFKA_GROUP:str =  os.getenv('KAFKA_GROUP', 'group')
     KAFKA_BOOTSTRAP_SERVERS:str = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'message-broker:19092')
@@ -98,11 +97,10 @@ class MessageConsumer:
                         
                         elif json_mess['type'] == 'ProductsQuantityUpdate':  
                             await asyncio.sleep(0.3)  
-                            products_quantity_update_event: ProductsQuantityUpdate = ProductsQuantityUpdate.model_validate_json(message.value)
+                            products_quantity_update_event: ProductsQuantityUpdateEvent= ProductsQuantityUpdateEvent.model_validate_json(message.value)
                             await event_handler.handleEvent(products_quantity_update_event)
 
             except Exception as e:
-                await cls._consumer.stop()
-   
+                await cls._consumer.stop()   
                 print("ORDERS-MS: Event consuming Error ",e , traceback.print_exc())
                 

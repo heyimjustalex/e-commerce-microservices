@@ -1,15 +1,15 @@
 
 import re
-from app.models.models import Product, OrderCreateEvent, BoughtProductStub
-from app.repositories.order_repository import OrderRepository
-from app.schemas.schemas import OrderCreateRequest, OrdersRequest
-from app.exceptions.definitions import BrokerMessagePublishError,OrderPlacingFailed, ProductQuantityBad, InvalidTokenEmail, ProductNotFound,OrdersIncorrectFormat, OrdersNotFound,CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
-from typing import Union, List, Tuple, Any
-from app.models.models import Order, PyObjectId, ProductStub
-from app.repositories.product_repository import ProductRepository
 from pymongo import MongoClient
-from app.brokers.producers.producer import MessageProducer
+from typing import Union, List
 from aiokafka import AIOKafkaProducer
+
+from app.models.models import OrderCreateEvent, BoughtProductStub,Order,ProductStub
+from app.schemas.schemas import OrderCreateRequest
+from app.repositories.order_repository import OrderRepository
+from app.repositories.product_repository import ProductRepository
+from app.exceptions.definitions import BrokerMessagePublishError,OrderPlacingFailed, ProductQuantityBad, InvalidTokenEmail, ProductNotFound,OrdersIncorrectFormat, OrdersNotFound,CategoryNotFound, ProductNotFound, ProductAlreadyExists, ProductIncorrectFormat
+from app.brokers.producers.producer import MessageProducer
 
 
 class OrderService:
@@ -35,8 +35,7 @@ class OrderService:
             if not isinstance(product.quantity, int) or product.quantity <= 0:
                 raise OrdersIncorrectFormat()
             
-    def _get_product_price(self, product:BoughtProductStub) -> float:
-        
+    def _get_product_price(self, product:BoughtProductStub) -> float:        
         found_product:ProductStub|None=self.product_repository.get_product_by_name(product.name)
         if not found_product:
             raise ProductNotFound()
@@ -68,21 +67,17 @@ class OrderService:
                 raise ProductQuantityBad()
 
     async def _publish_OrderCreateEvent_to_broker(self,order:Order) -> None:                    
-        try:
-            
+        try:            
             create_order_event : OrderCreateEvent = OrderCreateEvent(type="OrderCreate", order=order)
-            print("PUBLISH ORDER, ",create_order_event)
             message_producer: AIOKafkaProducer = await MessageProducer.get_producer()
             await message_producer.send(topic='shop', value=create_order_event.model_dump_json())                
-            print("ORDERS-MS SENT MESSAGE", create_order_event.model_dump_json())
         except:
             raise BrokerMessagePublishError()
 
     async def create_order_with_event_OrderCreate(self, data:OrderCreateRequest) -> Order:
-       
-        self._verify_create_request_format(data)             
-       
+        self._verify_create_request_format(data)         
         email : str = data.email
+        
         #Bought product
         products: List[ProductStub] = [ProductStub(name=product.name.lower(), price=self._get_product_price(product), quantity=product.quantity) for product in data.products]  
         self._check_products_existance_and_quantity(products)
@@ -93,13 +88,10 @@ class OrderService:
         with client.start_session() as session:
             with session.start_transaction():
                 try:
-                    created_order: Order = self.order_repository.create_order(order, session)
-                 
-                    await self._publish_OrderCreateEvent_to_broker(created_order)
-          
+                    created_order: Order = self.order_repository.create_order(order, session)        
+                    await self._publish_OrderCreateEvent_to_broker(created_order)          
                 except Exception as e:
                     session.abort_transaction()   
                     raise OrderPlacingFailed()       
-
         return created_order
 

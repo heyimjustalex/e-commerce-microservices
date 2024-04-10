@@ -1,16 +1,13 @@
+import asyncio
 from fastapi import FastAPI
+
 from app.exceptions.handlers import *
 from app.exceptions.definitions import *
 from app.controllers.orders_controller import router as orders_router
 from app.brokers.consumers.consumer import MessageConsumer
-from app.brokers.producers.producer import MessageProducer
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-import asyncio
-from app.database.connector import Connector
-from app.repositories.product_repository import ProductRepository
-from concurrent.futures import ThreadPoolExecutor
 from app.repositories.order_repository import OrderRepository
-
+from app.repositories.product_repository import ProductRepository
+from app.database.connector import Connector
 
 app = FastAPI()   
 app.add_exception_handler(ProductIncorrectFormat,product_incorrect_format_exception_handler)

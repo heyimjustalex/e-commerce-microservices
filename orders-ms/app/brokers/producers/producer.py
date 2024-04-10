@@ -1,6 +1,6 @@
-from aiokafka import  AIOKafkaProducer
-import json
 import os
+import json
+from aiokafka import  AIOKafkaProducer
 
 class MessageProducer:
     KAFKA_TOPIC:str  = os.getenv('KAFKA_TOPIC', 'shop')

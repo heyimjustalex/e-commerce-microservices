@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field,BeforeValidator
-from typing import List,  Annotated, Optional
+from typing import List,  Annotated
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -8,7 +8,6 @@ class ProductStub(BaseModel):
     name: str
     price: float
     quantity:int
-
 
 class BoughtProductStub(BaseModel):
     name: str
@@ -46,8 +45,7 @@ class OrderStatusUpdateEvent(BaseModel):
     type: str
     status: str
 
-
-class ProductsQuantityUpdate(BaseModel):
+class ProductsQuantityUpdateEvent(BaseModel):
     type: str
     products: List[ProductStub]
 

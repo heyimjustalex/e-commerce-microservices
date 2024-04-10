@@ -1,6 +1,5 @@
 from typing import Any, Dict, Union, List
 from bson import ObjectId
-from fastapi.types import IncEx
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
@@ -17,12 +16,10 @@ class ProductRepository:
         self.client:MongoClient = client
 
     def create_product(self, product: ProductStub) -> ProductStub:
-        print("CREATE6",product)
         product_dict: Dict[str, Any] = product.model_dump()
         retrived_id : str = product.id
   
         if retrived_id:
-            print("create6", retrived_id)
             product_dict['_id'] = retrived_id
             
         insert_result: InsertOneResult = self.products.insert_one(product_dict)
@@ -56,10 +53,8 @@ class ProductRepository:
             if not product:
                 return None
             return ProductStub(**product)
-        return None
-            
-            
-    
+        return None           
+        
     def get_products_of_category(self, category_id:PyObjectId) -> Union[List[ProductStub], None]:
         products_data = list(self.products.find({"categories": ObjectId(category_id)}))
         if not products_data:

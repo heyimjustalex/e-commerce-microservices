@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from app.models.models import ProductStub,BoughtProductStub
 from typing import List
+
+from app.models.models import ProductStub,BoughtProductStub
 
 class OrderCreateRequest(BaseModel):
     email:str

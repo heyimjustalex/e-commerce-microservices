@@ -1,13 +1,12 @@
 from bson import ObjectId
+from typing import Any, Dict, Union, List
 from pymongo.collection import Collection
 from pymongo.database import Database
-from pymongo.results import InsertOneResult
-from app.models.models import Order, PyObjectId
-from typing import Any, Dict, Union
-from typing import List
 from pymongo import MongoClient
 from pymongo.client_session import ClientSession
 from pymongo.results import InsertOneResult, UpdateResult
+
+from app.models.models import Order
 
 class OrderRepository:
     def __init__(self, db: Database, client:MongoClient) -> None:
@@ -18,7 +17,6 @@ class OrderRepository:
     def create_order(self, order: Order, session:None|ClientSession = None) -> Order:
         order_dict: Dict[str, Any] = order.model_dump()      
         order_dict.pop('id',None)
-
         insert_result: InsertOneResult = self.orders.insert_one(order_dict, session=session)
         order.id = str(insert_result.inserted_id)
         return order
@@ -35,7 +33,7 @@ class OrderRepository:
 
         {"_id": ObjectId(id)},
         {"$set": {"status": status}},
-        session=session  )
+        session=session)
         
         if update_result.matched_count == 1:
             updated_order = self.orders.find_one({"_id": ObjectId(id)})

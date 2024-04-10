@@ -51,9 +51,9 @@ class BrokerMessagePublishError(HTTPException):
 class OrderStatusUpdateFailed(Exception):
     def __init__(self, message="Order status after receiving OrderStatusUpdateEvent failed"):
         super().__init__(message)
-        self.message = message
+        self.message: str = message
 
 class ProductQuantityUpdateFailed(Exception):
     def __init__(self, message="Product quantity update failed after receiving ProductQuantityUpdateFailed failed"):
         super().__init__(message)
-        self.message = message
+        self.message: str = message
