@@ -13,9 +13,16 @@ const CustomNavbar = () => {
 
   return (
     <Navbar expand="lg" bg="white" sticky="top" collapseOnSelect>
-      <Navbar.Brand as={Link} to="/">
-        micro-shop
-      </Navbar.Brand>
+      <Nav.Link eventKey="6" as={Link} to="/shopping-cart">
+        <span
+          style={{
+            fontWeight: "bold",
+            marginLeft: 10,
+          }}
+        >
+          🛒Shopping Cart 🛒
+        </span>
+      </Nav.Link>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Container className="d-flex justify-content-center">
@@ -37,6 +44,11 @@ const CustomNavbar = () => {
             {authCTX.isAuthenticated && (
               <Nav.Link eventKey="4" onClick={logoutHandler}>
                 Logout
+              </Nav.Link>
+            )}
+            {!authCTX.isAuthenticated && (
+              <Nav.Link eventKey="5" as={Link} to="/register">
+                Register
               </Nav.Link>
             )}
           </Nav>

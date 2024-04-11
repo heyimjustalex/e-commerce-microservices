@@ -6,6 +6,8 @@ import Home from "./components/Home/Home";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Products from "./components/Products/Products";
 import Orders from "./components/Orders/Orders";
+import RegisterForm from "./components/Register/RegisterForm";
+import ShoppingCart from "./components/ShoppingCart/ShoppingCart";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
               <Route path="/login" element={<LoginForm />} />
               <Route path="/products" element={<Products />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="/shopping-cart" element={<ShoppingCart />} />
             </Routes>
           </div>
         </div>
