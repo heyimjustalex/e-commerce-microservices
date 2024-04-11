@@ -1,15 +1,19 @@
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
 import { useShoppingCart } from "../../store/cart-ctx";
+import { useState } from "react";
 
 const CartItem = (props) => {
   const { name, price, quantity } = props.cartItem;
-  const {
-    cartItems,
-    addItemToCart,
-    removeItemFromCart,
-    updateItemQuantity,
-    calculateTotalPrice,
-  } = useShoppingCart();
+  const [newQuantity, setNewQuantity] = useState(quantity);
+
+  const { cartItems, addItemToCart, removeItemFromCart, updateItemQuantity } =
+    useShoppingCart();
+
+  const handleQuantityChange = (e) => {
+    const updatedQuantity = parseInt(e.target.value);
+    setNewQuantity(updatedQuantity);
+    updateItemQuantity(name, updatedQuantity);
+  };
 
   return (
     <Container>
@@ -19,7 +23,14 @@ const CartItem = (props) => {
             <div className="card-body">
               <h5 className="card-title">Product: {name}</h5>
               <p className="card-text">Price: ${price}</p>
-              <p className="card-text">Selected quantity: {quantity}</p>
+              <Card.Text>
+                Quantity:
+                <Form.Control
+                  type="number"
+                  value={newQuantity}
+                  onChange={handleQuantityChange}
+                />
+              </Card.Text>
               <Button variant="danger" onClick={() => removeItemFromCart(name)}>
                 Remove
               </Button>

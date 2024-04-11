@@ -50,9 +50,9 @@ export const ShoppingCartProvider = ({ children }) => {
     setCartItems(updatedCartItems);
   };
 
-  const updateItemQuantity = (itemId, newQuantity) => {
+  const updateItemQuantity = (name, newQuantity) => {
     const updatedCartItems = cartItems.map((item) => {
-      if (item.id === itemId) {
+      if (item.name === name) {
         return { ...item, quantity: newQuantity };
       }
       return item;

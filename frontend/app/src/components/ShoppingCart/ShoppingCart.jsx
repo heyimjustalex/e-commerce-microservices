@@ -22,6 +22,14 @@ const ShoppingCart = () => {
     totalOrderSum = cartItems.reduce((accumulator, currentItem) => {
       return accumulator + currentItem.sum;
     }, 0);
+  } else {
+    return (
+      <Container>
+        <h3 className="d-flex flex-row text-danger justify-content-center ">
+          No items in the cart!
+        </h3>
+      </Container>
+    );
   }
 
   return (
