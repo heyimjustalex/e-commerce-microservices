@@ -1,51 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 import styles from "./Navbar.module.css";
+import { Container } from "react-bootstrap/esm";
 
-const Navbar = () => {
+const CustomNavbar = () => {
   return (
-    <nav
-      className={`navbar navbar-expand-lg navbar-light bg-light ${styles.navbarFixedTop}`}
+    <Navbar
+      expand="lg"
+      bg="white"
+      sticky="top"
+      className={styles.navbarFixedTop}
+      collapseOnSelect
     >
-      <div className="container-fluid">
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav mx-auto">
-            <li className="nav-item">
-              <Link to="/" className="nav-link">
-                Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/orders" className="nav-link">
-                Orders
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/products" className="nav-link">
-                Products
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/login" className="nav-link">
-                Login
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+      <Navbar.Brand as={Link} to="/">
+        micro-shop
+      </Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar.Collapse id="basic-navbar-nav">
+        <Container className="d-flex justify-content-center">
+          <Nav className="mx-auto">
+            <Nav.Link eventKey="1" as={Link} to="/">
+              Home
+            </Nav.Link>
+            <Nav.Link eventKey="1" as={Link} to="/orders">
+              Orders
+            </Nav.Link>
+            <Nav.Link eventKey="2" as={Link} to="/products">
+              Products
+            </Nav.Link>
+            <Nav.Link eventKey="3" as={Link} to="/login">
+              Login
+            </Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar.Collapse>
+    </Navbar>
   );
 };
 
-export default Navbar;
+export default CustomNavbar;
