@@ -58,6 +58,7 @@ async def get_gateway(request:Request):
     path: str = request.url.path
     params: QueryParams = request.query_params    
     backend_service_url: str = endpoint_redirect_map[path]
+    print(request.url.path)
 
     try:
         async with httpx.AsyncClient() as client:      
@@ -65,7 +66,7 @@ async def get_gateway(request:Request):
         
             return JSONResponse(status_code=response.status_code,content=response.json())
     except Exception as exc:
-         return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={'detail':exc})
+         return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={'detail':"Service unavaliable!"})
     
 @router.post("/{path:path}")
 async def post_gateway(request:Request):

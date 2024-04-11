@@ -24,6 +24,11 @@ class ProductResponse(BaseModel):
 class ProductsResponse(BaseModel):
     products:List[ProductResponse]
 
+class CategoryResponse(BaseModel):
+    name:str
+
+class CategoriesResponse(BaseModel):
+    categories:List[CategoryResponse]
 
 
 

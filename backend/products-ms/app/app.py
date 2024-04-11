@@ -8,11 +8,11 @@ from app.database.connector import Connector
 from app.exceptions.handlers import *
 from app.exceptions.definitions import *
 from app.controllers.products_controller import router as products_router
-from fastapi.middleware.cors import CORSMiddleware
+from app.controllers.categories_controller import router as categories_router
 
 app = FastAPI()  
 
-
+app.include_router(categories_router)
 app.include_router(products_router)
 app.add_exception_handler(ProductAlreadyExists,product_already_exists_exception_handler)
 app.add_exception_handler(ProductIncorrectFormat,product_incorrect_format_exception_handler)

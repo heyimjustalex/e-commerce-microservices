@@ -34,3 +34,4 @@ async def add_product(data: ProductCreateRequest ,product_service: ProductServic
     product:Product= await product_service.create_product_with_event_ProductCreate(data)
     response:ProductResponse = ProductResponse(name=product.name, description=product.description, price= product.price, categories=product.categories,quantity=product.quantity)
     return response
+

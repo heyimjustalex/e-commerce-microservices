@@ -2,7 +2,7 @@
 # Define mappings from gateway endpoints to backend services
 endpoint_redirect_map: dict[str, str] = {
         "/api/products": "http://products-ms:8000",  
-        "/api/products/category": "http://products-ms:8000",  
+        "/api/categories": "http://products-ms:8000",  
         "/api/register": "http://authentication-ms:8000",
         "/api/login": "http://authentication-ms:8000",
         "/api/refresh": "http://authentication-ms:8000",
