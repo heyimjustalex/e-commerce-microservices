@@ -36,7 +36,7 @@ export const ShoppingCartProvider = ({ children }) => {
           ...item,
           quantity: item.quantity,
           price: item.price * item.quantity,
-          sum: item.price * item.quantity,
+          sum: Math.round(item.price * item.quantity * 100) / 100,
         },
       ];
       setCartItems(updatedCartItems);
@@ -53,18 +53,15 @@ export const ShoppingCartProvider = ({ children }) => {
   const updateItemQuantity = (name, newQuantity) => {
     const updatedCartItems = cartItems.map((item) => {
       if (item.name === name) {
-        return { ...item, quantity: newQuantity };
+        return {
+          ...item,
+          quantity: newQuantity,
+          sum: Math.round(newQuantity * item.price * 100) / 100,
+        };
       }
       return item;
     });
     setCartItems(updatedCartItems);
-  };
-
-  const calculateTotalPrice = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
   };
 
   const contextValue = {
@@ -72,7 +69,6 @@ export const ShoppingCartProvider = ({ children }) => {
     addItemToCart,
     removeItemFromCart,
     updateItemQuantity,
-    calculateTotalPrice,
   };
 
   return (

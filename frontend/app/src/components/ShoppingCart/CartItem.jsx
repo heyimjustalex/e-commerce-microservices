@@ -5,14 +5,13 @@ import { useState } from "react";
 const CartItem = (props) => {
   const { name, price, quantity } = props.cartItem;
   const [newQuantity, setNewQuantity] = useState(quantity);
-
-  const { cartItems, addItemToCart, removeItemFromCart, updateItemQuantity } =
-    useShoppingCart();
+  const { removeItemFromCart, updateItemQuantity } = useShoppingCart();
 
   const handleQuantityChange = (e) => {
     const updatedQuantity = parseInt(e.target.value);
     setNewQuantity(updatedQuantity);
     updateItemQuantity(name, updatedQuantity);
+    props.updateTotalSum();
   };
 
   return (

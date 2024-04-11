@@ -15,7 +15,7 @@ const OrderElement = (props) => {
                   <ProductElementStub key={index} product={product} />
                 ))}
               <h5 className="card-title">
-                Order status:
+                Order status:{" "}
                 <span
                   style={{
                     fontWeight: "bold",

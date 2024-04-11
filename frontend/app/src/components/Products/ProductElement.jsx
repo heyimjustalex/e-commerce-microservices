@@ -5,17 +5,18 @@ import { useState } from "react";
 
 const ProductElement = (props) => {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+
   const { name, description, price, quantity } = props.product;
-  const {
-    cartItems,
-    addItemToCart,
-    removeItemFromCart,
-    updateItemQuantity,
-    calculateTotalPrice,
-  } = useShoppingCart();
+  const { addItemToCart } = useShoppingCart();
 
   const handleAddToCart = () => {
     addItemToCart({ name: name, quantity: selectedQuantity, price: price });
+    setSelectedQuantity(1);
+    setMessage("Product added to cart!");
+    setTimeout(() => {
+      setMessage("");
+    }, 1000);
   };
 
   const handleQuantityChange = (e) => {
@@ -42,9 +43,14 @@ const ProductElement = (props) => {
                   onChange={handleQuantityChange}
                 />
               </Form.Group>
-              <Button variant="primary" onClick={handleAddToCart}>
+              <Button
+                className="m-3"
+                variant="primary"
+                onClick={handleAddToCart}
+              >
                 Add to Cart
               </Button>
+              <h5 className="text-success"> {message}</h5>
             </div>
           </div>
         </Col>
