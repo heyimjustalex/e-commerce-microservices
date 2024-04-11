@@ -1,7 +1,0 @@
-.navbarFixedTop {
-  position: sticky;
-  width: 100%;
-  background-color: white !important;
-  top: 0;
-  z-index: 1000;
-}

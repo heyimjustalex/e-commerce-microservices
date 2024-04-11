@@ -5,6 +5,7 @@ import LoginForm from "./components/Login/LoginForm";
 import Home from "./components/Home/Home";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Products from "./components/Products/Products";
+import Orders from "./components/Orders/Orders";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<LoginForm />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/orders" element={<Orders />} />
             </Routes>
           </div>
         </div>
