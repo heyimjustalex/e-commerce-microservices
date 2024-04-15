@@ -133,6 +133,7 @@ const CreateProduct = (props) => {
           <Form.Control
             type="number"
             name="quantity"
+            min={1}
             value={formValues.quantity}
             onChange={handleInputChange}
             placeholder="Enter product quantity"

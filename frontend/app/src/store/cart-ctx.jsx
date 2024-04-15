@@ -37,7 +37,7 @@ export const ShoppingCartProvider = ({ children }) => {
         {
           ...item,
           quantity: item.quantity,
-          price: item.price * item.quantity,
+          price: item.price,
           sum: Math.round(item.price * item.quantity * 100) / 100,
         },
       ];

@@ -3,7 +3,7 @@ import { useShoppingCart } from "../../store/cart-ctx";
 import { useState } from "react";
 
 const CartItem = (props) => {
-  const { name, price, quantity } = props.cartItem;
+  const { name, price, quantity, sum } = props.cartItem;
   const [newQuantity, setNewQuantity] = useState(quantity);
   const { removeItemFromCart, updateItemQuantity } = useShoppingCart();
 
@@ -28,11 +28,13 @@ const CartItem = (props) => {
             <div className="card-body">
               <h5 className="card-title">Product: {name}</h5>
               <p className="card-text">Price: ${price}</p>
+              <p className="card-text">Sum: ${sum}</p>
               <Card.Text>
                 Quantity:
                 <Form.Control
                   type="number"
                   value={newQuantity}
+                  min={1}
                   onChange={handleQuantityChange}
                 />
               </Card.Text>
