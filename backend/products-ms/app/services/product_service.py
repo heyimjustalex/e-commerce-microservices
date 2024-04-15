@@ -20,7 +20,7 @@ class ProductService:
         if not re.match(r'^[a-zA-Z\s]+$', product.name):
             raise ProductIncorrectFormat(detail="Name should contain only letters and spaces")
 
-        if not re.match(r'^[a-zA-Z\s]+$', product.description):
+        if not re.match(r'^[a-zA-Z\s.,!?;:()\'"\/\-]+$', product.description):
             raise ProductIncorrectFormat(detail="Description should contain only letters and spaces")
 
         if not isinstance(product.price, float):
