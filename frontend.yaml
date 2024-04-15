@@ -3,13 +3,13 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: frontend
     restart: always
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/app:/app
+      # - ./frontend/app:/app
       - /app/node_modules
     networks:
       - network

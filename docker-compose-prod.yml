@@ -108,15 +108,16 @@ services:
     build:
       context: ./backend/authentication-ms
       # Dev version of Dockerfile
-      dockerfile: Dockerfile
+      #dockerfile: Dockerfile
       # Prod version of Dockerfile
-      # dockerfile: Dockerfile.test
+      dockerfile: Dockerfile.prod
     container_name: authentication-ms
     restart: always
     depends_on:
       - authentication-db
     volumes:
-      - ./backend/authentication-ms/app/:/app
+      - ./backend/authentication-ms/app/:/app/app
+      - ./backend/authentication-ms/tests/:/app/tests
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=authentication-db
@@ -183,16 +184,17 @@ services:
     build:
       context: ./backend/products-ms
       # Dev version of Dockerfile
-      dockerfile: Dockerfile
+      # dockerfile: Dockerfile
       # Prod version of Dockerfile
-      # dockerfile: Dockerfile.test
+      dockerfile: Dockerfile.prod
     container_name: products-ms
     restart: always
     depends_on:
       - message-broker
       - products-db
     volumes:
-      - ./backend/products-ms/app/:/app
+      - ./backend/products-ms/app/:/app/app
+      - ./backend/products-ms/tests/:/app/tests
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=products-db
@@ -252,16 +254,17 @@ services:
     build:
       context: ./backend/orders-ms
       # Dev version of Dockerfile
-      dockerfile: Dockerfile
+      # dockerfile: Dockerfile
       # Prod version of Dockerfile
-      # dockerfile: Dockerfile.test
+      dockerfile: Dockerfile.prod
     container_name: orders-ms
     restart: always
     depends_on:
       - message-broker
       - orders-db
     volumes:
-      - ./backend/orders-ms/app/:/app:ro
+      - ./backend/orders-ms/app/:/app/app
+      - ./backend/orders-ms/tests/:/app/tests
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=orders-db

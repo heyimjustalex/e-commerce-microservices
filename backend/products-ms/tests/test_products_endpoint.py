@@ -137,12 +137,13 @@ def test_Given_ProductName_When_RequestingExistingProductByName_Then_ProductIsRe
     monkeypatch.setattr(os, 'environ', envs)
     # Mock DB
     app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
-    app.dependency_overrides[Connector.get_db] = inmemory_database_creation_function
+
     # Given
 
     # When
     response: Response = client.get(API_PRODUCT_PREFIX+"/products?name=laptop")
     response_json = response.json()
+    print(response_json)
     returned_products:list=response_json['products']
     # Then
     assert response.status_code == status.HTTP_200_OK
@@ -187,7 +188,7 @@ def test_Given_ProductCategoryName_When_RequestingNotExistingProductsByCategory_
     # Given
 
     # When
-    response: Response = client.get(API_PRODUCT_PREFIX+"/products/category?name=notfoundcategory")
+    response: Response = client.get(API_PRODUCT_PREFIX+"/products?categoryName=notfoundcategory")
     response_json = response.json()
 
     # Then

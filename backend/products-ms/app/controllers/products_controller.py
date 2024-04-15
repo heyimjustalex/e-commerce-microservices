@@ -26,6 +26,7 @@ def get_products(name: Optional[str] = None, categoryName:Optional[str]=None, se
         response : ProductsResponse = ProductsResponse(products= products_response) 
     else:
         products: List[Product]= service.get_products()
+        print("PRODUCTS2", products)
         products_response: List[ProductResponse] = [ProductResponse(name=product.name, description=product.description, price=product.price, categories=product.categories,quantity=product.quantity) for product in products] 
         response : ProductsResponse = ProductsResponse(products= products_response)
     return response

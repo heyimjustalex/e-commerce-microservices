@@ -33,9 +33,9 @@ class ProductService:
 
     def get_products(self) -> List[Product]:
         products: List[Product] =self.product_repository.get_products()        
-        for product in products:
+ 
+        for product in products:    
             temp_categories : List[PyObjectId] = []
-
             for category_id in product.categories:
                 category:Union[Category, None] = self.category_repository.get_category_by_id(category_id)
                 if category:
