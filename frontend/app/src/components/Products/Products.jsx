@@ -18,7 +18,6 @@ const Products = () => {
       setOutput({ header: "Loading...", content: <LoadingRing /> });
     } else if (status === "completed" && !error) {
       setOutput({ header: "Products:", content: data });
-      console.log(data);
     } else if (status === "completed" && error) {
       setOutput({ header: "Products fetching error", content: "" });
     }

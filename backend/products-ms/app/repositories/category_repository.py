@@ -14,6 +14,7 @@ class CategoryRepository:
         categories_data= self.categories.find({})
         categories : List[Category] = [Category(**data) for data in categories_data]
         return categories
+    
     def get_category_by_id(self, id:PyObjectId) -> Union[Category,None]: 
         category:Union[Category,None] = self.categories.find_one({"_id": ObjectId(id)})
         if not category:

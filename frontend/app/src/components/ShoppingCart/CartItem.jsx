@@ -7,9 +7,16 @@ const CartItem = (props) => {
   const [newQuantity, setNewQuantity] = useState(quantity);
   const { removeItemFromCart, updateItemQuantity } = useShoppingCart();
 
+  const handleItemRemoval = () => {
+    setNewQuantity(0);
+    removeItemFromCart(name);
+    props.updateTotalSum();
+  };
+
   const handleQuantityChange = (e) => {
     const updatedQuantity = parseInt(e.target.value);
     setNewQuantity(updatedQuantity);
+    console.log("UPDATED", updatedQuantity);
     updateItemQuantity(name, updatedQuantity);
     props.updateTotalSum();
   };
@@ -30,7 +37,12 @@ const CartItem = (props) => {
                   onChange={handleQuantityChange}
                 />
               </Card.Text>
-              <Button variant="danger" onClick={() => removeItemFromCart(name)}>
+              <Button
+                variant="danger"
+                onClick={(e) => {
+                  handleItemRemoval();
+                }}
+              >
                 Remove
               </Button>
             </div>

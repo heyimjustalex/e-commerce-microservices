@@ -9,7 +9,7 @@ const OrderElement = (props) => {
           <div className="card m-3">
             <div className="card-body">
               <h5 className="card-title">Order:</h5>
-
+              Order number: {props.index}
               {props.order.products &&
                 props.order.products.map((product, index) => (
                   <ProductElementStub key={index} product={product} />

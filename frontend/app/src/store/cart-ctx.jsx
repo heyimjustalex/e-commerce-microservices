@@ -27,7 +27,9 @@ export const ShoppingCartProvider = ({ children }) => {
       const updatedCartItems = [...cartItems];
       updatedCartItems[existingItemIndex].quantity += item.quantity;
       updatedCartItems[existingItemIndex].sum =
-        item.price * updatedCartItems[existingItemIndex].quantity;
+        Math.round(
+          item.price * updatedCartItems[existingItemIndex].quantity * 100
+        ) / 100;
       setCartItems(updatedCartItems);
     } else {
       const updatedCartItems = [
@@ -50,6 +52,10 @@ export const ShoppingCartProvider = ({ children }) => {
     setCartItems(updatedCartItems);
   };
 
+  const removeAllItems = () => {
+    setCartItems([]);
+  };
+
   const updateItemQuantity = (name, newQuantity) => {
     const updatedCartItems = cartItems.map((item) => {
       if (item.name === name) {
@@ -69,6 +75,7 @@ export const ShoppingCartProvider = ({ children }) => {
     addItemToCart,
     removeItemFromCart,
     updateItemQuantity,
+    removeAllItems,
   };
 
   return (

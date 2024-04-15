@@ -2,15 +2,17 @@ import { Container } from "react-bootstrap/esm";
 import { getOrders } from "../../lib/api";
 import useHttp from "../../hooks/use-http";
 import LoadingRing from "../../UI/LoadingRing";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import OrderElement from "./OrderElement";
+import AuthContext from "../../store/auth-ctx";
 
 const Orders = () => {
+  const authCTX = useContext(AuthContext);
   const { sendRequest, status, error, data } = useHttp(getOrders);
   const [output, setOutput] = useState({});
 
   useEffect(() => {
-    sendRequest();
+    sendRequest(authCTX.accessToken);
   }, [sendRequest]);
 
   useEffect(() => {
@@ -18,9 +20,8 @@ const Orders = () => {
       setOutput({ header: "Loading...", content: <LoadingRing /> });
     } else if (status === "completed" && !error) {
       setOutput({ header: "Orders:", content: data });
-      console.log(data.orders);
     } else if (status === "completed" && error) {
-      setOutput({ header: "Orders fetching error", content: "" });
+      setOutput({ header: error, content: "" });
     }
   }, [status, error, setOutput, data]);
 
@@ -32,9 +33,11 @@ const Orders = () => {
         !error &&
         output.content &&
         output.content.orders &&
-        output.content.orders.map((order, index) => (
-          <OrderElement key={index} order={order} />
-        ))}
+        output.content.orders
+          .reverse()
+          .map((order, index) => (
+            <OrderElement index={index} key={index} order={order} />
+          ))}
     </Container>
   );
 };
