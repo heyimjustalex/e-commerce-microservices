@@ -39,7 +39,6 @@ const ShoppingCart = () => {
         return accumulator + currentItem.sum;
       }, 0);
       setTotalOrderSum(Math.round(tempTotalOrderSum * 100) / 100);
-      console.log("CART ITEMS", cartItems);
     }
   }, [cartItems, totalOrderSum, setTotalOrderSum, updateSumHandler]);
 
@@ -57,9 +56,15 @@ const ShoppingCart = () => {
   if (cartItems.length === 0) {
     return (
       <Container>
-        <Container className="text-success d-flex mb-4 justify-content-center">
+        <Container className="text-success d-flex mb-4 flex-column align-items-center justify-content-center">
           {status === "pending" && output.content}
-          {status === "completed" && <h2>{output.header}</h2>}
+          {status === "completed" && !error && (
+            <>
+              <h2>{output.header}</h2>
+              <h2> Order status: {data.status}</h2>
+            </>
+          )}
+          {status === "completed" && error && <h2>{error}</h2>}
         </Container>
         <h3 className="d-flex flex-row text-danger justify-content-center ">
           No items in the cart!
@@ -71,7 +76,6 @@ const ShoppingCart = () => {
   return (
     <Container>
       {status === "pending" && output.content}
-      {status === "completed" && <h2>{output.header}</h2>}
 
       {cartItems.map((item, index) => (
         <div key={item.name}>
@@ -102,6 +106,11 @@ const ShoppingCart = () => {
         <h3 className="d-flex flex-row text-danger justify-content-center ">
           Log in to order!
         </h3>
+      )}
+      {status === "completed" && (
+        <h2 className="d-flex flex-row text-danger justify-content-center ">
+          Order not placed! {output.header}
+        </h2>
       )}
     </Container>
   );

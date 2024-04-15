@@ -16,7 +16,6 @@ const CartItem = (props) => {
   const handleQuantityChange = (e) => {
     const updatedQuantity = parseInt(e.target.value);
     setNewQuantity(updatedQuantity);
-    console.log("UPDATED", updatedQuantity);
     updateItemQuantity(name, updatedQuantity);
     props.updateTotalSum();
   };

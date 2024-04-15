@@ -8,7 +8,7 @@ import Products from "./components/Products/Products";
 import Orders from "./components/Orders/Orders";
 import RegisterForm from "./components/Register/RegisterForm";
 import ShoppingCart from "./components/ShoppingCart/ShoppingCart";
-
+import CreateProduct from "./components/Products/CreateProduct";
 function App() {
   return (
     <Router>
@@ -26,6 +26,7 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/register" element={<RegisterForm />} />
               <Route path="/shopping-cart" element={<ShoppingCart />} />
+              <Route path="/add-product" element={<CreateProduct />} />
             </Routes>
           </div>
         </div>

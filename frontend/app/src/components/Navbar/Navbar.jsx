@@ -30,7 +30,7 @@ const CustomNavbar = () => {
             <Nav.Link eventKey="1" as={Link} to="/">
               Home
             </Nav.Link>
-            <Nav.Link eventKey="1" as={Link} to="/orders">
+            <Nav.Link eventKey="6" as={Link} to="/orders">
               Orders
             </Nav.Link>
             <Nav.Link eventKey="2" as={Link} to="/products">
@@ -49,6 +49,11 @@ const CustomNavbar = () => {
             {!authCTX.isAuthenticated && (
               <Nav.Link eventKey="5" as={Link} to="/register">
                 Register
+              </Nav.Link>
+            )}
+            {authCTX.isAuthenticated && authCTX.role == "admin" && (
+              <Nav.Link eventKey="7" as={Link} to="/add-product">
+                Add product
               </Nav.Link>
             )}
           </Nav>
