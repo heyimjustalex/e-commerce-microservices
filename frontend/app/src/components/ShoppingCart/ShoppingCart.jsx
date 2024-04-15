@@ -55,7 +55,7 @@ const ShoppingCart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <Container>
+      <Container className=" d-flex flex-column align-items-center justify-content-center">
         <Container className="text-success d-flex mb-4 flex-column align-items-center justify-content-center">
           {status === "pending" && output.content}
           {status === "completed" && !error && (
@@ -74,9 +74,7 @@ const ShoppingCart = () => {
   }
 
   return (
-    <Container>
-      {status === "pending" && output.content}
-
+    <Container className="d-flex  flex-column">
       {cartItems.map((item, index) => (
         <div key={item.name}>
           <CartItem
@@ -112,6 +110,9 @@ const ShoppingCart = () => {
           Order not placed! {output.header}
         </h2>
       )}
+      <Container className="d-flex flex-row justify-content-center">
+        {status === "pending" && output.content}
+      </Container>
     </Container>
   );
 };

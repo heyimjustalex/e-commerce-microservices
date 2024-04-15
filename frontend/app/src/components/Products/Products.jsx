@@ -24,7 +24,7 @@ const Products = () => {
   }, [status, error, setOutput, data]);
 
   return (
-    <Container className="p-3 m-5 d-flex flex-column  align-items-center justify-content-center">
+    <Container className="p-3 m-5 d-flex flex-column align-items-center justify-content-center">
       {status === "pending" && output.content}
       {status === "completed" && <h2>{output.header}</h2>}
       {status === "completed" &&

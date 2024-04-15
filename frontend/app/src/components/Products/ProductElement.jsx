@@ -45,6 +45,7 @@ const ProductElement = (props) => {
               </Form.Group>
               <Button
                 className="m-3"
+                disabled={!quantity}
                 variant="primary"
                 onClick={handleAddToCart}
               >
