@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, status
 from typing import List, Optional
 import os
-
+import sys
 from app.models.models import Product
 from app.services.product_service import ProductService
 from app.dependencies.dependencies import get_products_service
 from app.schemas.schemas import ProductResponse, ProductsResponse, ProductCreateRequest
+import asyncio
 
 router = APIRouter(
     prefix=os.getenv('API_PRODUCT_PREFIX','/api'),
@@ -35,3 +36,9 @@ async def add_product(data: ProductCreateRequest ,product_service: ProductServic
     response:ProductResponse = ProductResponse(name=product.name, description=product.description, price= product.price, categories=product.categories,quantity=product.quantity)
     return response
 
+
+@router.get("/products_error")
+async def error():
+    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+    loop.stop()
+    sys.exit(0)

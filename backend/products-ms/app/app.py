@@ -9,6 +9,10 @@ from app.exceptions.handlers import *
 from app.exceptions.definitions import *
 from app.controllers.products_controller import router as products_router
 from app.controllers.categories_controller import router as categories_router
+import time
+
+time.sleep(6)
+
 
 app = FastAPI()  
 

@@ -50,6 +50,41 @@ services:
       timeout: 10s
       retries: 10
 
+  ###  ----------------------------- REVERSE-PROXY  -----------------------------
+  nginx:
+    image: nginx:1.25.4-alpine-slim
+    container_name: nginx_proxy
+    restart: on-failure
+    depends_on:
+      - frontend
+      - gateway-ms
+    volumes:
+      - ./nginx_proxy/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - network
+
+  ###  ----------------------------- FRONTEND  -----------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    depends_on:
+      - orders-ms
+      - products-ms
+      - authentication-ms
+
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/app:/app
+      - /app/node_modules
+    networks:
+      - network
+
   ###  ----------------------------- API GATEWAY  -----------------------------
   gateway-ms:
     build:
@@ -143,32 +178,32 @@ services:
     networks:
       - network
 
-  # ### ----------------------------- PRODUCTS -----------------------------
-  # products-ms:
-  #   build:
-  #     context: ./products-ms
-  #     # Dev version of Dockerfile
-  #     dockerfile: Dockerfile
-  #     # Prod version of Dockerfile
-  #     # dockerfile: Dockerfile.test
-  #   container_name: products-ms
-  #   restart: always
-  #   depends_on:
-  #     # - message-broker
-  #     - products-db
-  #   volumes:
-  #     - ./products-ms/app/:/app:ro
-  #   environment:
-  #     - WATCHFILES_FORCE_POLLING=true
-  #     - DB_HOSTNAME=products-db
-  #     - DB_USERNAME=root
-  #     - DB_PASSWORD=root
-  #     - DB_PORT=27017
-  #     - DB_NAME=shop
-  #     # API ROUTES
-  #     - API_PRODUCT_PREFIX=/api
-  #   networks:
-  #     - network
+  ### ----------------------------- PRODUCTS -----------------------------
+  products-ms:
+    build:
+      context: ./backend/products-ms
+      # Dev version of Dockerfile
+      dockerfile: Dockerfile
+      # Prod version of Dockerfile
+      # dockerfile: Dockerfile.test
+    container_name: products-ms
+    restart: always
+    depends_on:
+      - message-broker
+      - products-db
+    volumes:
+      - ./backend/products-ms/app/:/app:ro
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+      - DB_HOSTNAME=products-db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_PORT=27017
+      - DB_NAME=shop
+      # API ROUTES
+      - API_PRODUCT_PREFIX=/api
+    networks:
+      - network
 
   products-db:
     image: bitnami/mongodb:7.0.7-debian-12-r0
@@ -211,33 +246,34 @@ services:
     # to login to panel use: admin/pass
     networks:
       - network
-  # ### ----------------------------- ORDERS -----------------------------
-  # orders-ms:
-  #   build:
-  #     context: ./orders-ms
-  #     # Dev version of Dockerfile
-  #     dockerfile: Dockerfile
-  #     # Prod version of Dockerfile
-  #     # dockerfile: Dockerfile.test
-  #   container_name: orders-ms
-  #   restart: always
-  #   depends_on:
-  #     # - message-broker
-  #     - orders-db
-  #   volumes:
-  #     - ./orders-ms/app/:/app:ro
-  #   environment:
-  #     - WATCHFILES_FORCE_POLLING=true
-  #     - DB_HOSTNAME=orders-db
-  #     - DB_USERNAME=root
-  #     - DB_PASSWORD=root
-  #     - DB_PORT=27017
-  #     - DB_NAME=shop
-  #     # API ROUTES
-  #     - API_ORDERS_PREFIX=/api
 
-  #   networks:
-  #     - network
+  ### ----------------------------- ORDERS -----------------------------
+  orders-ms:
+    build:
+      context: ./backend/orders-ms
+      # Dev version of Dockerfile
+      dockerfile: Dockerfile
+      # Prod version of Dockerfile
+      # dockerfile: Dockerfile.test
+    container_name: orders-ms
+    restart: always
+    depends_on:
+      - message-broker
+      - orders-db
+    volumes:
+      - ./backend/orders-ms/app/:/app:ro
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+      - DB_HOSTNAME=orders-db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_PORT=27017
+      - DB_NAME=shop
+      # API ROUTES
+      - API_ORDERS_PREFIX=/api
+
+    networks:
+      - network
 
   orders-db:
     image: bitnami/mongodb:7.0.7-debian-12-r0

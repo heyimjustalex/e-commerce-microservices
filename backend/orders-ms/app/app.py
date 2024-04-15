@@ -9,6 +9,9 @@ from app.repositories.order_repository import OrderRepository
 from app.repositories.product_repository import ProductRepository
 from app.database.connector import Connector
 
+import time
+time.sleep(6)
+
 app = FastAPI()   
 app.add_exception_handler(ProductIncorrectFormat,product_incorrect_format_exception_handler)
 app.add_exception_handler(ProductAlreadyExists,product_already_exists_exception_handler)

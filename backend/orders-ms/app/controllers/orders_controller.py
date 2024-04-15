@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from typing import List
+import asyncio
+import sys
 
 from app.schemas.schemas import OrderResponse, OrderCreateRequest, OrderCreatedResponse,OrdersResponse
 from app.services.order_service import OrderService
@@ -24,3 +26,9 @@ def get_orders(email:str, service: OrderService = Depends(get_orders_service)):
     orders_response: List[OrderResponse] = [OrderResponse(status=order.status, cost=order.cost, products=order.products) for order in orders]  
     response:OrdersResponse = OrdersResponse(orders=orders_response)
     return response
+
+@router.get("/orders_error")
+async def error():
+    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+    loop.stop()
+    sys.exit(0)
