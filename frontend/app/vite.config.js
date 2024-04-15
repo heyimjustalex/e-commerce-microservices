@@ -10,5 +10,9 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
+    esbuild: {
+      target: "esnext",
+      platform: "linux",
+    },
   },
 });

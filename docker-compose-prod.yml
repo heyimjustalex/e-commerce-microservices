@@ -68,20 +68,12 @@ services:
   ###  ----------------------------- FRONTEND  -----------------------------
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ./frontend/app
+      dockerfile: Dockerfile.prod
     container_name: frontend
-    depends_on:
-      - orders-ms
-      - products-ms
-      - authentication-ms
-
     restart: always
     ports:
       - 3000:3000
-    volumes:
-      - ./frontend/app:/app
-      - /app/node_modules
     networks:
       - network
 
