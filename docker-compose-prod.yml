@@ -1,4 +1,4 @@
-# Dev version is without tests and live reload
+# Prod version is based on images and Dockerfiles, you have to use build script first
 version: "3.9"
 services:
   ###  ----------------------------- MESSAGE-BROKER  -----------------------------
@@ -50,15 +50,13 @@ services:
       - network
 
   ###  ----------------------------- REVERSE-PROXY  -----------------------------
-  nginx:
-    image: nginx:1.25.4-alpine-slim
-    container_name: nginx_proxy
+  nginx-proxy:
+    image: heyimjustalex/nginx-proxy
+    container_name: nginx-proxy
     restart: on-failure
     depends_on:
       - frontend
       - gateway-ms
-    volumes:
-      - ./nginx_proxy/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 80:80
     networks:
@@ -76,9 +74,7 @@ services:
 
   ###  ----------------------------- API GATEWAY  -----------------------------
   gateway-ms:
-    build:
-      context: ./backend/gateway-ms
-      dockerfile: Dockerfile
+    image: heyimjustalex/gateway-ms
     container_name: gateway-ms
     restart: always
     # ports:
@@ -89,15 +85,10 @@ services:
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
     networks:
       - network
-    # volumes:
-    #   - ./backend/gateway-ms/app/:/app:ro
 
   ### ----------------------------- AUTHENTICATION -----------------------------
   authentication-ms:
-    build:
-      context: ./backend/authentication-ms
-      # Prod version of Dockerfile
-      dockerfile: Dockerfile.prod
+    image: heyimjustalex/authentication-ms
     container_name: authentication-ms
     restart: always
     # ports:
@@ -126,7 +117,7 @@ services:
       - network
 
   authentication-db:
-    image: bitnami/mongodb:7.0.7-debian-12-r0
+    image: heyimjustalex/authentication-db
     container_name: authentication-db
     restart: always
     environment:
@@ -141,8 +132,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
-    volumes:
-      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
+    # volumes:
+    #   - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
     #  - authentication_db_data:/bitnami/mongodb
     networks:
       - network
@@ -170,10 +161,7 @@ services:
 
   ### ----------------------------- PRODUCTS -----------------------------
   products-ms:
-    build:
-      context: ./backend/products-ms
-      # Prod version of Dockerfile
-      dockerfile: Dockerfile.prod
+    image: heyimjustalex/products-ms
     container_name: products-ms
     restart: always
     # ports:
@@ -197,7 +185,7 @@ services:
       - network
 
   products-db:
-    image: bitnami/mongodb:7.0.7-debian-12-r0
+    image: heyimjustalex/products-db
     container_name: products-db
     restart: always
     environment:
@@ -212,8 +200,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
-    volumes:
-      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
+    # volumes:
+    #   - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
     #  - products_db_data:/bitnami/mongodb
     networks:
       - network
@@ -241,10 +229,7 @@ services:
 
   ### ----------------------------- ORDERS -----------------------------
   orders-ms:
-    build:
-      context: ./backend/orders-ms
-      # Prod version of Dockerfile
-      dockerfile: Dockerfile.prod
+    image: heyimjustalex/orders-ms
     container_name: orders-ms
     restart: always
     # ports:
@@ -265,7 +250,7 @@ services:
       - network
 
   orders-db:
-    image: bitnami/mongodb:7.0.7-debian-12-r0
+    image: heyimjustalex/orders-db
     container_name: orders-db
     restart: always
     environment:
@@ -282,9 +267,9 @@ services:
       retries: 3
       start_period: 20s
 
-    volumes:
-      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
-      # - orders_db_data:/bitnami/mongodb
+    # volumes:
+    #   - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
+    # - orders_db_data:/bitnami/mongodb
     networks:
       - network
 
