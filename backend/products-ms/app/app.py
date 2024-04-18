@@ -13,7 +13,6 @@ import time
 
 time.sleep(6)
 
-
 app = FastAPI()  
 
 app.include_router(categories_router)
@@ -26,6 +25,7 @@ app.add_exception_handler(BrokerMessagePublishError, broker_message_publish_exce
 
 @app.on_event("startup")
 async def startup_event():    
+   
     product_repository = ProductRepository(Connector.get_db(), Connector.get_db_client())
     order_repository = OrderRepository(Connector.get_db(), Connector.get_db_client())
     asyncio.create_task(MessageConsumer.consume(product_repository, order_repository))

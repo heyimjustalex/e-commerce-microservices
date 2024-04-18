@@ -7,12 +7,13 @@ services:
     hostname: zookeeper
     container_name: zookeeper
     restart: always
-    ports:
-      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: zookeeper:2888:3888
+    # volumes:
+    #   - zookeeper_data:/var/lib/zookeeper/data
+    #   - zookeeper_logs:/var/lib/zookeeper/log
     networks:
       - network
 
@@ -21,12 +22,8 @@ services:
     hostname: message-broker
     container_name: message-broker
     restart: always
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-      - "9999:9999"
-    networks:
-      - network
+    depends_on:
+      - zookeeper
     environment:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://message-broker:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
@@ -41,14 +38,16 @@ services:
       KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-    depends_on:
-      - zookeeper
     healthcheck:
       test: nc -z localhost 19092 || exit -1
       start_period: 25s
       interval: 5s
       timeout: 10s
       retries: 10
+    # volumes:
+    #   - kafka_data:/var/lib/kafka/data
+    networks:
+      - network
 
   ###  ----------------------------- REVERSE-PROXY  -----------------------------
   nginx:
@@ -72,8 +71,6 @@ services:
       dockerfile: Dockerfile.prod
     container_name: frontend
     restart: always
-    ports:
-      - 3000:3000
     networks:
       - network
 
@@ -84,32 +81,29 @@ services:
       dockerfile: Dockerfile
     container_name: gateway-ms
     restart: always
-    ports:
-      - 8080:8000
-    volumes:
-      - ./backend/gateway-ms/app/:/app:ro
+    # ports:
+    #   - 8080:8000
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - JWT_TOKEN_ALG=HS256
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
     networks:
       - network
+    # volumes:
+    #   - ./backend/gateway-ms/app/:/app:ro
 
   ### ----------------------------- AUTHENTICATION -----------------------------
   authentication-ms:
     build:
       context: ./backend/authentication-ms
-      # Dev version of Dockerfile
-      #dockerfile: Dockerfile
       # Prod version of Dockerfile
       dockerfile: Dockerfile.prod
     container_name: authentication-ms
     restart: always
+    # ports:
+    #   - "8001:8000"
     depends_on:
       - authentication-db
-    volumes:
-      - ./backend/authentication-ms/app/:/app/app
-      - ./backend/authentication-ms/tests/:/app/tests
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=authentication-db
@@ -125,6 +119,9 @@ services:
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
       - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
+    # volumes:
+    #   - ./backend/authentication-ms/app/:/app/app
+    #   - ./backend/authentication-ms/tests/:/app/tests
     networks:
       - network
 
@@ -132,22 +129,23 @@ services:
     image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: authentication-db
     restart: always
-    volumes:
-      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
     environment:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_REPLICA_SET_KEY=123456
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-    networks:
-      - network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
+    volumes:
+      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
+    #  - authentication_db_data:/bitnami/mongodb
+    networks:
+      - network
 
   adminpanel-authentication-db:
     image: mongo-express:1.0.2-20-alpine3.19
@@ -155,8 +153,8 @@ services:
     restart: always
     depends_on:
       - authentication-db
-    ports:
-      - "8081:8081"
+    # ports:
+    #   - "8081:8081"
     environment:
       # this does not seem to work to modify connection server
       - ME_CONFIG_MONGODB_SERVER=authentication-db
@@ -167,7 +165,6 @@ services:
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
     # to login to panel use: admin/pass
-
     networks:
       - network
 
@@ -175,18 +172,15 @@ services:
   products-ms:
     build:
       context: ./backend/products-ms
-      # Dev version of Dockerfile
-      # dockerfile: Dockerfile
       # Prod version of Dockerfile
       dockerfile: Dockerfile.prod
     container_name: products-ms
     restart: always
+    # ports:
+    #   - "8002:8000"
     depends_on:
       - message-broker
       - products-db
-    volumes:
-      - ./backend/products-ms/app/:/app/app
-      - ./backend/products-ms/tests/:/app/tests
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=products-db
@@ -196,6 +190,9 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_PRODUCT_PREFIX=/api
+    # volumes:
+    #   - ./backend/products-ms/app/:/app/app
+    #   - ./backend/products-ms/tests/:/app/tests
     networks:
       - network
 
@@ -203,22 +200,23 @@ services:
     image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: products-db
     restart: always
-    volumes:
-      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
     environment:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_REPLICA_SET_KEY=123456
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-    networks:
-      - network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
+    volumes:
+      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
+    #  - products_db_data:/bitnami/mongodb
+    networks:
+      - network
 
   adminpanel-products-db:
     image: mongo-express:1.0.2-20-alpine3.19
@@ -245,18 +243,15 @@ services:
   orders-ms:
     build:
       context: ./backend/orders-ms
-      # Dev version of Dockerfile
-      # dockerfile: Dockerfile
       # Prod version of Dockerfile
       dockerfile: Dockerfile.prod
     container_name: orders-ms
     restart: always
+    # ports:
+    #   - "8003:8000"
     depends_on:
       - message-broker
       - orders-db
-    volumes:
-      - ./backend/orders-ms/app/:/app/app
-      - ./backend/orders-ms/tests/:/app/tests
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=orders-db
@@ -266,7 +261,6 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_ORDERS_PREFIX=/api
-
     networks:
       - network
 
@@ -274,22 +268,25 @@ services:
     image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: orders-db
     restart: always
-    volumes:
-      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
     environment:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_REPLICA_SET_KEY=123456
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-    networks:
-      - network
+
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
+
+    volumes:
+      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
+      # - orders_db_data:/bitnami/mongodb
+    networks:
+      - network
 
   adminpanel-orders-db:
     image: mongo-express:1.0.2-20-alpine3.19
@@ -311,9 +308,22 @@ services:
       # to login to panel use: admin/pass
     networks:
       - network
-volumes:
-  users_db_data:
-    name: users_db_data
+
+# volumes:
+#   authentication_db_data:
+#     name: authentication_db_data
+#   products_db_data:
+#     name: products_db_data
+#   orders_db_data:
+#     name: orders_db_data
+#   orders_db_logs:
+#     name: orders_db_logs
+#   kafka_data:
+#     name: kafka_data
+#   zookeeper_data:
+#     name: zookeeper_data
+#   zookeeper_logs:
+#     name: zookeeper_logs
 
 networks:
   network:

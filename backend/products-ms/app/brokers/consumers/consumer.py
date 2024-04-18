@@ -86,7 +86,7 @@ class MessageConsumer:
                             order_event: OrderCreateEvent = OrderCreateEvent.model_validate_json(message.value)
                             order_event.order.id = sent_id     
  
-                            await event_handler.handleEvent(order_event)
+                            await event_handler.handle_event(order_event)
                         else:
                             print("PRODUCTS-MS: Unknown message ", json_mess)
 

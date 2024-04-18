@@ -11,7 +11,7 @@ from app.models.models import Order
 import os
 router = APIRouter(
     prefix=os.getenv('API_PRODUCT_PREFIX','/api'),
-    tags=['prod']
+    tags=['ord']
 )
 
 @router.post("/orders", response_model=OrderCreatedResponse, status_code=status.HTTP_201_CREATED)

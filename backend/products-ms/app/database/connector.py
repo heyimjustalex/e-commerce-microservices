@@ -21,5 +21,7 @@ class Connector:
     @classmethod
     def get_db(cls) -> Database: 
         return cls.get_db_client().get_database(cls.db_name)
+    
+
 
 

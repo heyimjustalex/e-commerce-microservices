@@ -87,17 +87,17 @@ class MessageConsumer:
                             sent_id = json_mess['product']['id']
                             product_create_event: ProductCreateEvent = ProductCreateEvent.model_validate_json(message.value)
                             product_create_event.product.id= sent_id    
-                            await event_handler.handleEvent(product_create_event)
+                            await event_handler.handle_event(product_create_event)
 
                         elif json_mess['type'] == 'OrderStatusUpdate':    
                             await asyncio.sleep(0.3)           
                             order_status_update_event: OrderStatusUpdateEvent = OrderStatusUpdateEvent.model_validate_json(message.value)
-                            await event_handler.handleEvent(order_status_update_event)
+                            await event_handler.handle_event(order_status_update_event)
                         
                         elif json_mess['type'] == 'ProductsQuantityUpdate':  
                             await asyncio.sleep(0.3)  
                             products_quantity_update_event: ProductsQuantityUpdateEvent= ProductsQuantityUpdateEvent.model_validate_json(message.value)
-                            await event_handler.handleEvent(products_quantity_update_event)
+                            await event_handler.handle_event(products_quantity_update_event)
 
             except Exception as e:
                 await cls._consumer.stop()   

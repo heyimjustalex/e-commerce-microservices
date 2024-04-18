@@ -25,8 +25,8 @@ services:
       - "9092:9092"
       - "29092:29092"
       - "9999:9999"
-    networks:
-      - network
+    depends_on:
+      - zookeeper
     environment:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://message-broker:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
@@ -41,44 +41,42 @@ services:
       KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-    depends_on:
-      - zookeeper
     healthcheck:
       test: nc -z localhost 19092 || exit -1
       start_period: 25s
       interval: 5s
       timeout: 10s
       retries: 10
-
+    networks:
+      - network
   ###  ----------------------------- REVERSE-PROXY  -----------------------------
   nginx:
     image: nginx:1.25.4-alpine-slim
     container_name: nginx_proxy
     restart: on-failure
+    ports:
+      - 80:80
     depends_on:
       - frontend
       - gateway-ms
     volumes:
       - ./nginx_proxy/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - 80:80
     networks:
       - network
 
   ###  ----------------------------- FRONTEND  -----------------------------
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend/app
       dockerfile: Dockerfile
     container_name: frontend
+    restart: always
+    ports:
+      - 3000:3000
     depends_on:
       - orders-ms
       - products-ms
       - authentication-ms
-
-    restart: always
-    ports:
-      - 3000:3000
     volumes:
       - ./frontend/app:/app
       - /app/node_modules
@@ -94,12 +92,12 @@ services:
     restart: always
     ports:
       - 8080:8000
-    volumes:
-      - ./backend/gateway-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - JWT_TOKEN_ALG=HS256
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
+    volumes:
+      - ./backend/gateway-ms/app/:/app:ro
     networks:
       - network
 
@@ -109,14 +107,10 @@ services:
       context: ./backend/authentication-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
-      # Prod version of Dockerfile
-      # dockerfile: Dockerfile.test
     container_name: authentication-ms
     restart: always
     depends_on:
       - authentication-db
-    volumes:
-      - ./backend/authentication-ms/app/:/app
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=authentication-db
@@ -132,6 +126,8 @@ services:
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
       - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
+    volumes:
+      - ./backend/authentication-ms/app/:/app
     networks:
       - network
 
@@ -139,22 +135,22 @@ services:
     image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: authentication-db
     restart: always
-    volumes:
-      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
     environment:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_REPLICA_SET_KEY=123456
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-    networks:
-      - network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
+    volumes:
+      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
+    networks:
+      - network
 
   adminpanel-authentication-db:
     image: mongo-express:1.0.2-20-alpine3.19
@@ -174,7 +170,6 @@ services:
       - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
       - ME_CONFIG_MONGODB_PORT=27017
     # to login to panel use: admin/pass
-
     networks:
       - network
 
@@ -184,15 +179,11 @@ services:
       context: ./backend/products-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
-      # Prod version of Dockerfile
-      # dockerfile: Dockerfile.test
     container_name: products-ms
     restart: always
     depends_on:
       - message-broker
       - products-db
-    volumes:
-      - ./backend/products-ms/app/:/app
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=products-db
@@ -202,6 +193,8 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_PRODUCT_PREFIX=/api
+    volumes:
+      - ./backend/products-ms/app/:/app
     networks:
       - network
 
@@ -209,22 +202,22 @@ services:
     image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: products-db
     restart: always
-    volumes:
-      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
     environment:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_REPLICA_SET_KEY=123456
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-    networks:
-      - network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
+    volumes:
+      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
+    networks:
+      - network
 
   adminpanel-products-db:
     image: mongo-express:1.0.2-20-alpine3.19
@@ -253,15 +246,11 @@ services:
       context: ./backend/orders-ms
       # Dev version of Dockerfile
       dockerfile: Dockerfile
-      # Prod version of Dockerfile
-      # dockerfile: Dockerfile.test
     container_name: orders-ms
     restart: always
     depends_on:
       - message-broker
       - orders-db
-    volumes:
-      - ./backend/orders-ms/app/:/app:ro
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=orders-db
@@ -271,7 +260,8 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_ORDERS_PREFIX=/api
-
+    volumes:
+      - ./backend/orders-ms/app/:/app:ro
     networks:
       - network
 
@@ -279,22 +269,22 @@ services:
     image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: orders-db
     restart: always
-    volumes:
-      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
     environment:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_REPLICA_SET_KEY=123456
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-    networks:
-      - network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
+    volumes:
+      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
+    networks:
+      - network
 
   adminpanel-orders-db:
     image: mongo-express:1.0.2-20-alpine3.19

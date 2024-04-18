@@ -9,7 +9,6 @@ from app.repositories.order_repository import OrderRepository
 from app.brokers.producers.producer import MessageProducer
 from pymongo import MongoClient
 from pymongo.client_session import ClientSession
-
 class EventHandler:
     def __init__(self, product_repostiory:ProductRepository, order_repository:OrderRepository) -> None:
         self.product_repository: ProductRepository = product_repostiory
@@ -60,11 +59,13 @@ class EventHandler:
             return False
         return True          
 
-    async def handleEvent(self,event:BaseModel):
+    async def handle_event(self,event:BaseModel):         
         client:MongoClient = self.product_repository.get_mongo_client()
         self._producer = await MessageProducer.get_producer()
         if isinstance(event, OrderCreateEvent):    
-            print("PRODUCTS-MS: Got OrderCreateEvent",event)           
+            print("PRODUCTS-MS: Got OrderCreateEvent",event)   
+
+                
             with client.start_session() as session:
                 with session.start_transaction():
                     try:    

@@ -27,7 +27,7 @@ class EventHandler:
             if not updated_product:
                 raise ProductQuantityUpdateFailed()
                 
-    async def handleEvent(self,event:BaseModel):
+    async def handle_event(self,event:BaseModel):
         client:MongoClient = self.product_repository.get_mongo_client()
         self._producer = await MessageProducer.get_producer()
         if isinstance(event, OrderStatusUpdateEvent):      
