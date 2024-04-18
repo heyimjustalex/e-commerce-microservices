@@ -51,7 +51,7 @@ services:
 
   ###  ----------------------------- REVERSE-PROXY  -----------------------------
   nginx-proxy:
-    image: heyimjustalex/nginx-proxy
+    image: heyimjustalex/nginx-proxy:dev
     container_name: nginx-proxy
     restart: on-failure
     depends_on:
@@ -64,9 +64,7 @@ services:
 
   ###  ----------------------------- FRONTEND  -----------------------------
   frontend:
-    build:
-      context: ./frontend/app
-      dockerfile: Dockerfile.prod
+    image: heyimjustalex/frontend
     container_name: frontend
     restart: always
     networks:

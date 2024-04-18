@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-ms-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-ms
+  template:
+    metadata:
+      labels:
+        app: gateway-ms
+    spec:
+      containers:
+        - name: gateway-ms
+          image: heyimjustalex/gateway-ms
+          env:
+            - name: WATCHFILES_FORCE_POLLING
+              value: "true"
+            - name: JWT_TOKEN_ALG
+              value: "HS256"
+            - name: JWT_REFRESH_TOKEN_SECRET_KEY
+              value: "fasfsafasfasfas"
+            - name: JWT_ACCESS_TOKEN_SECRET_KEY
+              value: "okokokokokokok"
+            - name: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+              value: "10080"
+            - name: JWT_REFRESH_TOKEN_EXPIRE_MINUTES
+              value: "30"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "0.5"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-ms-svc
+spec:
+  selector:
+    app: gateway-ms
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000

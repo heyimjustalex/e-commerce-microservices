@@ -1,12 +1,12 @@
 # Define the Docker command
-$buildCommand1 = "docker build -t heyimjustalex/authentication-ms -f Dockerfile.prod ./backend/authentication-ms/"
-$buildCommand2 = "docker build -t heyimjustalex/orders-ms -f Dockerfile.prod ./backend/orders-ms/"
-$buildCommand3 = "docker build -t heyimjustalex/products-ms -f Dockerfile.prod ./backend/products-ms/"
+$buildCommand1 = "docker build -t heyimjustalex/authentication-ms -f ./backend/authentication-ms/Dockerfile.prod ./backend/authentication-ms/"
+$buildCommand2 = "docker build -t heyimjustalex/orders-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/orders-ms/"
+$buildCommand3 = "docker build -t heyimjustalex/products-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/products-ms/"
 $buildCommand4 = "docker build -t heyimjustalex/authentication-db ./db/authentication-db/"
 $buildCommand5 = "docker build -t heyimjustalex/orders-db ./db/orders-db/"
 $buildCommand6 = "docker build -t heyimjustalex/products-db ./db/products-db/"
 $buildCommand7 = "docker build -t heyimjustalex/gateway-ms ./backend/gateway-ms/"
-$buildCommand8 = "docker build -t heyimjustalex/frontend -f Dockerfile.prod ./backend/frontend"
+$buildCommand8 = "docker build -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app"
 $buildCommand9 = "docker build -t heyimjustalex/nginx-proxy ./nginx-proxy"
 
 

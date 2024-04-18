@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: products-db
+spec:
+  serviceName: products-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: products-db
+  template:
+    metadata:
+      labels:
+        app: products-db
+    spec:
+      containers:
+        - name: products-db
+          image: heyimjustalex/products-db
+          env:
+            - name: MONGODB_REPLICA_SET_MODE
+              value: "primary"
+            - name: MONGODB_REPLICA_SET_KEY
+              value: "123456"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: MONGODB_ROOT_USER
+              value: "root"
+            - name: MONGODB_ROOT_PASSWORD
+              value: "root"
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - localhost:27017/shop
+                - --eval
+                - "db.runCommand('ping')"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - mongosh
+                - localhost:27017/shop
+                - --eval
+                - "db.runCommand('ping')"
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-db
+spec:
+  selector:
+    app: products-db
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017

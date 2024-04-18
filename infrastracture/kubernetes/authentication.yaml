@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orders-ms-dep
+  name: authentication-ms-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: orders-ms
+      app: authentication-ms
   template:
     metadata:
       labels:
-        app: orders-ms
+        app: authentication-ms
     spec:
       containers:
-        - name: orders-ms
-          image: heyimjustalex/orders-ms
+        - name: authentication-ms
+          image: heyimjustalex/authentication-ms
           env:
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
             - name: DB_HOSTNAME
-              value: orders-db
+              value: authentication-db
             - name: DB_USERNAME
               value: root
             - name: DB_PASSWORD
@@ -28,8 +28,18 @@ spec:
               value: "27017"
             - name: DB_NAME
               value: shop
-            - name: API_ORDERS_PREFIX
+            - name: API_AUTHENTICATION_PREFIX
               value: "/api"
+            - name: JWT_TOKEN_ALG
+              value: "HS256"
+            - name: JWT_REFRESH_TOKEN_SECRET_KEY
+              value: "fasfsafasfasfas"
+            - name: JWT_ACCESS_TOKEN_SECRET_KEY
+              value: "okokokokokokok"
+            - name: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+              value: "10080"
+            - name: JWT_REFRESH_TOKEN_EXPIRE_MINUTES
+              value: "30"
           resources:
             limits:
               cpu: "1"
@@ -41,11 +51,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orders-ms-svc
+  name: authentication-ms
 spec:
   selector:
-    app: orders-ms
-  type: ClusterIP
+    app: authentication-ms
   ports:
-    - port: 8000
+    - protocol: TCP
+      port: 8000
       targetPort: 8000
+  type: ClusterIP

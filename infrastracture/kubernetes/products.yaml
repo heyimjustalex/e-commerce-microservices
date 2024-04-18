@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orders-ms-dep
+  name: products-ms-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: orders-ms
+      app: products-ms
   template:
     metadata:
       labels:
-        app: orders-ms
+        app: products-ms
     spec:
       containers:
-        - name: orders-ms
-          image: heyimjustalex/orders-ms
+        - name: products-ms
+          image: heyimjustalex/products-ms
           env:
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
@@ -41,10 +41,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orders-ms-svc
+  name: products-ms-svc
 spec:
   selector:
-    app: orders-ms
+    app: products-ms
   type: ClusterIP
   ports:
     - port: 8000
