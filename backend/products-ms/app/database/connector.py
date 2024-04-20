@@ -10,12 +10,11 @@ class Connector:
     password : Union[str, None]  = os.getenv('DB_PASSWORD')
     db_name:  Union[str, None]  = os.getenv('DB_NAME')
     port: int = int(os.getenv('DB_PORT', '999999')) 
-    test_environment : bool = bool(os.getenv('TEST_ENV',False))
 
     @classmethod
     def get_db_client(cls) -> MongoClient:
         if not cls._client:
-            cls._client =  MongoClient(cls.hostname,cls.port,username=cls.username,password=cls.password)
+            cls._client =  MongoClient(host=cls.hostname,port=cls.port,username=cls.username,password=cls.password)
         return cls._client            
 
     @classmethod
