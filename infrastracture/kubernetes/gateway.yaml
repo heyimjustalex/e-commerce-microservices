@@ -16,6 +16,12 @@ spec:
         - name: gateway-ms
           image: heyimjustalex/gateway-ms
           env:
+            - name: AUTHENTICATION_SERVICE_URL
+              value: "http://authentication-ms-svc.default:8000"
+            - name: PRODUCTS_SERVICE_URL
+              value: "http://products-ms-svc.default:8000"
+            - name: ORDERS_SERVICE_URL
+              value: "http://orders-ms-svc.default:8000"
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
             - name: JWT_TOKEN_ALG

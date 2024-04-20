@@ -16,8 +16,12 @@ spec:
         - name: orders-ms
           image: heyimjustalex/orders-ms
           env:
+            - name: DB_HOSTNAME
+              value: "orders-db-svc.default"
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "message-broker-svc:29092"
             - name: DB_HOSTNAME
               value: orders-db
             - name: DB_USERNAME
@@ -30,6 +34,7 @@ spec:
               value: shop
             - name: API_ORDERS_PREFIX
               value: "/api"
+
           resources:
             limits:
               cpu: "1"
@@ -47,5 +52,6 @@ spec:
     app: orders-ms
   type: ClusterIP
   ports:
-    - port: 8000
+    - protocol: TCP
+      port: 8000
       targetPort: 8000
