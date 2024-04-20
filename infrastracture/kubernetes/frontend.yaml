@@ -14,6 +14,10 @@ spec:
     spec:
       containers:
         - name: frontend
+          # env:
+          #   - name: REACT_APP_BACKEND_ADDRESS
+          #     # port from nodePort proxy.yaml
+          #     value: http://localhost:80
           image: heyimjustalex/frontend
           resources:
             limits:

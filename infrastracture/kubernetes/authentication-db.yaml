@@ -1,9 +1,8 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: authentication-db
+  name: authentication-db-dep
 spec:
-  serviceName: authentication-db
   replicas: 1
   selector:
     matchLabels:
@@ -27,32 +26,27 @@ spec:
               value: "root"
             - name: MONGODB_ROOT_PASSWORD
               value: "root"
-          # readinessProbe:
-          #   exec:
-          #     command:
-          #       - mongosh
-          #       - localhost:27017/shop
-          #       - --eval
-          #       - "db.runCommand('ping')"
-          #   initialDelaySeconds: 10
-          #   periodSeconds: 10
-          # livenessProbe:
-          #   exec:
-          #     command:
-          #       - mongosh
-          #       - localhost:27017/shop
-          #       - --eval
-          #       - "db.runCommand('ping')"
-          #   initialDelaySeconds: 20
-          #   periodSeconds: 10
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "authentication-db-svc.default"
+            - name: MONGODB_INITIAL_PRIMARY_HOST
+              value: "authentication-db-svc.default"
+
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "0.5"
+              memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: authentication-db
+  name: authentication-db-svc
 spec:
   selector:
     app: authentication-db
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 27017

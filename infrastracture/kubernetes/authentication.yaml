@@ -19,15 +19,15 @@ spec:
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
             - name: DB_HOSTNAME
-              value: authentication-db
+              value: "authentication-db-svc.default"
             - name: DB_USERNAME
-              value: root
+              value: "root"
             - name: DB_PASSWORD
-              value: root
+              value: "root"
             - name: DB_PORT
               value: "27017"
             - name: DB_NAME
-              value: shop
+              value: "shop"
             - name: API_AUTHENTICATION_PREFIX
               value: "/api"
             - name: JWT_TOKEN_ALG
@@ -51,12 +51,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: authentication-ms
+  name: authentication-ms-svc
 spec:
   selector:
     app: authentication-ms
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 8000
       targetPort: 8000
-  type: ClusterIP

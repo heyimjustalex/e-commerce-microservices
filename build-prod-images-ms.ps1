@@ -7,7 +7,7 @@ $buildCommand5 = "docker build -t heyimjustalex/orders-db ./db/orders-db/"
 $buildCommand6 = "docker build -t heyimjustalex/products-db ./db/products-db/"
 $buildCommand7 = "docker build -t heyimjustalex/gateway-ms ./backend/gateway-ms/"
 $buildCommand8 = "docker build -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app"
-$buildCommand9 = "docker build -t heyimjustalex/nginx-proxy ./nginx-proxy"
+$buildCommand9 = "docker build -t heyimjustalex/nginx-proxy/prod ./nginx-proxy/prod"
 
 
 
