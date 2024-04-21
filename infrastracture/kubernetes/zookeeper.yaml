@@ -26,11 +26,17 @@ spec:
               value: "zookeeper-svc:2888:3888"
           resources:
             limits:
-              cpu: "1"
-              memory: "512Mi"
+              cpu: "300m"
+              memory: "300Mi"
             requests:
-              cpu: "0.5"
-              memory: "256Mi"
+              cpu: "300m"
+              memory: "300Mi"
+      tolerations:
+        - key: instance_type
+          value: spot
+          effect: NoSchedule
+          operator: Equal
+
 ---
 apiVersion: v1
 kind: Service

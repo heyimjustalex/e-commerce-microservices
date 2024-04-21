@@ -30,14 +30,28 @@ spec:
               value: "authentication-db-svc.default"
             - name: MONGODB_INITIAL_PRIMARY_HOST
               value: "authentication-db-svc.default"
-
           resources:
             limits:
-              cpu: "1"
-              memory: "512Mi"
+              cpu: "200m"
+              memory: "300Mi"
             requests:
-              cpu: "0.5"
-              memory: "256Mi"
+              cpu: "200m"
+              memory: "300Mi"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: team
+                    operator: In
+                    values:
+                      - devops
+
+      tolerations:
+        - key: instance_type
+          value: spot
+          effect: NoSchedule
+          operator: Equal
 ---
 apiVersion: v1
 kind: Service

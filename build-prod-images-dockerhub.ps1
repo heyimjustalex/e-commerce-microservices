@@ -8,9 +8,11 @@ $buildCommand5 = "docker build -t heyimjustalex/authentication-db ./db/authentic
 $buildCommand6 = "docker build -t heyimjustalex/orders-db ./db/orders-db/"
 $buildCommand7 = "docker build -t heyimjustalex/products-db ./db/products-db/"
 
-$buildCommand8 = "docker build -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app"
+#add here your api address for prod build
+$buildCommand8 = 'docker build  --build-arg="VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app'
 $buildCommand9 = "docker build -t heyimjustalex/nginx-proxy:k8s ./nginx-proxy/prod-k8s"
 $buildCommand10 = "docker build -t heyimjustalex/nginx-proxy:docker ./nginx-proxy/prod-docker"
+$buildCommand11 = "docker build -t heyimjustalex/frontend:dev -f ./frontend/app/Dockerfile ./frontend/app"
 
 $pushCommand1 = "docker push heyimjustalex/authentication-ms"
 $pushCommand2 = "docker push heyimjustalex/orders-ms"
@@ -24,6 +26,7 @@ $pushCommand7 = "docker push heyimjustalex/products-db"
 $pushCommand8 = "docker push heyimjustalex/frontend"
 $pushCommand9 = "docker push heyimjustalex/nginx-proxy:k8s"
 $pushCommand10 = "docker push heyimjustalex/nginx-proxy:docker"
+$pushCommand11 = "docker push heyimjustalex/frontend:dev"
 
 # Execute the Docker command
 Invoke-Expression -Command $buildCommand1

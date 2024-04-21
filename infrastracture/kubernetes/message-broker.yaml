@@ -49,20 +49,28 @@ spec:
               value: "kafka.security.authorizer.AclAuthorizer"
             - name: KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND
               value: "true"
-          # readinessProbe:
-          #   exec:
-          #     command: ["nc", "-z", "localhost", "9092"]
-          #   initialDelaySeconds: 15
-          #   periodSeconds: 5
-          #   timeoutSeconds: 10
-          #   failureThreshold: 6
+
           resources:
             limits:
-              cpu: "1"
-              memory: "850Mi"
+              cpu: "400m"
+              memory: "400Mi"
             requests:
-              cpu: "0.5"
-              memory: "512Mi"
+              cpu: "400m"
+              memory: "400Mi"
+      tolerations:
+        - key: instance_type
+          value: spot
+          effect: NoSchedule
+          operator: Equal
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: team
+                    operator: In
+                    values:
+                      - devops
 
 ---
 apiVersion: v1

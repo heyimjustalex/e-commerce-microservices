@@ -42,11 +42,25 @@ spec:
             timeoutSeconds: 5
           resources:
             limits:
-              cpu: "1"
-              memory: "512Mi"
+              cpu: "100m"
+              memory: "100Mi"
             requests:
-              cpu: "0.5"
-              memory: "256Mi"
+              cpu: "100m"
+              memory: "100Mi"
+      tolerations:
+        - key: instance_type
+          value: spot
+          effect: NoSchedule
+          operator: Equal
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: team
+                    operator: In
+                    values:
+                      - devops
 ---
 apiVersion: v1
 kind: Service

@@ -15,17 +15,34 @@ spec:
       containers:
         - name: frontend
           env:
-            - name: REACT_APP_BACKEND_ADDRESS
+            - name: VITE_APP_BACKEND_ADDRESS
               # port from nodePort proxy.yaml
-              value: http://localhost:80/api
+              # for localhost running of minikube
+              #value: http://localhost:80/api
+              value: https://cloudcomputingtechnologies.pl/api
           image: heyimjustalex/frontend
           resources:
             limits:
-              cpu: "1"
-              memory: "512Mi"
+              cpu: "200m"
+              memory: "200Mi"
             requests:
-              cpu: "0.5"
-              memory: "256Mi"
+              cpu: "200m"
+              memory: "200Mi"
+      tolerations:
+        - key: instance_type
+          value: spot
+          effect: NoSchedule
+          operator: Equal
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: team
+                    operator: In
+                    values:
+                      - devops
+
 ---
 apiVersion: v1
 kind: Service

@@ -1,5 +1,5 @@
 $deleteCommands = @(
-    'kubectl delete -f .\infrastracture\kubernetes\proxy.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\ingress.yaml',
     'kubectl delete -f .\infrastracture\kubernetes\gateway.yaml',
     'kubectl delete -f .\infrastracture\kubernetes\frontend.yaml',
     'kubectl delete -f .\infrastracture\kubernetes\orders.yaml',
@@ -26,8 +26,8 @@ $applyCommands = @(
     'kubectl apply -f .\infrastracture\kubernetes\orders.yaml',
     'kubectl apply -f .\infrastracture\kubernetes\authentication.yaml',
     'kubectl apply -f .\infrastracture\kubernetes\products.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\gateway.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\proxy.yaml'
+    'kubectl apply -f .\infrastracture\kubernetes\gateway.yaml'
+    'kubectl apply -f .\infrastracture\kubernetes\ingress.yaml'
 )
 
 foreach ($command in $applyCommands) {
