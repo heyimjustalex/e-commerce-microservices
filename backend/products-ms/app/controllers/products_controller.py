@@ -7,6 +7,7 @@ from app.services.product_service import ProductService
 from app.dependencies.dependencies import get_products_service
 from app.schemas.schemas import ProductResponse, ProductsResponse, ProductCreateRequest
 import asyncio
+import signal
 
 router = APIRouter(
     prefix=os.getenv('API_PRODUCT_PREFIX','/api'),
@@ -40,6 +41,10 @@ async def add_product(data: ProductCreateRequest ,product_service: ProductServic
 
 @router.get("/products_error")
 async def error():
-    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    loop.stop()
+    os.kill(os.getpid(), signal.SIGTERM)
     sys.exit(0)
+
+
+@router.get("/products_health")
+async def health_check():  
+    return {"status": "ok"}

@@ -30,6 +30,6 @@ $applyCommands = @(
     'kubectl apply -f .\infrastracture\kubernetes\proxy.yaml'
 )
 
-# foreach ($command in $applyCommands) {
-#     Invoke-Expression -Command $command
-# }
+foreach ($command in $applyCommands) {
+    Invoke-Expression -Command $command
+}

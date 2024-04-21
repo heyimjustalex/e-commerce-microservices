@@ -12,6 +12,7 @@ spec:
       labels:
         app: products-ms
     spec:
+      restartPolicy: Always
       containers:
         - name: products-ms
           image: heyimjustalex/products-ms
@@ -32,7 +33,13 @@ spec:
               value: shop
             - name: API_products_PREFIX
               value: "/api"
-
+          livenessProbe:
+            httpGet:
+              path: /api/products_health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
           resources:
             limits:
               cpu: "1"

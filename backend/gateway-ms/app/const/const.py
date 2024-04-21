@@ -14,6 +14,9 @@ endpoint_redirect_map: dict[str, str] = {
         "/api/products_error":products_service_url,  
         "/api/authentication_error":authentication_service_url,  
         "/api/orders_error":orders_service_url,  
+        "/api/orders_health":orders_service_url,  
+        "/api/products_health":products_service_url,  
+        "/api/authentication_health":authentication_service_url,  
     }
 
 endpoint_access_map: dict[tuple[str,str,str],bool] = {

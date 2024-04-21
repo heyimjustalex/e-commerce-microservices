@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, status, Response
 import os
+import signal
 import sys
-import asyncio
-
 from app.schemas.schemas import RefreshTokenRequest,RefreshTokenResponse, UserRegisterRequest, UserRegisterResponse, UserLoginRequest, UserLoginResponse
 from app.services.user_service import UserService
 from app.services.token_service import TokenService
@@ -39,9 +38,11 @@ def refresh_token(data:RefreshTokenRequest, response: Response, token_service:To
     return response_model
 
 
-
 @router.get("/authentication_error")
 async def error():
-    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    loop.stop()
+    os.kill(os.getpid(), signal.SIGTERM)
     sys.exit(0)
+
+@router.get("/authentication_health")
+async def health_check():  
+    return {"status": "ok"}

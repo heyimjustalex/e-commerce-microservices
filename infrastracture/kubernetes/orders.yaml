@@ -12,6 +12,7 @@ spec:
       labels:
         app: orders-ms
     spec:
+      restartPolicy: Always
       containers:
         - name: orders-ms
           image: heyimjustalex/orders-ms
@@ -32,7 +33,13 @@ spec:
               value: shop
             - name: API_ORDERS_PREFIX
               value: "/api"
-
+          livenessProbe:
+            httpGet:
+              path: /api/orders_health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
           resources:
             limits:
               cpu: "1"

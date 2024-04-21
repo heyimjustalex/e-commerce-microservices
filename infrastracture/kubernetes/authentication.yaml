@@ -12,6 +12,7 @@ spec:
       labels:
         app: authentication-ms
     spec:
+      restartPolicy: Always
       containers:
         - name: authentication-ms
           image: heyimjustalex/authentication-ms
@@ -40,6 +41,13 @@ spec:
               value: "10080"
             - name: JWT_REFRESH_TOKEN_EXPIRE_MINUTES
               value: "30"
+          livenessProbe:
+            httpGet:
+              path: /api/authentication_health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
           resources:
             limits:
               cpu: "1"

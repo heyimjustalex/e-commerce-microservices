@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from typing import List
-import asyncio
+import signal
 import sys
-
 from app.schemas.schemas import OrderResponse, OrderCreateRequest, OrderCreatedResponse,OrdersResponse
 from app.services.order_service import OrderService
 from app.dependencies.dependencies import get_orders_service
@@ -29,6 +28,10 @@ def get_orders(email:str, service: OrderService = Depends(get_orders_service)):
 
 @router.get("/orders_error")
 async def error():
-    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    loop.stop()
+    os.kill(os.getpid(), signal.SIGTERM)
     sys.exit(0)
+
+
+@router.get("/orders_health")
+async def health_check():  
+    return {"status": "ok"}
