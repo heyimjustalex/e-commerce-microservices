@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: nginx-proxy
-          image: heyimjustalex/nginx-proxy
+          image: heyimjustalex/nginx-proxy:k8s
           resources:
             limits:
               cpu: "1"

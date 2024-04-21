@@ -9,7 +9,8 @@ $buildCommand6 = "docker build -t heyimjustalex/orders-db ./db/orders-db/"
 $buildCommand7 = "docker build -t heyimjustalex/products-db ./db/products-db/"
 
 $buildCommand8 = "docker build -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app"
-$buildCommand9 = "docker build -t heyimjustalex/nginx-proxy/prod ./nginx-proxy/prod"
+$buildCommand9 = "docker build -t heyimjustalex/nginx-proxy:k8s ./nginx-proxy/prod-k8s"
+$buildCommand10 = "docker build -t heyimjustalex/nginx-proxy:docker ./nginx-proxy/prod-docker"
 
 $pushCommand1 = "docker push heyimjustalex/authentication-ms"
 $pushCommand2 = "docker push heyimjustalex/orders-ms"
@@ -21,7 +22,8 @@ $pushCommand6 = "docker push heyimjustalex/orders-db"
 $pushCommand7 = "docker push heyimjustalex/products-db"
 
 $pushCommand8 = "docker push heyimjustalex/frontend"
-$pushCommand9 = "docker push heyimjustalex/nginx-proxy"
+$pushCommand9 = "docker push heyimjustalex/nginx-proxy:k8s"
+$pushCommand10 = "docker push heyimjustalex/nginx-proxy:docker"
 
 # Execute the Docker command
 Invoke-Expression -Command $buildCommand1
@@ -42,4 +44,6 @@ Invoke-Expression -Command $buildCommand8
 Invoke-Expression -Command $pushCommand8
 Invoke-Expression -Command $buildCommand9
 Invoke-Expression -Command $pushCommand9
+Invoke-Expression -Command $buildCommand10
+Invoke-Expression -Command $pushCommand10
  

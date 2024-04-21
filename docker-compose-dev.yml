@@ -50,9 +50,9 @@ services:
     networks:
       - network
   ###  ----------------------------- REVERSE-PROXY  -----------------------------
-  nginx:
+  nginx-proxy:
     image: nginx:1.25.4-alpine-slim
-    container_name: nginx_proxy
+    container_name: nginx-proxy
     restart: on-failure
     ports:
       - 80:80
@@ -60,7 +60,7 @@ services:
       - frontend
       - gateway-ms
     volumes:
-      - ./nginx_proxy/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx-proxy/dev/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - network
 
@@ -80,6 +80,8 @@ services:
     volumes:
       - ./frontend/app:/app
       - /app/node_modules
+    environment:
+      - REACT_APP_BACKEND_ADDRESS="http://localhost/api"
     networks:
       - network
 
@@ -148,7 +150,7 @@ services:
       retries: 3
       start_period: 20s
     volumes:
-      - ./db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
+      - ./db/authentication-db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
     networks:
       - network
 
@@ -215,7 +217,7 @@ services:
       retries: 3
       start_period: 20s
     volumes:
-      - ./db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
+      - ./db/products-db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
     networks:
       - network
 
@@ -282,7 +284,7 @@ services:
       retries: 3
       start_period: 20s
     volumes:
-      - ./db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
+      - ./db/orders-db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
     networks:
       - network
 

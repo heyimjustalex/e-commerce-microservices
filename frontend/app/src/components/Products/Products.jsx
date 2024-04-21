@@ -25,9 +25,11 @@ const Products = () => {
 
   return (
     <Container className="p-3 m-5 d-flex flex-column align-items-center justify-content-center">
-      {status === "pending" && output.content}
-      {status === "completed" && <h2>{output.header}</h2>}
+      {status === "pending" && output && output.content}
+      {status === "completed" && output && <h2>{output.header}</h2>}
       {status === "completed" &&
+        output &&
+        output.content &&
         !error &&
         output.content.products &&
         output.content.products.map((product, index) => (

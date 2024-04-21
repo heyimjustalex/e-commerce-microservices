@@ -15,4 +15,7 @@ export default defineConfig({
       platform: "linux",
     },
   },
+  define: {
+    "process.env": {},
+  },
 });

@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="7.322" timestamp="2024-04-16T17:15:44.176024" hostname="buildkitsandbox"><testcase classname="tests.test_orders_endpoint" name="test_Nothing_When_GettingOrders_Then_Get" time="0.081" /></testsuite></testsuites>
