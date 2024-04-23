@@ -31,7 +31,6 @@ spec:
               value: "products-db-svc.default"
             - name: MONGODB_INITIAL_PRIMARY_HOST
               value: "products-db-svc.default"
-
           resources:
             limits:
               cpu: "250m"
