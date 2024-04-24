@@ -8,7 +8,7 @@ resource "google_project_service" "container" {
   service = "container.googleapis.com"
 }
 
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network
+
 resource "google_compute_network" "main" {
   name                            = "main"
   routing_mode                    = "REGIONAL"
@@ -21,6 +21,7 @@ resource "google_compute_network" "main" {
     google_project_service.container
   ]
 }
+
 # Subnets
 resource "google_compute_subnetwork" "private" {
   name                     = "private"
@@ -40,13 +41,11 @@ resource "google_compute_subnetwork" "private" {
 }
 
 # Router
-
 resource "google_compute_router" "router" {
     name = "router"
     region = "europe-north1"
     network = google_compute_network.main.id
 }
-
 
 # NAT
 resource "google_compute_router_nat" "nat" {
@@ -86,7 +85,6 @@ resource "google_compute_firewall" "allow-ssh" {
 }
 
 # Kubernetes
-
 resource "google_container_cluster" "primary" {
   name                     = "primary"
   location                 = "europe-north1-a"
@@ -127,12 +125,11 @@ resource "google_container_cluster" "primary" {
 
   }
 
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_service_account
+
 resource "google_service_account" "kubernetes" {
   account_id = "kubernetes"
 }
 
-# https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_node_pool
 resource "google_container_node_pool" "general" {
   name       = "general"
   cluster    = google_container_cluster.primary.id
