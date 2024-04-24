@@ -70,8 +70,8 @@ services:
       context: ./frontend/app
       dockerfile: Dockerfile.prod
       args:
-        - VITE_APP_BACKEND_ADDRESS_BUILD=https://localhost/api
-        #- VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api
+        - VITE_APP_BACKEND_ADDRESS=https://localhost/api
+        #- VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api
     container_name: frontend
     restart: always
     ports:
