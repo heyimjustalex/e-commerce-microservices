@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-db-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication-db
+  template:
+    metadata:
+      labels:
+        app: authentication-db
+    spec:
+      containers:
+        - name: authentication-db
+          image: heyimjustalex/authentication-db
+          env:
+            - name: MONGODB_REPLICA_SET_MODE
+              value: "primary"
+            - name: MONGODB_REPLICA_SET_KEY
+              value: "123456"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: MONGODB_ROOT_USER
+              value: "root"
+            - name: MONGODB_ROOT_PASSWORD
+              value: "root"
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "authentication-db-svc.default"
+            - name: MONGODB_INITIAL_PRIMARY_HOST
+              value: "authentication-db-svc.default"
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "300Mi"
+            requests:
+              cpu: "200m"
+              memory: "300Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-db-svc
+spec:
+  selector:
+    app: authentication-db
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017

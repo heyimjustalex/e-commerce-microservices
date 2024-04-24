@@ -7,13 +7,12 @@ services:
     hostname: zookeeper
     container_name: zookeeper
     restart: always
+    ports:
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: zookeeper:2888:3888
-    # volumes:
-    #   - zookeeper_data:/var/lib/zookeeper/data
-    #   - zookeeper_logs:/var/lib/zookeeper/log
     networks:
       - network
 
@@ -22,6 +21,10 @@ services:
     hostname: message-broker
     container_name: message-broker
     restart: always
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "9999:9999"
     depends_on:
       - zookeeper
     environment:
@@ -44,53 +47,71 @@ services:
       interval: 5s
       timeout: 10s
       retries: 10
-    # volumes:
-    #   - kafka_data:/var/lib/kafka/data
     networks:
       - network
-
   ###  ----------------------------- REVERSE-PROXY  -----------------------------
   nginx-proxy:
-    image: heyimjustalex/nginx-proxy:docker
+    image: nginx:1.25.4-alpine-slim
     container_name: nginx-proxy
     restart: on-failure
+    ports:
+      - 80:80
     depends_on:
       - frontend
       - gateway-ms
-    ports:
-      - 80:80
+    volumes:
+      - ./nginx-proxy/prod-docker/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - network
 
   ###  ----------------------------- FRONTEND  -----------------------------
   frontend:
-    image: heyimjustalex/frontend
+    build:
+      context: ./frontend/app
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_APP_BACKEND_ADDRESS_BUILD=https://localhost/api
+        #- VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api
     container_name: frontend
     restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - orders-ms
+      - products-ms
+      - authentication-ms
+    volumes:
+      - ./frontend/app:/app
+      - /app/node_modules
+
     networks:
       - network
 
   ###  ----------------------------- API GATEWAY  -----------------------------
   gateway-ms:
-    image: heyimjustalex/gateway-ms
+    build:
+      context: ./backend/gateway-ms
+      dockerfile: Dockerfile
     container_name: gateway-ms
     restart: always
-    # ports:
-    #   - 8080:8000
+    ports:
+      - 8080:8000
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - JWT_TOKEN_ALG=HS256
       - JWT_ACCESS_TOKEN_SECRET_KEY=okokokokokokok
+    volumes:
+      - ./backend/gateway-ms/app/:/app:ro
     networks:
       - network
 
   ### ----------------------------- AUTHENTICATION -----------------------------
   authentication-ms:
-    image: heyimjustalex/authentication-ms
+    build:
+      context: ./backend/authentication-ms
+      dockerfile: Dockerfile.prod
     container_name: authentication-ms
     restart: always
-    # ports:
-    #   - "8001:8000"
     depends_on:
       - authentication-db
     environment:
@@ -109,13 +130,12 @@ services:
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=10080
       - JWT_REFRESH_TOKEN_EXPIRE_MINUTES=30
     # volumes:
-    #   - ./backend/authentication-ms/app/:/app/app
-    #   - ./backend/authentication-ms/tests/:/app/tests
+    #   - ./backend/authentication-ms/app/:/app
     networks:
       - network
 
   authentication-db:
-    image: heyimjustalex/authentication-db
+    image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: authentication-db
     restart: always
     environment:
@@ -131,8 +151,7 @@ services:
       retries: 3
       start_period: 20s
     volumes:
-      - ./db/authentication-db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
-    #  - authentication_db_data:/bitnami/mongodb
+      - ./db/authentication-db/authentication-init.js:/docker-entrypoint-initdb.d/initialize.js
     networks:
       - network
 
@@ -142,8 +161,8 @@ services:
     restart: always
     depends_on:
       - authentication-db
-    # ports:
-    #   - "8081:8081"
+    ports:
+      - "8081:8081"
     environment:
       # this does not seem to work to modify connection server
       - ME_CONFIG_MONGODB_SERVER=authentication-db
@@ -159,11 +178,11 @@ services:
 
   ### ----------------------------- PRODUCTS -----------------------------
   products-ms:
-    image: heyimjustalex/products-ms
+    build:
+      context: ./backend/products-ms
+      dockerfile: Dockerfile.prod
     container_name: products-ms
     restart: always
-    # ports:
-    #   - "8002:8000"
     depends_on:
       - message-broker
       - products-db
@@ -177,13 +196,12 @@ services:
       # API ROUTES
       - API_PRODUCT_PREFIX=/api
     # volumes:
-    #   - ./backend/products-ms/app/:/app/app
-    #   - ./backend/products-ms/tests/:/app/tests
+    #   - ./backend/products-ms/app/:/app
     networks:
       - network
 
   products-db:
-    image: heyimjustalex/products-db
+    image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: products-db
     restart: always
     environment:
@@ -199,8 +217,7 @@ services:
       retries: 3
       start_period: 20s
     volumes:
-      - ./db/products-db/products-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
-    #  - products_db_data:/bitnami/mongodb
+      - ./db/products-db/products-init.js:/docker-entrypoint-initdb.d/initialize.js
     networks:
       - network
 
@@ -227,11 +244,11 @@ services:
 
   ### ----------------------------- ORDERS -----------------------------
   orders-ms:
-    image: heyimjustalex/orders-ms
+    build:
+      context: ./backend/orders-ms
+      dockerfile: Dockerfile.prod
     container_name: orders-ms
     restart: always
-    # ports:
-    #   - "8003:8000"
     depends_on:
       - message-broker
       - orders-db
@@ -244,11 +261,13 @@ services:
       - DB_NAME=shop
       # API ROUTES
       - API_ORDERS_PREFIX=/api
+    # volumes:
+    #   - ./backend/orders-ms/app/:/app:ro
     networks:
       - network
 
   orders-db:
-    image: heyimjustalex/orders-db
+    image: bitnami/mongodb:7.0.7-debian-12-r0
     container_name: orders-db
     restart: always
     environment:
@@ -257,17 +276,14 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_ROOT_USER=root
       - MONGODB_ROOT_PASSWORD=root
-
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/shop --quiet
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
-
     volumes:
-      - ./db/orders-db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js:ro
-    # - orders_db_data:/bitnami/mongodb
+      - ./db/orders-db/orders-init.js:/docker-entrypoint-initdb.d/initialize.js
     networks:
       - network
 

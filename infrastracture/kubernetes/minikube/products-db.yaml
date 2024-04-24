@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: products-db-dep
+spec:
+  serviceName: products-db-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: products-db
+  template:
+    metadata:
+      labels:
+        app: products-db
+    spec:
+      containers:
+        - name: products-db
+          image: heyimjustalex/products-db
+          env:
+            - name: MONGODB_REPLICA_SET_MODE
+              value: "primary"
+            - name: MONGODB_REPLICA_SET_KEY
+              value: "123456"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: MONGODB_ROOT_USER
+              value: "root"
+            - name: MONGODB_ROOT_PASSWORD
+              value: "root"
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "products-db-svc.default"
+            - name: MONGODB_INITIAL_PRIMARY_HOST
+              value: "products-db-svc.default"
+          resources:
+            limits:
+              cpu: "250m"
+              memory: "350Mi"
+            requests:
+              cpu: "250m"
+              memory: "350Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-db-svc
+spec:
+  selector:
+    app: products-db
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017

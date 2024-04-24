@@ -9,10 +9,11 @@ $buildCommand6 = "docker build -t heyimjustalex/orders-db ./db/orders-db/"
 $buildCommand7 = "docker build -t heyimjustalex/products-db ./db/products-db/"
 
 #add here your api address for prod build
-$buildCommand8 = 'docker build  --build-arg="VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app'
-$buildCommand9 = "docker build -t heyimjustalex/nginx-proxy:k8s ./nginx-proxy/prod-k8s"
+$buildCommand8 = 'docker build --build-arg="VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app'
+$buildCommand9 = "docker build -t heyimjustalex/nginx-proxy:minikube ./nginx-proxy/prod-minikube"
 $buildCommand10 = "docker build -t heyimjustalex/nginx-proxy:docker ./nginx-proxy/prod-docker"
 $buildCommand11 = "docker build -t heyimjustalex/frontend:dev -f ./frontend/app/Dockerfile ./frontend/app"
+$buildCommand12 = 'docker build --build-arg="VITE_APP_BACKEND_ADDRESS_BUILD=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app'
 
 $pushCommand1 = "docker push heyimjustalex/authentication-ms"
 $pushCommand2 = "docker push heyimjustalex/orders-ms"
@@ -24,9 +25,10 @@ $pushCommand6 = "docker push heyimjustalex/orders-db"
 $pushCommand7 = "docker push heyimjustalex/products-db"
 
 $pushCommand8 = "docker push heyimjustalex/frontend"
-$pushCommand9 = "docker push heyimjustalex/nginx-proxy:k8s"
+$pushCommand9 = "docker push heyimjustalex/nginx-proxy:minikube"
 $pushCommand10 = "docker push heyimjustalex/nginx-proxy:docker"
 $pushCommand11 = "docker push heyimjustalex/frontend:dev"
+$pushCommand12 = "docker push heyimjustalex/frontend:minikube"
 
 # Execute the Docker command
 Invoke-Expression -Command $buildCommand1
@@ -49,4 +51,8 @@ Invoke-Expression -Command $buildCommand9
 Invoke-Expression -Command $pushCommand9
 Invoke-Expression -Command $buildCommand10
 Invoke-Expression -Command $pushCommand10
+Invoke-Expression -Command $buildCommand11
+Invoke-Expression -Command $pushCommand11
+Invoke-Expression -Command $buildCommand12
+Invoke-Expression -Command $pushCommand12
  

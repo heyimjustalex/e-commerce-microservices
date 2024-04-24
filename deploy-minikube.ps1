@@ -1,15 +1,15 @@
 $deleteCommands = @(
-    'kubectl delete -f .\infrastracture\kubernetes\ingress.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\gateway.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\frontend.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\orders.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\authentication.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\products.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\orders-db.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\authentication-db.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\products-db.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\message-broker.yaml',
-    'kubectl delete -f .\infrastracture\kubernetes\zookeeper.yaml'
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\proxy.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\gateway.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\frontend.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\orders.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\authentication.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\products.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\orders-db.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\authentication-db.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\products-db.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\message-broker.yaml',
+    'kubectl delete -f .\infrastracture\kubernetes\minikube\zookeeper.yaml'
 )
 
 foreach ($command in $deleteCommands) {
@@ -17,17 +17,17 @@ foreach ($command in $deleteCommands) {
 }
 
 $applyCommands = @(
-    'kubectl apply -f .\infrastracture\kubernetes\zookeeper.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\orders-db.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\authentication-db.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\products-db.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\message-broker.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\frontend.yaml',    
-    'kubectl apply -f .\infrastracture\kubernetes\orders.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\authentication.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\products.yaml',
-    'kubectl apply -f .\infrastracture\kubernetes\gateway.yaml'
-    'kubectl apply -f .\infrastracture\kubernetes\ingress.yaml'
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\zookeeper.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\orders-db.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\authentication-db.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\products-db.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\message-broker.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\frontend.yaml',    
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\orders.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\authentication.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\products.yaml',
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\gateway.yaml'
+    'kubectl apply -f .\infrastracture\kubernetes\minikube\proxy.yaml'
 )
 
 foreach ($command in $applyCommands) {

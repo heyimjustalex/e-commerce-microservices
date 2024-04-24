@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-ms-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication-ms
+  template:
+    metadata:
+      labels:
+        app: authentication-ms
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: authentication-ms
+          image: heyimjustalex/authentication-ms
+          env:
+            - name: WATCHFILES_FORCE_POLLING
+              value: "true"
+            - name: DB_HOSTNAME
+              value: "authentication-db-svc.default"
+            - name: DB_USERNAME
+              value: "root"
+            - name: DB_PASSWORD
+              value: "root"
+            - name: DB_PORT
+              value: "27017"
+            - name: DB_NAME
+              value: "shop"
+            - name: API_AUTHENTICATION_PREFIX
+              value: "/api"
+            - name: JWT_TOKEN_ALG
+              value: "HS256"
+            - name: JWT_REFRESH_TOKEN_SECRET_KEY
+              value: "fasfsafasfasfas"
+            - name: JWT_ACCESS_TOKEN_SECRET_KEY
+              value: "okokokokokokok"
+            - name: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+              value: "10080"
+            - name: JWT_REFRESH_TOKEN_EXPIRE_MINUTES
+              value: "30"
+          livenessProbe:
+            httpGet:
+              path: /api/authentication_health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "100Mi"
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-ms-svc
+spec:
+  selector:
+    app: authentication-ms
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
