@@ -9,11 +9,11 @@ $buildCommand6 = "docker build -t heyimjustalex/orders-db ./db/orders-db/"
 $buildCommand7 = "docker build -t heyimjustalex/products-db ./db/products-db/"
 
 #add here your api address for prod build
-$buildCommand8 = 'docker build --build-arg="VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app'
+$buildCommand8 = 'docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app'
 $buildCommand9 = "docker build -t heyimjustalex/nginx-proxy:minikube ./nginx-proxy/prod-minikube"
 $buildCommand10 = "docker build -t heyimjustalex/nginx-proxy:docker ./nginx-proxy/prod-docker"
 $buildCommand11 = "docker build -t heyimjustalex/frontend:dev -f ./frontend/app/Dockerfile ./frontend/app"
-$buildCommand12 = 'docker build --build-arg="VITE_APP_BACKEND_ADDRESS_BUILD=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app'
+$buildCommand12 = 'docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app'
 
 $pushCommand1 = "docker push heyimjustalex/authentication-ms"
 $pushCommand2 = "docker push heyimjustalex/orders-ms"

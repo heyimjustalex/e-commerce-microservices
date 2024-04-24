@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: products-db-dep
+  name: orders-db-dep
 spec:
-  serviceName: products-db-svc
+  serviceName: orders-db-svc
   replicas: 1
   selector:
     matchLabels:
-      app: products-db
+      app: orders-db
   template:
     metadata:
       labels:
-        app: products-db
+        app: orders-db
     spec:
       containers:
-        - name: products-db
-          image: heyimjustalex/products-db
+        - name: orders-db
+          image: heyimjustalex/orders-db
+          imagePullPolicy: "Always"
           env:
             - name: MONGODB_REPLICA_SET_MODE
               value: "primary"
@@ -28,16 +29,16 @@ spec:
             - name: MONGODB_ROOT_PASSWORD
               value: "root"
             - name: MONGODB_ADVERTISED_HOSTNAME
-              value: "products-db-svc.default"
+              value: "orders-db-svc.default"
             - name: MONGODB_INITIAL_PRIMARY_HOST
-              value: "products-db-svc.default"
+              value: "orders-db-svc.default"
           resources:
             limits:
-              cpu: "250m"
-              memory: "350Mi"
+              cpu: "200m"
+              memory: "300Mi"
             requests:
-              cpu: "250m"
-              memory: "350Mi"
+              cpu: "200m"
+              memory: "300Mi"
       tolerations:
         - key: instance_type
           value: spot
@@ -56,10 +57,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: products-db-svc
+  name: orders-db-svc
 spec:
   selector:
-    app: products-db
+    app: orders-db
   type: ClusterIP
   ports:
     - protocol: TCP

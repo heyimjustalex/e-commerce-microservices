@@ -1,41 +1,50 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: products-ms-dep
+  name: authentication-ms-dep
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: products-ms
+      app: authentication-ms
   template:
     metadata:
       labels:
-        app: products-ms
+        app: authentication-ms
     spec:
       restartPolicy: Always
       containers:
-        - name: products-ms
-          image: heyimjustalex/products-ms
+        - name: authentication-ms
+          image: heyimjustalex/authentication-ms
+          imagePullPolicy: "Always"
           env:
-            - name: DB_HOSTNAME
-              value: "products-db-svc.default"
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "message-broker-svc:29092"
+            - name: DB_HOSTNAME
+              value: "authentication-db-svc.default"
             - name: DB_USERNAME
-              value: root
+              value: "root"
             - name: DB_PASSWORD
-              value: root
+              value: "root"
             - name: DB_PORT
               value: "27017"
             - name: DB_NAME
-              value: shop
-            - name: API_products_PREFIX
+              value: "shop"
+            - name: API_AUTHENTICATION_PREFIX
               value: "/api"
+            - name: JWT_TOKEN_ALG
+              value: "HS256"
+            - name: JWT_REFRESH_TOKEN_SECRET_KEY
+              value: "fasfsafasfasfas"
+            - name: JWT_ACCESS_TOKEN_SECRET_KEY
+              value: "okokokokokokok"
+            - name: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+              value: "10080"
+            - name: JWT_REFRESH_TOKEN_EXPIRE_MINUTES
+              value: "30"
           livenessProbe:
             httpGet:
-              path: /api/products_health
+              path: /api/authentication_health
               port: 8000
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -65,10 +74,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: products-ms-svc
+  name: authentication-ms-svc
 spec:
   selector:
-    app: products-ms
+    app: authentication-ms
   type: ClusterIP
   ports:
     - protocol: TCP

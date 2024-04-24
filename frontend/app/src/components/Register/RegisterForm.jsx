@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import AuthContext from "../../store/auth-ctx";
-import { register } from "../../lib/api";
+import { register } from "../../api/api";
 import useHttp from "../../hooks/use-http";
 import LoadingRing from "../../UI/LoadingRing";
 import { useNavigate } from "react-router-dom";

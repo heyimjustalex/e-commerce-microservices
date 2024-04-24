@@ -1,36 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication-ms-dep
+  name: gateway-ms-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authentication-ms
+      app: gateway-ms
   template:
     metadata:
       labels:
-        app: authentication-ms
+        app: gateway-ms
     spec:
-      restartPolicy: Always
       containers:
-        - name: authentication-ms
-          image: heyimjustalex/authentication-ms
+        - name: gateway-ms
+          image: heyimjustalex/gateway-ms
+          imagePullPolicy: "Always"
           env:
+            - name: AUTHENTICATION_SERVICE_URL
+              value: "http://authentication-ms-svc.default:8000"
+            - name: PRODUCTS_SERVICE_URL
+              value: "http://products-ms-svc.default:8000"
+            - name: ORDERS_SERVICE_URL
+              value: "http://orders-ms-svc.default:8000"
             - name: WATCHFILES_FORCE_POLLING
               value: "true"
-            - name: DB_HOSTNAME
-              value: "authentication-db-svc.default"
-            - name: DB_USERNAME
-              value: "root"
-            - name: DB_PASSWORD
-              value: "root"
-            - name: DB_PORT
-              value: "27017"
-            - name: DB_NAME
-              value: "shop"
-            - name: API_AUTHENTICATION_PREFIX
-              value: "/api"
             - name: JWT_TOKEN_ALG
               value: "HS256"
             - name: JWT_REFRESH_TOKEN_SECRET_KEY
@@ -41,20 +35,13 @@ spec:
               value: "10080"
             - name: JWT_REFRESH_TOKEN_EXPIRE_MINUTES
               value: "30"
-          livenessProbe:
-            httpGet:
-              path: /api/authentication_health
-              port: 8000
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 5
           resources:
             limits:
-              cpu: "100m"
-              memory: "100Mi"
+              cpu: "150m"
+              memory: "120Mi"
             requests:
-              cpu: "100m"
-              memory: "100Mi"
+              cpu: "150m"
+              memory: "120Mi"
       tolerations:
         - key: instance_type
           value: spot
@@ -73,12 +60,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: authentication-ms-svc
+  name: gateway-ms-svc
 spec:
   selector:
-    app: authentication-ms
+    app: gateway-ms
   type: ClusterIP
   ports:
-    - protocol: TCP
-      port: 8000
+    - port: 8000
       targetPort: 8000

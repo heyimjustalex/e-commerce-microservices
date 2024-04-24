@@ -15,6 +15,7 @@ spec:
       containers:
         - name: authentication-db
           image: heyimjustalex/authentication-db
+          imagePullPolicy: "Always"
           env:
             - name: MONGODB_REPLICA_SET_MODE
               value: "primary"

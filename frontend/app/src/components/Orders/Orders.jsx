@@ -1,6 +1,6 @@
 import { Container } from "react-bootstrap/esm";
-import { getOrders } from "../../lib/api";
-import useHttp from "../../hooks/use-http";
+import { getOrders } from "../../api/api.js";
+import useHttp from "../../hooks/use-http.js";
 import LoadingRing from "../../UI/LoadingRing";
 import { useContext, useEffect, useState } from "react";
 import OrderElement from "./OrderElement";

@@ -4,7 +4,7 @@ import CartItem from "./CartItem";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../store/auth-ctx";
 import useHttp from "../../hooks/use-http";
-import { postOrderItems } from "../../lib/api";
+import { postOrderItems } from "../../api/api";
 import LoadingRing from "../../UI/LoadingRing";
 
 const ShoppingCart = () => {

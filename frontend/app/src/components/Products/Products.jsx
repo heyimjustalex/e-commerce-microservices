@@ -1,5 +1,5 @@
 import { Container } from "react-bootstrap/esm";
-import { getProducts } from "../../lib/api";
+import { getProducts } from "../../api/api.js";
 import useHttp from "../../hooks/use-http";
 import LoadingRing from "../../UI/LoadingRing";
 import { useEffect, useState } from "react";

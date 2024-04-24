@@ -1,0 +1,422 @@
+version: 2.1
+orbs:
+  python: circleci/python@2.1.1
+  gcp-cli: circleci/gcp-cli@2.4.1
+
+executors:
+  docker-publisher:
+    docker:
+      - image: circleci/golang
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
+jobs:
+# <-------------------------------------------- AUTHENTICATION MS -------------------------------------------->
+  test-authentication-ms:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - python/install-packages:
+          app-dir: backend/authentication-ms
+          pip-dependency-file: requirements.dev
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: cd backend/authentication-ms && python -m pytest --junit-xml ./app/test.xml
+      - store_test_results:
+          path: backend/authentication-ms/app/test.xml
+
+  build-and-publish-authentication-ms-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Build Docker Image 
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build -t heyimjustalex/authentication-ms -f ./backend/authentication-ms/Dockerfile.prod ./backend/authentication-ms/
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |              
+                docker push heyimjustalex/authentication-ms
+
+  deploy-authentication-ms-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            kubectl apply -f ./infrastructure/kubernetes/gcp/authentication.yaml 
+            kubectl rollout restart deployment/authentication-ms-dep
+# # <-------------------------------------------- GATEWAY MS -------------------------------------------->            
+
+  build-and-publish-gateway-ms-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Build Docker Image 
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build -t heyimjustalex/gateway-ms -f ./backend/gateway-ms/Dockerfile ./backend/gateway-ms
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |              
+                docker push heyimjustalex/gateway-ms
+
+  deploy-gateway-ms-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            kubectl apply -f ./infrastructure/kubernetes/gcp/gateway.yaml 
+            kubectl rollout restart deployment/gateway-ms-dep
+
+# <-------------------------------------------- PROXY -------------------------------------------->         
+
+  build-and-publish-nginx-proxy-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Login Dockerhub
+            command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        - run:
+            name: Build Docker Image for Docker
+            command: docker build -t heyimjustalex/nginx-proxy:docker ./nginx-proxy/prod-docker
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: docker push heyimjustalex/nginx-proxy:docker  
+        - run:
+            name: Build Docker Image for Minikube
+            command: docker build -t heyimjustalex/nginx-proxy:minikube ./nginx-proxy/prod-minikube
+        - run:
+            name: Publish Minikube Image to Docker Hub
+            command: docker push heyimjustalex/nginx-proxy:minikube 
+
+
+# # <-------------------------------------------- INGRESS -------------------------------------------->  
+
+  deploy-ingress-ms-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            kubectl delete -f ./infrastructure/kubernetes/gcp/ingress.yaml  && kubectl apply -f ./infrastructure/kubernetes/gcp/ingress.yaml 
+          
+# # <-------------------------------------------- PRODUCTS MS -------------------------------------------->  
+
+  test-products-ms:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - python/install-packages:
+          app-dir: backend/products-ms
+          pip-dependency-file: requirements.dev
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: cd backend/products-ms && python -m pytest --junit-xml ./app/test.xml
+      - store_test_results:
+          path: backend/products-ms/app/test.xml  
+
+  build-and-publish-products-ms-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+
+        - run:
+            name: Build Docker Image 
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build -t heyimjustalex/products-ms -f ./backend/products-ms/Dockerfile.prod ./backend/products-ms/.
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |                
+                docker push heyimjustalex/products-ms
+
+  deploy-products-ms-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            kubectl apply -f ./infrastructure/kubernetes/gcp/products.yaml 
+            kubectl rollout restart deployment/products-ms-dep
+
+# # <-------------------------------------------- ORDERS MS --------------------------------------------> 
+
+  test-orders-ms:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - python/install-packages:
+          app-dir: backend/orders-ms
+          pip-dependency-file: requirements.dev
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: cd backend/orders-ms && python -m pytest --junit-xml ./app/test.xml
+      - store_test_results:
+          path: backend/orders-ms/app/test.xml   
+
+  build-and-publish-orders-ms-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Build Docker Image 
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build -t heyimjustalex/orders-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/orders-ms/
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |
+                docker push heyimjustalex/orders-ms
+
+  deploy-orders-ms-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            kubectl apply -f ./infrastructure/kubernetes/gcp/orders.yaml 
+            kubectl rollout restart deployment/orders-ms-dep
+            
+# <-------------------------------------------- FRONTEND --------------------------------------------> 
+
+  build-and-publish-frontend:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker   
+        - run:
+            name: Build Frontend Production Docker Image 
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend:$CIRCLE_SHA1 -f ./frontend/app/Dockerfile.prod ./frontend/app
+        - run:
+            name: Push Frontend Production Docker Image 
+            command: | 
+                docker push heyimjustalex/frontend:$CIRCLE_SHA1 
+
+        - run:
+            name: Build Frontend Minikube Docker Image 
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app
+        - run:
+            name: Push Frontend Production Docker Image 
+            command: | 
+                docker push heyimjustalex/frontend:minikube
+
+  deploy-frontend-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            # kubectl rollout restart deployment/frontend-dep
+            kubectl apply -f ./infrastructure/kubernetes/gcp/frontend.yaml 
+            kubectl set image deployment/frontend-dep frontend=heyimjustalex/frontend:$CIRCLE_SHA1 
+
+# <-------------------------------------------- DATABASES --------------------------------------------> 
+
+  build-and-publish-databases-images:
+        executor: docker-publisher
+        steps:
+          - checkout
+          - setup_remote_docker
+          - run:
+              name: Build Docker Images of Databases
+              command: |
+                  echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                  docker build -t heyimjustalex/authentication-db ./db/authentication-db/
+                  docker build -t heyimjustalex/orders-db ./db/orders-db/
+                  docker build -t heyimjustalex/products-db ./db/products-db/
+          - run:
+              name: Publish Docker Images to Docker Hub
+              command: |              
+                  docker push heyimjustalex/authentication-db
+                  docker push heyimjustalex/orders-db
+                  docker push heyimjustalex/products-db
+
+  deploy-databases-gcp:
+      executor: gcp-cli/default
+      commands: 
+      steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Set up GCloud
+          command: |          
+            gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=<(echo $GCLOUD_SERVICE_KEY)
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud components install --quiet kubectl
+      - run:
+          name: Update Deployment Object
+          command: |          
+            gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
+            kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
+            kubectl delete -f ./infrastructure/kubernetes/gcp/orders-db.yaml  && kubectl apply -f ./infrastructure/kubernetes/gcp/orders-db.yaml 
+            kubectl delete -f ./infrastructure/kubernetes/gcp/products-db.yaml && kubectl apply -f ./infrastructure/kubernetes/gcp/products-db.yaml 
+            kubectl delete -f ./infrastructure/kubernetes/gcp/authentication-db.yaml && kubectl apply -f ./infrastructure/kubernetes/gcp/authentication-db.yaml 
+
+workflows:
+  authentication-ms-deploy:
+    jobs:
+      - test-authentication-ms
+      - build-and-publish-authentication-ms-image:
+          requires:
+            - test-authentication-ms
+      - deploy-authentication-ms-gcp:
+          requires:
+            - build-and-publish-authentication-ms-image
+
+  orders-ms-deploy:
+    jobs:
+      - test-orders-ms
+      - build-and-publish-orders-ms-image:
+          requires:
+            - test-orders-ms
+      - deploy-orders-ms-gcp:
+          requires:
+            - build-and-publish-orders-ms-image
+
+  products-ms-deploy:
+    jobs:
+      - test-products-ms
+      - build-and-publish-products-ms-image:
+          requires:
+            - test-products-ms
+      - deploy-products-ms-gcp:
+          requires:
+            - build-and-publish-products-ms-image       
+
+  frontend-deploy:
+    jobs:
+       - build-and-publish-frontend
+       - deploy-frontend-gcp:
+          requires:
+            - build-and-publish-frontend              
+
+  gateway-ms-deploy:
+    jobs:
+      - build-and-publish-gateway-ms-image
+      - deploy-gateway-ms-gcp:
+          requires:
+            - build-and-publish-gateway-ms-image
+
+  proxy-deploy:
+    jobs:
+      - build-and-publish-nginx-proxy-image
+
+  databases-deploy:
+    jobs:
+      - build-and-publish-databases-images
+      - deploy-gateway-ms-gcp:
+          requires:
+            - build-and-publish-databases-images
+
+  ingress-deploy:
+    jobs:
+      - deploy-ingress-ms-gcp
+
+
+      
+
+      
+
+
+    

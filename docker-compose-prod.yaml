@@ -21,10 +21,10 @@ services:
     hostname: message-broker
     container_name: message-broker
     restart: always
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-      - "9999:9999"
+    # ports:
+    #   - "9092:9092"
+    #   - "29092:29092"
+    #   - "9999:9999"
     depends_on:
       - zookeeper
     environment:
@@ -70,8 +70,8 @@ services:
       context: ./frontend/app
       dockerfile: Dockerfile.prod
       args:
-        - VITE_APP_BACKEND_ADDRESS_BUILD=https://localhost/api
-        #- VITE_APP_BACKEND_ADDRESS_BUILD=https://cloudcomputingtechnologies.pl/api
+        - VITE_APP_BACKEND_ADDRESS=https://localhost/api
+        #- VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api
     container_name: frontend
     restart: always
     ports:

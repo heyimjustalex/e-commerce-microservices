@@ -14,13 +14,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          env:
-            - name: VITE_APP_BACKEND_ADDRESS
-              # port from nodePort proxy.yaml
-              # for localhost running of minikube
-              value: http://localhost:80/api
-              # value: https://cloudcomputingtechnologies.pl/api
           image: heyimjustalex/frontend
+          imagePullPolicy: Always
           resources:
             limits:
               cpu: "200m"

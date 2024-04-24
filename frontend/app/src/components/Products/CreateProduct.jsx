@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Form, Button, Container } from "react-bootstrap";
-import { getCategories, postProductCreate } from "../../lib/api";
+import { getCategories, postProductCreate } from "../../api/api.js";
 import useHttp from "../../hooks/use-http";
 import AuthContext from "../../store/auth-ctx";
 import LoadingRing from "../../UI/LoadingRing";
