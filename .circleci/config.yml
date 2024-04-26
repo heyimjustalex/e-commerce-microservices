@@ -115,7 +115,7 @@ jobs:
         - checkout
         - setup_remote_docker       
         - run:
-            name: Publish Docker Im age to Docker Hub
+            name: Publish Docker Im age to Docke r Hub
             command: |
                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 cd ./frontend/app && docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f Dockerfile.prod .
