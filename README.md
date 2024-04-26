@@ -30,7 +30,6 @@ gcloud auth application-default login
 
 ```
 cd ./infrastructure/terraform
-
 ```
 
 ```
@@ -85,31 +84,8 @@ Get external IP and change your DNS:
 kubectl get services -n ingress
 ```
 
-Debug commands
+![image](https://github.com/heyimjustalex/e-commerce-microservices/assets/21158649/e261c7ff-3ef1-4aa4-8ed5-ce2c21dd899e)
 
-```
-kubectl get pods
-```
-
-```
-kubectl get pods -n ingress
-```
-
-```
-kubectl get services
-```
-
-```
-kubectl get services -n ingress
-```
-
-```
-kubectl logs <pod-id>
-```
-
-```
-kubectl describe pod
-```
 
 ## Deploy with Minikube
 
@@ -152,3 +128,30 @@ docker-compose -f docker-compose-dev.yaml up --build
 ```
 docker-compose -f docker-compose-prod.yaml up --build
 ```
+
+## K8S debug commands
+
+```
+kubectl get pods
+```
+
+```
+kubectl get pods -n ingress
+```
+
+```
+kubectl get services
+```
+
+```
+kubectl get services -n ingress
+```
+
+```
+kubectl logs <pod-id>
+```
+
+```
+kubectl describe pod
+```
+
