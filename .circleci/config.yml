@@ -3,7 +3,7 @@ orbs:
   python: circleci/python@2.1.1
 
 jobs:
-  build:
+  test-authentication-ms:
     docker:
       - image: cimg/python:3.11
     steps:
@@ -15,14 +15,10 @@ jobs:
       - run:
           name: Run tests
           command: cd backend/authentication-ms && python -m pytest --junit-xml ./app/test.xml
-      - run:
-          name: list
-          command: ls /home/circleci/project
       - store_test_results:
           path: backend/authentication-ms/app/test.xml
-
 
 workflows:
   main:
     jobs:
-      - build
+      - test-authentication-ms
