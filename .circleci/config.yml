@@ -17,7 +17,7 @@ jobs:
 
       - run:
           name: Run tests
-          command: python -m pytest
+          command: cd backend/authentication-ms && python -m pytest
 
       # - python/install-packages:
       #     args: pytest
