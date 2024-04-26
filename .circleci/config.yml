@@ -14,7 +14,7 @@ jobs:
           pkg-manager: pip
       - run:
           name: Run tests
-          command: cd backend/authentication-ms && python -m pytest
+          command: cd backend/authentication-ms && python -m pytest --junit-xml ./app/test.xml
       - run:
           name: list
           command: ls /home/circleci/project
