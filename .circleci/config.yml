@@ -8,27 +8,17 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-      # - run: 
-      #     command: |
-      #       pwd && ls
-      #     name: where
       - python/install-packages:
           app-dir: backend/authentication-ms
           pip-dependency-file: requirements.dev
           pkg-manager: pip
-
       - run:
           name: Run tests
           command: cd backend/authentication-ms && python -m pytest
+      - store_artifacts:
+          path: /app/test.xml
+          destination: test-result
 
-      # - python/install-packages:
-      #     args: pytest
-      #     pkg-manager: pip
-      #     pypi-cache: false
-      # - run:
-      #     command: |
-      #       pytest --version
-      #     name: Test
 workflows:
   main:
     jobs:
