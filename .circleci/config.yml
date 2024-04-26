@@ -13,31 +13,44 @@ orbs:
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
+# jobs:
+#   test-authentication-ms:
+#     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
+#     # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
+#     docker:
+#       # Specify the version you desire here
+#       # See:https://circleci.com/developer/images/image/cimg/python
+#       - image: cimg/python:3.11
+#     steps:
+#       - checkout
+#       - python/install-packages:
+#           pkg-manager: pip
+#           app-dir: ~/e-commerces-microservices/backend/authentication-ms
+#           pip-dependency-file: requirements.dev
+#       - run:
+#           name: Where
+#           command: pwd
+#       - run:
+#           name: Where2
+#           command: ls
+
+#       - run:
+#           name: Run tests
+#           command: python -m pytest
 jobs:
-  test-authentication-ms:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
-    docker:
-      # Specify the version you desire here
-      # See:https://circleci.com/developer/images/image/cimg/python
-      - image: cimg/python:3.11
+  test-authentication-ms: # this can be any name you choose
+    executor: python/default # use the default executor defined within the orb
     steps:
-      - checkout
+      - checkout # checkout source code
       - python/install-packages:
           pkg-manager: pip
-          app-dir: ~/e-commerces-microservices/backend/authentication-ms
-          pip-dependency-file: requirements.dev
-      - run:
-          name: Where
-          command: pwd
-      - run:
-          name: Where2
-          command: ls
-
       - run:
           name: Run tests
           command: python -m pytest
-
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
