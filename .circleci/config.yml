@@ -55,6 +55,18 @@ jobs:
       - store_test_results:
           path: backend/products-ms/app/test.xml  
 
+  build-and-publish-products-ms-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build -t heyimjustalex/products-ms -f ./backend/products-ms/Dockerfile.prod ./backend/products-ms/
+                docker push heyimjustalex/products-ms:latest
+
   test-orders-ms:
     docker:
       - image: cimg/python:3.11
@@ -70,7 +82,18 @@ jobs:
       - store_test_results:
           path: backend/orders-ms/app/test.xml           
 
- 
+  build-and-publish-orders-ms-image:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build -t heyimjustalex/orders-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/orders-ms/
+                docker push heyimjustalex/orders-ms:latest
+
 
 workflows:
   authentication-ms-deploy:
@@ -83,10 +106,17 @@ workflows:
   products-ms-deploy:
     jobs:
       - test-products-ms
+      - build-and-publish-products-ms-image:
+          requires:
+            - test-products-ms
 
   orders-ms-deploy:
     jobs:
       - test-orders-ms
+      - build-and-publish-orders-ms-image:
+          requires:
+            - test-orders-ms
+
       
 
 
