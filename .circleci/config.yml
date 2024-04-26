@@ -27,7 +27,7 @@ jobs:
           path: backend/authentication-ms/app/test.xml
 
 
-  build-and-publish-authentication-ms:
+  build-and-publish-authentication-ms-image:
       executor: docker-publisher
       steps:
         - checkout
@@ -38,6 +38,7 @@ jobs:
                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 docker build -t heyimjustalex/authentication-ms -f ./backend/authentication-ms/Dockerfile.prod ./backend/authentication-ms/
                 docker push heyimjustalex/authentication-ms:latest
+
 
   test-products-ms:
     docker:
@@ -69,46 +70,15 @@ jobs:
       - store_test_results:
           path: backend/orders-ms/app/test.xml           
 
-  build-and-publish:
-      executor: docker-publisher
-      steps:
-        - checkout
-        - setup_remote_docker
-        - run:
-            name: Publish Docker Image to Docker Hub
-            command: |
-              echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-              docker build -t heyimjustalex/authentication-ms -f ./backend/authentication-ms/Dockerfile.prod ./backend/authentication-ms/
-              docker build -t heyimjustalex/orders-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/orders-ms/
-              docker build -t heyimjustalex/products-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/products-ms/             
-              docker build -t heyimjustalex/gateway-ms ./backend/gateway-ms/
-
-              docker build -t heyimjustalex/authentication-db ./db/authentication-db/
-              docker build -t heyimjustalex/orders-db ./db/orders-db/
-              docker build -t heyimjustalex/products-db ./db/products-db/
-              docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app
-              docker build -t heyimjustalex/nginx-proxy:docker ./nginx-proxy/prod-docker
-              docker build -t heyimjustalex/frontend:dev -f ./frontend/app/Dockerfile ./frontend/app
-              docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app
-
-              docker push heyimjustalex/authentication-ms:latest
-              docker push heyimjustalex/orders-ms
-              docker push heyimjustalex/products-ms
-              docker push heyimjustalex/gateway-ms
-              docker push heyimjustalex/authentication-db    
-              docker push heyimjustalex/orders-db
-              docker push heyimjustalex/products-db
-              docker push heyimjustalex/frontend
-              docker push heyimjustalex/nginx-proxy:minikube
-              docker push heyimjustalex/nginx-proxy:docker  
-              docker push heyimjustalex/frontend:dev
-              docker push heyimjustalex/frontend:minikube
+ 
 
 workflows:
   authentication-ms-deploy:
     jobs:
       - test-authentication-ms
-      - build-and-publish-authentication-ms
+      - build-and-publish-authentication-ms-image:
+          requires:
+            - test-authentication-ms
 
   products-ms-deploy:
     jobs:
