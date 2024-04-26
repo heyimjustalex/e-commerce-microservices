@@ -49,11 +49,7 @@ Here you get connection string:
 
 ![image](https://github.com/heyimjustalex/e-commerce-microservices/assets/21158649/898cebe7-123f-4772-bd11-ef4681d1f45b)
 
-
-
-Connect to the cluster
-
-### GKE operations
+### Deploy with GKE
 
 ```
 kubectl config get-contexts
@@ -72,7 +68,47 @@ helm repo update
 ```
 
 ```
-helm install my-ing ingress-nginx/ingress-nginx --namespace ingress --version 4.0.17 --values .\infrastructure\kubernetes\nginx-values.yaml --create-namespace
+helm install my-ing ingress-nginx/ingress-nginx --namespace ingress --version 4.0.17 --values .\infrastructure\kubernetes\gcp\nginx-values.yaml --create-namespace
+```
+
+```
+./build-all-images-dockerhub.ps1
+```
+
+```
+./deploy-gcp-k8s.ps1
+```
+
+Get external IP and change your DNS:
+
+```
+kubectl get services -n ingress
+```
+
+Debug commands
+
+```
+kubectl get pods
+```
+
+```
+kubectl get pods -n ingress
+```
+
+```
+kubectl get services
+```
+
+```
+kubectl get services -n ingress
+```
+
+```
+kubectl logs <pod-id>
+```
+
+```
+kubectl describe pod
 ```
 
 ## Deploy with Minikube
