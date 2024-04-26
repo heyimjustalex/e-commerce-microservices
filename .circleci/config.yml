@@ -19,6 +19,6 @@ jobs:
           path: backend/authentication-ms/app/test.xml
 
 workflows:
-  main:
+  authentication-ms-deploy:
     jobs:
       - test-authentication-ms
