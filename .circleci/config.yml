@@ -1,4 +1,4 @@
-version: '2.1'
+version: 2.1
 orbs:
   python: circleci/python@1.1.0
 jobs:
@@ -6,10 +6,16 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - run: 
+          command: |
+            pwd && ls
+          name: where
+
       - python/install-packages:
           pkg-manager: pip
       - python/install-packages:
-          pip-dependency-file: dev-requirements.txt
+          app-dir: ~./project/backend/authentication-ms
+          pip-dependency-file: requirements.dev
           pkg-manager: pip
       - python/install-packages:
           args: pytest
