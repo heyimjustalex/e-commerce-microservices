@@ -15,9 +15,9 @@ jobs:
       - run:
           name: Run tests
           command: cd backend/authentication-ms && python -m pytest
-      - store_artifacts:
+      - store_test_results:
           path: /app/test.xml
-          destination: test-result
+
 
 workflows:
   main:
