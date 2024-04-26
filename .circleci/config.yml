@@ -116,12 +116,10 @@ jobs:
         - setup_remote_docker       
         - run:
             name: Publish Docker Im age to Do cke r Hub
-            command: |
-                ls 
-                pwd
+            command: |    
                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 cd ./frontend/app && docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f Dockerfile.prod .
-                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./Dockerfile.prod .
                 docker push heyimjustalex/frontend
                 docker push heyimjustalex/frontend:minikube
 
