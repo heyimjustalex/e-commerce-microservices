@@ -54,4 +54,4 @@ workflows:
       - test-products-ms
   orders-ms-deploy:
     jobs:
-      - test-products-ms
+      - test-orders-ms
