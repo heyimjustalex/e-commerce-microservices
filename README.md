@@ -41,6 +41,16 @@ terraform init
 terraform apply
 ```
 
+```
+gcloud container clusters get-credentials primary --zone europe-north1-a --project <project_name_login.json>
+```
+
+Here you get connection string:
+
+![image](https://github.com/heyimjustalex/e-commerce-microservices/assets/21158649/898cebe7-123f-4772-bd11-ef4681d1f45b)
+
+
+
 Connect to the cluster
 
 ### GKE operations
