@@ -11,7 +11,7 @@ jobs:
             pwd && ls
           name: where
       - python/install-packages:
-          app-dir: ~./project/backend/authentication-ms
+          app-dir: backend/authentication-ms
           pip-dependency-file: requirements.dev
           pkg-manager: pip
 
