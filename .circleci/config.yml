@@ -17,8 +17,24 @@ jobs:
           command: cd backend/authentication-ms && python -m pytest --junit-xml ./app/test.xml
       - store_test_results:
           path: backend/authentication-ms/app/test.xml
-
+  test-authentication-ms2:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - python/install-packages:
+          app-dir: backend/authentication-ms
+          pip-dependency-file: requirements.dev
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: cd backend/authentication-ms && python -m pytest --junit-xml ./app/test.xml
+      - store_test_results:
+          path: backend/authentication-ms/app/test.xml  
 workflows:
   authentication-ms-deploy:
     jobs:
       - test-authentication-ms
+  auth2:
+    jobs:
+      - test-authentication-ms2
