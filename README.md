@@ -22,13 +22,28 @@ cat /etc/letsencrypt/live/cloudcomputingtechnologies.pl/privkey.pem
 
 Paste certifiate (only one, not fullchain and priv key to ingress.yaml)
 
-### Deploy infrastracture
-
-### GKE operations
+### Deploy infrastructure
 
 ```
 gcloud auth application-default login
 ```
+
+```
+cd ./infrastructure/terraform
+
+```
+
+```
+terraform init
+```
+
+```
+terraform apply
+```
+
+Connect to the cluster
+
+### GKE operations
 
 ```
 kubectl config get-contexts
@@ -47,7 +62,7 @@ helm repo update
 ```
 
 ```
-helm install my-ing ingress-nginx/ingress-nginx --namespace ingress --version 4.0.17 --values .\infrastracture\kubernetes\nginx-values.yaml --create-namespace
+helm install my-ing ingress-nginx/ingress-nginx --namespace ingress --version 4.0.17 --values .\infrastructure\kubernetes\nginx-values.yaml --create-namespace
 ```
 
 ## Deploy with Minikube

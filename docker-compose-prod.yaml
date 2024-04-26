@@ -21,10 +21,10 @@ services:
     hostname: message-broker
     container_name: message-broker
     restart: always
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-      - "9999:9999"
+    # ports:
+    #   - "9092:9092"
+    #   - "29092:29092"
+    #   - "9999:9999"
     depends_on:
       - zookeeper
     environment:
