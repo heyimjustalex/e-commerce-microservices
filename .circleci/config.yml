@@ -118,8 +118,9 @@ jobs:
             name: Publish Docker Image to Docker Hub
             command: |
                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app
-                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app
+                cd ./frontend/app
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f Dockerfile.prod .
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f Dockerfile.prod .
                 docker push heyimjustalex/frontend:latest
                 docker push heyimjustalex/frontend:minikube
 
