@@ -17,7 +17,7 @@ jobs:
           command: cd backend/authentication-ms && python -m pytest
       - run:
           name: list
-          command: ls backend/authentication-ms && ls backend/authentication-ms/app
+          command: ls /home/circleci/project
       - store_test_results:
           path: backend/authentication-ms/app/test.xml
 
