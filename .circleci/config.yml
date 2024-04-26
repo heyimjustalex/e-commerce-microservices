@@ -115,7 +115,7 @@ jobs:
         - checkout
         - setup_remote_docker       
         - run:
-            name: Publish Docker Im age to Docke r Hub
+            name: Publish Docker Im age to Do cke r Hub
             command: |
                 ls 
                 pwd
