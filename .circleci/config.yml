@@ -10,21 +10,23 @@ jobs:
           command: |
             pwd && ls
           name: where
-
-      - python/install-packages:
-          pkg-manager: pip
       - python/install-packages:
           app-dir: ~./project/backend/authentication-ms
           pip-dependency-file: requirements.dev
           pkg-manager: pip
-      - python/install-packages:
-          args: pytest
-          pkg-manager: pip
-          pypi-cache: false
+
       - run:
-          command: |
-            pytest --version
-          name: Test
+          name: Run tests
+          command: python -m pytest
+
+      # - python/install-packages:
+      #     args: pytest
+      #     pkg-manager: pip
+      #     pypi-cache: false
+      # - run:
+      #     command: |
+      #       pytest --version
+      #     name: Test
 workflows:
   main:
     jobs:
