@@ -26,7 +26,14 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
           app-dir: ~/e-commerces-microservices/backend/authentication-ms
-          pip-dependency-file: cd ~/e-commerces-microservices/backend/authentication-ms && requirements.dev  
+          pip-dependency-file: requirements.dev
+      - run:
+          name: Where
+          command: pwd
+      - run:
+          name: Where2
+          command: ls
+
       - run:
           name: Run tests
           command: python -m pytest
