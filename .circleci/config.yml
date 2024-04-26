@@ -80,7 +80,22 @@ jobs:
           name: Run tests
           command: cd backend/orders-ms && python -m pytest --junit-xml ./app/test.xml
       - store_test_results:
-          path: backend/orders-ms/app/test.xml           
+          path: backend/orders-ms/app/test.xml   
+
+  deploy-orders-ms-gcp:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - python/install-packages:
+          app-dir: backend/orders-ms
+          pip-dependency-file: requirements.dev
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: cd backend/orders-ms && python -m pytest --junit-xml ./app/test.xml
+      - store_test_results:
+          path: backend/orders-ms/app/test.xml                        
 
   build-and-publish-orders-ms-image:
       executor: docker-publisher
@@ -94,6 +109,19 @@ jobs:
                 docker build -t heyimjustalex/orders-ms -f ./backend/orders-ms/Dockerfile.prod ./backend/orders-ms/
                 docker push heyimjustalex/orders-ms:latest
 
+  build-and-publish-frontend:
+      executor: docker-publisher
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |
+                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://cloudcomputingtechnologies.pl/api" -t heyimjustalex/frontend -f ./frontend/app/Dockerfile.prod ./frontend/app
+                docker build --build-arg="VITE_APP_BACKEND_ADDRESS=https://localhost/api" -t heyimjustalex/frontend:minikube -f ./frontend/app/Dockerfile.prod ./frontend/app
+                docker push heyimjustalex/frontend:latest
+                docker push heyimjustalex/frontend:minikube
 
 workflows:
   authentication-ms-deploy:
@@ -116,6 +144,10 @@ workflows:
       - build-and-publish-orders-ms-image:
           requires:
             - test-orders-ms
+
+  frontend-deploy:
+    jobs:
+      - build-and-publish-frontend
 
       
 
