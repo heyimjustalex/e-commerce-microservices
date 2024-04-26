@@ -31,10 +31,27 @@ jobs:
           command: cd backend/products-ms && python -m pytest --junit-xml ./app/test.xml
       - store_test_results:
           path: backend/products-ms/app/test.xml  
+  test-orders-ms:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - python/install-packages:
+          app-dir: backend/orders-ms
+          pip-dependency-file: requirements.dev
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: cd backend/orders-ms && python -m pytest --junit-xml ./app/test.xml
+      - store_test_results:
+          path: backend/orders-ms/app/test.xml            
 workflows:
   authentication-ms-deploy:
     jobs:
       - test-authentication-ms
   products-ms-deploy:
+    jobs:
+      - test-products-ms
+  orders-ms-deploy:
     jobs:
       - test-products-ms
