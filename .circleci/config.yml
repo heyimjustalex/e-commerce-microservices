@@ -62,7 +62,7 @@ jobs:
           command: |          
             gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
             kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
-            kubectl apply -f ./infrastructure/kubernetes/gcp/authentication.yaml 
+            kubectl delete -f ./infrastructure/kubernetes/gcp/authentication.yaml && kubectl apply -f ./infrastructure/kubernetes/gcp/authentication.yaml 
             # kubectl rollout restart deployment/authentication-ms-dep
             kubectl set image deployment/authentication-ms-dep  authentication-ms=heyimjustalex/authentication-ms:$CIRCLE_SHA1 
 
@@ -103,7 +103,8 @@ jobs:
           command: |          
             gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
             kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
-            kubectl apply -f ./infrastructure/kubernetes/gcp/gateway.yaml 
+            
+            kubectl delete-f ./infrastructure/kubernetes/gcp/gateway.yaml &&  kubectl apply -f ./infrastructure/kubernetes/gcp/gateway.yaml 
             # kubectl rollout restart deployment/gateway-ms-dep
             kubectl set image deployment/gateway-ms-dep gateway-ms=heyimjustalex/gateway-ms:$CIRCLE_SHA1 
 # <-------------------------------------------- PROXY -------------------------------------------->         
@@ -205,7 +206,7 @@ jobs:
           command: |          
             gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
             kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
-            kubectl apply -f ./infrastructure/kubernetes/gcp/products.yaml 
+            kubectl delete -f ./infrastructure/kubernetes/gcp/products.yaml && kubectl apply -f ./infrastructure/kubernetes/gcp/products.yaml 
             # kubectl rollout restart deployment/products-ms-dep
             kubectl set image deployment/products-ms-dep products-ms=heyimjustalex/products-ms:$CIRCLE_SHA1 
 # <-------------------------------------------- ORDERS MS --------------------------------------------> 
@@ -259,7 +260,7 @@ jobs:
           command: |          
             gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
             kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
-            kubectl apply -f ./infrastructure/kubernetes/gcp/orders.yaml 
+            kubectl delete -f ./infrastructure/kubernetes/gcp/orders.yaml && kubectl apply -f ./infrastructure/kubernetes/gcp/orders.yaml 
             #kubectl rollout restart deployment/orders-ms-dep
             kubectl set image deployment/orders-ms-dep orders-ms=heyimjustalex/orders-ms:$CIRCLE_SHA1 
             
@@ -310,7 +311,7 @@ jobs:
             gcloud container clusters get-credentials primary --zone  "$(echo $GCLOUD_ZONE)" --project "$(echo $GOOGLE_PROJECT_ID)"
             kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
             # kubectl rollout restart deployment/frontend-dep
-            kubectl apply -f ./infrastructure/kubernetes/gcp/frontend.yaml 
+            kubectl delete -f ./infrastructure/kubernetes/gcp/frontend.yaml && kubectl apply -f ./infrastructure/kubernetes/gcp/frontend.yaml 
             kubectl set image deployment/frontend-dep frontend=heyimjustalex/frontend:$CIRCLE_SHA1 
 
 # <-------------------------------------------- DATABASES --------------------------------------------> 
