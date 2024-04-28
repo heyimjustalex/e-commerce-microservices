@@ -64,7 +64,7 @@ jobs:
             kubectl config set current-context "$(echo $GOOGLE_GKE_CONTEXT)"
             kubectl apply -f ./infrastructure/kubernetes/gcp/authentication.yaml 
             # kubectl rollout restart deployment/authentication-ms-dep
-            kubectl set image deployment/authentication-ms-dep  authentication-ms=heyimjustalex/authentication-ms-dep:$CIRCLE_SHA1 
+            kubectl set image deployment/authentication-ms-dep  authentication-ms=heyimjustalex/authentication-ms:$CIRCLE_SHA1 
 
 
 # <-------------------------------------------- GATEWAY MS -------------------------------------------->            
