@@ -34,11 +34,11 @@ spec:
               value: "products-db-svc.default"
           resources:
             limits:
-              cpu: "250m"
-              memory: "350Mi"
+              cpu: "180m"
+              memory: "280Mi"
             requests:
-              cpu: "250m"
-              memory: "350Mi"
+              cpu: "180m"
+              memory: "280Mi"
       tolerations:
         - key: instance_type
           value: spot

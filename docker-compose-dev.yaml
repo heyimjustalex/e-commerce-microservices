@@ -81,7 +81,7 @@ services:
       - ./frontend/app:/app
       - /app/node_modules
     environment:
-      - VITE_APP_BACKEND_ADDRESS="http://localhost/api"
+      - VITE_APP_BACKEND_ADDRESS=http://localhost/api
     networks:
       - network
 
@@ -113,6 +113,8 @@ services:
     restart: always
     depends_on:
       - authentication-db
+    ports:
+      - "8001:8000"
     environment:
       - WATCHFILES_FORCE_POLLING=true
       - DB_HOSTNAME=authentication-db
@@ -183,6 +185,8 @@ services:
       dockerfile: Dockerfile
     container_name: products-ms
     restart: always
+    ports:
+      - "8002:8000"
     depends_on:
       - message-broker
       - products-db
@@ -250,6 +254,8 @@ services:
       dockerfile: Dockerfile
     container_name: orders-ms
     restart: always
+    ports:
+      - "8003:8000"
     depends_on:
       - message-broker
       - orders-db

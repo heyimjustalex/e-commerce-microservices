@@ -37,10 +37,10 @@ spec:
               value: "30"
           resources:
             limits:
-              cpu: "150m"
+              cpu: "120m"
               memory: "120Mi"
             requests:
-              cpu: "150m"
+              cpu: "120m"
               memory: "120Mi"
       tolerations:
         - key: instance_type

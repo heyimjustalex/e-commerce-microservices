@@ -34,11 +34,11 @@ spec:
               value: "orders-db-svc.default"
           resources:
             limits:
-              cpu: "200m"
-              memory: "300Mi"
+              cpu: "180m"
+              memory: "280Mi"
             requests:
-              cpu: "200m"
-              memory: "300Mi"
+              cpu: "180m"
+              memory: "280Mi"
       tolerations:
         - key: instance_type
           value: spot

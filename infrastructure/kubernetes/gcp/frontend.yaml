@@ -18,11 +18,11 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: "200m"
-              memory: "200Mi"
+              cpu: "180m"
+              memory: "180Mi"
             requests:
-              cpu: "200m"
-              memory: "200Mi"
+              cpu: "180m"
+              memory: "180Mi"
       tolerations:
         - key: instance_type
           value: spot

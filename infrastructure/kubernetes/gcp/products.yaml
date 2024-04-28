@@ -43,11 +43,11 @@ spec:
             timeoutSeconds: 5
           resources:
             limits:
-              cpu: "180m"
-              memory: "120Mi"
+              cpu: "120m"
+              memory: "110Mi"
             requests:
-              cpu: "180m"
-              memory: "120Mi"
+              cpu: "120m"
+              memory: "110Mi"
       tolerations:
         - key: instance_type
           value: spot
