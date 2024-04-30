@@ -2,12 +2,13 @@
 
 ## Detailed description available in report.pdf file
 
-## Presentation videos 
-[Youtube playlist](https://youtu.be/FpN1-x2qDtk?feature=shared)
+## Presentation videos
+
+[Youtube playlist](https://www.youtube.com/watch?v=FpN1-x2qDtk&list=PLngi0ogU-DkGDOLVHYbnTXp1Kfpk1ow0D)
 
 ## Introduction
 
-The aim of this project was to develop a distributed microservice system designed to facilitate fundamental shop functionalities like: listing/adding products, listing/adding orders, user registering/logging-in. The system consists of microservice applications that collaborate by transmitting events through the message broker. Due to its distributed nature of functionalities  the system demonstrates resilience to a certain extent. In case of failure it consumes lacking events from the broker and makes the databases consistent. In the case of failure of microservices, it retrieves missing events from the broker and ensures the consistency of databases.
+The aim of this project was to develop a distributed microservice system designed to facilitate fundamental shop functionalities like: listing/adding products, listing/adding orders, user registering/logging-in. The system consists of microservice applications that collaborate by transmitting events through the message broker. Due to its distributed nature of functionalities the system demonstrates resilience to a certain extent. In case of failure it consumes lacking events from the broker and makes the databases consistent. In the case of failure of microservices, it retrieves missing events from the broker and ensures the consistency of databases.
 
 **Database credentials:** admin / pass <br/>
 **App admin credentials:** admin@admin.com / admin@admin.com <br/>
@@ -16,8 +17,6 @@ The aim of this project was to develop a distributed microservice system designe
 ## Non-functional requirements
 
 According to the first report I have chosen availability/resiliency and security requirements. Availability/resiliency is achieved by designing microservices in a stateless way and changing the number of replicas in the configuration of K8S deployment.
-
-
 
 ## System architecture
 
@@ -31,19 +30,20 @@ All of the services are developed with REST API Python Framework FastAPI. Each o
 
 ![image](https://github.com/heyimjustalex/e-commerce-microservices/assets/21158649/39ebe49e-b908-4042-a2d7-4702795a3ea8)
 
-
 ### Microservices
+
 Backend system consists of:
 
-**gateway-ms** - Microservice responsible for passing the request to relevant microservice (based on requested path) and for authorization of users based on the token that user attaches to the requests. JWT token is decoded by the microservice and verified using private secret. Based on the role and  the endpoint that the user tries to access (HTTP_VERB and PATH) the decision is made regarding passing the access or returning relevant HTTP_CODE. 
+**gateway-ms** - Microservice responsible for passing the request to relevant microservice (based on requested path) and for authorization of users based on the token that user attaches to the requests. JWT token is decoded by the microservice and verified using private secret. Based on the role and the endpoint that the user tries to access (HTTP_VERB and PATH) the decision is made regarding passing the access or returning relevant HTTP_CODE.
 
 **authentication-ms** - Microservice responsible for registering and logging-in users by providing JWT authentication. There is also a refresh functionality to renew an access token by using refresh token. User credentials (email and password) and roles (user or admin) are saved in the document database.
 
 **products-ms** - Microservice responsible for listing the products, getting single product by name or multiple by category. Administrator of the shop is also able to add a new product. This microservice is able to generate/consume relevant events: ProductCreateEvent, OrderCreateEvent, OrderStatusUpdateEvent, ProductsQuantityUpdateEvent. It checks whether the event has already been consumed in order to avoid any duplicates and inconsistencies in the database.
 
-**orders-ms**- Microservice responsible for listing the orders and accepting a new order.  This microservice is able to generate/consume relevant events: ProductCreateEvent, OrderCreateEvent, OrderStatusUpdateEvent, ProductsQuantityUpdateEvent.  It also checks whether the event has already been consumed in order to avoid any duplicates and inconsistencies in the database.
+**orders-ms**- Microservice responsible for listing the orders and accepting a new order. This microservice is able to generate/consume relevant events: ProductCreateEvent, OrderCreateEvent, OrderStatusUpdateEvent, ProductsQuantityUpdateEvent. It also checks whether the event has already been consumed in order to avoid any duplicates and inconsistencies in the database.
 
 ### Layered architecture of each service
+
 All of the microservices except for gateway-ms have a layered structure with 3 main layers: controller, service and repository. Abstraction helps to separate endpoints definition, business logic and data manipulation functionalities.
 
 ### Event Handling
@@ -51,6 +51,7 @@ All of the microservices except for gateway-ms have a layered structure with 3 m
 Two of the microservices - products-ms and orders-ms communicate through the Kafka message broker by producing and consuming relevant events. Event model classes are serialized by one service and deserialized by the other one. In order to make the system consistent both of the microservices use local transactions to save data in local databases and at the same time publish it to the broker. If either of these operations fail, the whole transaction fails.
 
 ### Containerization
+
 Each of the backend microservices is containerized with Docker. Services have Dockerfile and Dockerfile.prod versions of Dockerfile and they differ with package requirements that are embedded in Docker image and stages (production includes stage of testing). For development purposes docker-compose is used with hot-reload of the code and bind mounts.
 
 ### Tests
@@ -59,24 +60,28 @@ Three of the microservices (orders-ms, products-ms and authentication-ms) are te
 
 ### Databases
 
-There are 3 distributed databases in the system. Each of them is a Bitnami MongoDB document database that supports transactions. All of them have different schemas, but the schema creation and the initialization of data is done in the same way with Docker and the db/init.js file for each of them.  Schemas for each of the microservices:
+There are 3 distributed databases in the system. Each of them is a Bitnami MongoDB document database that supports transactions. All of them have different schemas, but the schema creation and the initialization of data is done in the same way with Docker and the db/init.js file for each of them. Schemas for each of the microservices:
 
 #### authentication-db
-Inside authentication-db there is a ‘shop’ document database and inside of it there is a collection ‘users’. Each record in the collection has 4 attributes _id, email, role password_hash. Email is used as username and Role may be user or admin and hashing algorithm SHA-256 is used for the password transformation.
 
-#### products-db 
-There is a ‘shop’ document database and inside there are collections ‘orders’, ‘products’, ‘categories’. Each record in the ‘products’ collection has 6 attributes _id, name, description, price, quantity, categories. Categories is an array of _id from categories collection. The ‘categories’ collection has _id and name attributes. Ids are bound to product records and we are able to see the name of the category when listing products from the backend.
+Inside authentication-db there is a ‘shop’ document database and inside of it there is a collection ‘users’. Each record in the collection has 4 attributes \_id, email, role password_hash. Email is used as username and Role may be user or admin and hashing algorithm SHA-256 is used for the password transformation.
+
+#### products-db
+
+There is a ‘shop’ document database and inside there are collections ‘orders’, ‘products’, ‘categories’. Each record in the ‘products’ collection has 6 attributes \_id, name, description, price, quantity, categories. Categories is an array of \_id from categories collection. The ‘categories’ collection has \_id and name attributes. Ids are bound to product records and we are able to see the name of the category when listing products from the backend.
 <br/>
 Orders stub collection has information about which of the events have been already consumed by products-ms. If there is OrderCreateEvent sent from orders-ms then products-ms consumes the event, save status as ACCEPTED if there is enough quantity for the products. Then responds with another event about the product's quantity change.
 
-#### orders-db 
-Inside orders-db there is a ‘shop’ document database and inside there are collections ‘orders’, ‘products’ that are responsible for order data handling. Each record in the ‘orders’ collection has 4 attributes _id, client_email, status, cost, products. The contents of the product collections are stub versions of products embedded in the order record. Each record in the ‘orders’ collection has 4 attributes: name, price, quantity. This collection is only to make an initial decision about the sale of products. If orders-ms does not have required product quantity i reject the user request and does not try to generate events. If the quantity of bought products in the local products collection is available, it creates an OrderCreate event and the order in the ‘orders’ collection in the pending state. If products-ms is available it can either accept or reject the order.
+#### orders-db
+
+Inside orders-db there is a ‘shop’ document database and inside there are collections ‘orders’, ‘products’ that are responsible for order data handling. Each record in the ‘orders’ collection has 4 attributes \_id, client_email, status, cost, products. The contents of the product collections are stub versions of products embedded in the order record. Each record in the ‘orders’ collection has 4 attributes: name, price, quantity. This collection is only to make an initial decision about the sale of products. If orders-ms does not have required product quantity i reject the user request and does not try to generate events. If the quantity of bought products in the local products collection is available, it creates an OrderCreate event and the order in the ‘orders’ collection in the pending state. If products-ms is available it can either accept or reject the order.
 
 ### Events
 
-Microservices products-ms and orders-ms produce events in order to keep their databases consistent. Available event types are listed as models in the code in both of the applications. 
+Microservices products-ms and orders-ms produce events in order to keep their databases consistent. Available event types are listed as models in the code in both of the applications.
 
 #### ProductCreateEvent
+
 This event is generated when the administrator of the shop adds a new product to the inventory, and products need to be populated into both of the ‘products’ collections in ‘orders-db’ and ‘products-db’.
 
 #### OrderCreateEvent, OrderStatusUpdateEvent, ProductsQuantityUpdateEvent
@@ -91,17 +96,18 @@ For the message broker a containerized version of Kafka is used with zookeeper s
 
 ## Frontend
 
-Frontend is executed in the client's browser (client-side rendering) and was developed with React.js + Vite + VanillaJS + Bootstrap. The code uses a custom hook for http request and global contexts (AuthContext, CartContext) for JWT and cart management. Token is stored in LocalStorage and the design is responsive. Production version of frontend is deployed with 2-stage build and is hosted with nginx server. Production build is generated with ‘vite build’ command underneath. 
-
+Frontend is executed in the client's browser (client-side rendering) and was developed with React.js + Vite + VanillaJS + Bootstrap. The code uses a custom hook for http request and global contexts (AuthContext, CartContext) for JWT and cart management. Token is stored in LocalStorage and the design is responsive. Production version of frontend is deployed with 2-stage build and is hosted with nginx server. Production build is generated with ‘vite build’ command underneath.
 
 ## Reverse-proxy / Ingress
 
 Reverse proxy is used to distribute requests between frontend and API. For development there is an nginx used with conf file. For production there is an ingress configuration also based on nginx with in-line certificates (base64 encoded) and in-line config file.
 
 ## Deployment
+
 For deployment I use GCP (GKE) with IAC configuration files. The infrastructure creation is not fully automated due to DNS configuration and dynamic LoadBalancer public IP, but steps for configuration are listed in README.md.
 
 ### IAC
+
 For IAC I use Terraform with hashicorp/google 4.0 provider. The configuration allows nodes to be scaled up dynamically. The nodes are e2-medium instances.
 
 ### CI/CD
@@ -109,8 +115,6 @@ For IAC I use Terraform with hashicorp/google 4.0 provider. The configuration al
 For CI/CD CircleCI is used that is connected to Github. After every commit to the main branch workflows are triggered and new Docker images are deployed to Dockerhub. Then the images are downloaded by GCP K8S to the infrastructure and pods are recreated. Relevant secrets for GCP are stored in the CircleCI platform and used by scripts to authenticate and modify the GCP cluster.
 
 ![image](https://github.com/heyimjustalex/e-commerce-microservices/assets/21158649/bdbd5a7e-956b-4f01-b1f9-c7fd03d19fd2)
-
-
 
 ### Deploy with GKE
 
@@ -198,7 +202,6 @@ kubectl get services -n ingress
 
 ![image](https://github.com/heyimjustalex/e-commerce-microservices/assets/21158649/e261c7ff-3ef1-4aa4-8ed5-ce2c21dd899e)
 
-
 ### Deploy with Minikube
 
 ```
@@ -266,4 +269,3 @@ kubectl logs <pod-id>
 ```
 kubectl describe pod
 ```
-
